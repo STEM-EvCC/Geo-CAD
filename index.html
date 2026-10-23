@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TS 82 CAD</title>
+<style>
+:root {
+  --frame:#262c33; --chrome:#2f363e; --ribbon:#3a424c; --ribbon2:#343b44; --line:#4a535e; --text:#e3e7eb;
+  --muted:#9aa5b1; --accent:#3d8fd6; --model:#212830; --cmd:#2b3138; --hover:#46505b;
+}
+* { box-sizing:border-box; }
+html, body { height:100%; margin:0; }
+body { display:flex; flex-direction:column; background:var(--frame); color:var(--text);
+  font:13px/1.35 "Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif; user-select:none; overflow:hidden; }
+button { font:inherit; color:inherit; background:none; border:1px solid transparent; border-radius:3px; cursor:pointer; }
+button:hover { background:var(--hover); border-color:var(--line); }
+svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+/* title bar with quick access tools */
+#appbar { flex:none; height:32px; display:flex; align-items:center; gap:2px; padding:0 8px; background:var(--frame); }
+#appbar .brand { display:flex; align-items:center; gap:7px; margin-right:10px; font-weight:600; letter-spacing:.02em; }
+#appbar .brand b { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:4px;
+  background:#c4735a; color:#fff; font-size:10px; letter-spacing:0; }
+#appbar .qat { padding:4px 5px; }
+#appbar .sep { width:1px; height:18px; background:var(--line); margin:0 5px; }
+#appbar .title { flex:1; text-align:center; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#appbar .title b { color:var(--text); font-weight:600; }
+/* ribbon */
+#tabs { flex:none; display:flex; gap:2px; padding:0 10px; background:var(--chrome); }
+#tabs span { padding:5px 14px 4px; color:var(--muted); border-bottom:2px solid transparent; }
+#tabs span.on { color:var(--text); border-bottom-color:var(--accent); background:var(--ribbon); }
+#ribbon { flex:none; display:flex; align-items:stretch; background:var(--ribbon); border-bottom:1px solid #1b2026; min-height:88px; overflow-x:auto; }
+.panel { display:flex; flex-direction:column; border-right:1px solid var(--line); }
+.panel .tools { flex:1; display:flex; align-items:center; gap:2px; padding:5px 7px; }
+.panel .ptitle { text-align:center; font-size:11.5px; color:var(--muted); background:var(--ribbon2); padding:2px 8px; }
+.big { display:flex; flex-direction:column; align-items:center; gap:3px; padding:5px 7px; min-width:52px; font-size:12px; }
+.big svg.ic { width:26px; height:26px; }
+.stack { display:flex; flex-direction:column; gap:2px; }
+.small { display:flex; align-items:center; gap:6px; padding:2px 7px; font-size:12px; white-space:nowrap; }
+.small svg.ic { width:16px; height:16px; }
+/* layer control */
+#layerCtl { position:relative; }
+#layerBtn { display:flex; align-items:center; gap:7px; min-width:168px; padding:4px 8px; background:#2b3239; border:1px solid var(--line); }
+#layerBtn .sw, .lrow .sw { width:12px; height:12px; border:1px solid #11161b; flex:none; }
+#layerBtn .nm { flex:1; text-align:left; }
+#layerMenu { position:absolute; top:100%; left:0; z-index:20; min-width:230px; background:#2b3239; border:1px solid var(--line);
+  box-shadow:0 6px 18px rgba(0,0,0,.45); display:none; padding:3px 0; }
+#layerMenu.show { display:block; }
+.lrow { display:flex; align-items:center; gap:8px; padding:4px 10px; cursor:pointer; }
+.lrow:hover { background:var(--hover); }
+.lrow.dis { color:#6f7a85; cursor:default; }
+.lrow.dis:hover { background:none; }
+.lrow .note { margin-left:auto; color:var(--muted); font-size:11px; }
+/* file tabs */
+#filetabs { flex:none; display:flex; align-items:flex-end; gap:2px; padding:4px 8px 0; background:var(--frame); }
+#filetabs span { padding:4px 14px; border-radius:4px 4px 0 0; color:var(--muted); background:var(--chrome); }
+#filetabs span.on { color:var(--text); background:var(--model); }
+/* drawing area */
+#stage { flex:1; position:relative; min-height:0; background:var(--model); overflow:hidden; }
+#cv { position:absolute; inset:0; width:100%; height:100%; display:block; cursor:none; touch-action:none; }
+#dyn { position:absolute; display:none; pointer-events:none; background:#f4f4f4; color:#111; border:1px solid #7c8792;
+  font-size:12px; padding:2px 6px; white-space:nowrap; z-index:4; box-shadow:0 1px 3px rgba(0,0,0,.35); }
+#dyn .in { display:inline-block; min-width:34px; margin-left:6px; padding:0 4px; background:#fff; border:1px solid #9aa5b1; }
+#dyn .meas { color:#3d5a80; margin-left:8px; }
+/* floating command line */
+#cmdwrap { position:absolute; left:50%; bottom:10px; transform:translateX(-50%); width:min(900px, calc(100% - 24px)); z-index:6; }
+#hist { max-height:58px; overflow:hidden; background:rgba(43,49,56,.78); color:#c9d1d9; font:12.5px/1.45 Consolas,"Cascadia Mono",Menlo,monospace;
+  padding:2px 10px; white-space:pre-wrap; border-radius:3px 3px 0 0; }
+#hist.tall { max-height:240px; overflow-y:auto; }
+#hist .err { color:#f19a8e; }
+#hist .ok { color:#9fd39b; }
+#cmdbar { display:flex; align-items:center; gap:6px; background:var(--cmd); border:1px solid #57616c; border-radius:0 0 3px 3px; padding:3px 6px; }
+#cmdbar .glyph { color:var(--muted); font-size:12px; padding:0 2px; }
+#prompt { font:12.5px Consolas,"Cascadia Mono",Menlo,monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:66%; color:#e3e7eb; }
+#prompt .kw { color:#7fb7f0; cursor:pointer; text-decoration:underline dotted; }
+#cmd { flex:1; min-width:80px; background:transparent; border:none; outline:none; color:#fff; font:13px Consolas,"Cascadia Mono",Menlo,monospace; padding:3px 0; }
+#cmd::placeholder { color:#8792a0; }
+#ac { position:absolute; bottom:100%; left:0; min-width:220px; background:#2b3239; border:1px solid var(--line); display:none; z-index:7;
+  box-shadow:0 -4px 14px rgba(0,0,0,.4); }
+#ac.show { display:block; }
+#ac div { padding:4px 10px; font:12.5px Consolas,Menlo,monospace; cursor:pointer; }
+#ac div.on, #ac div:hover { background:var(--accent); color:#fff; }
+#ac div span { color:var(--muted); margin-left:8px; font-family:"Segoe UI",system-ui,sans-serif; }
+#ac div.on span, #ac div:hover span { color:#e8f1fb; }
+/* status bar */
+#statusbar { flex:none; height:28px; display:flex; align-items:center; gap:4px; padding:0 8px; background:var(--chrome); border-top:1px solid #1b2026; font-size:12px; }
+#statusbar .mt { padding:3px 12px; color:var(--muted); border-radius:3px; }
+#statusbar .mt.on { color:var(--text); background:var(--ribbon); }
+#coords { margin-left:auto; color:var(--muted); font-family:Consolas,Menlo,monospace; min-width:200px; text-align:right; padding-right:8px; }
+.tg { padding:2px 7px; font-size:11.5px; letter-spacing:.03em; color:var(--muted); }
+.tg.on { color:#fff; background:#2f5f8f; border-color:#3d8fd6; }
+/* tips: what the running command wants next, and what each tool does */
+#tipbar { display:none; background:rgba(60,47,37,.95); color:#f2e6d6; border:1px solid #8a6a4f; border-bottom:none; border-radius:3px 3px 0 0;
+  padding:5px 10px 6px; font-size:12.5px; line-height:1.4; pointer-events:none; }
+#tipbar.show { display:block; }
+#tipbar.show + #hist { border-radius:0; }
+#tipbar .c { font-weight:700; color:#fff; } #tipbar .g { color:#e9a98f; } #tipbar .st { color:#ffd27a; font-weight:600; }
+#tipbar .tp { display:block; color:#d9c9b5; font-size:12px; margin-top:1px; }
+#tipbar code, #tipPop code { font-family:Consolas,Menlo,monospace; background:rgba(0,0,0,.25); padding:0 3px; border-radius:2px; }
+#tipPop { position:fixed; z-index:40; max-width:290px; background:#f7f3ea; color:#2a2f35; border:1px solid #c9b9a4; border-radius:4px;
+  padding:6px 9px; font-size:12px; line-height:1.4; box-shadow:0 3px 10px rgba(0,0,0,.35); display:none; pointer-events:none; }
+#tipPop b { color:#8a3e24; } #tipPop code { background:#ece3d4; }
+/* dialogs */
+.modal { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:30; }
+.modal.show { display:flex; }
+.dlg { width:min(470px, calc(100% - 24px)); background:#2f363e; border:1px solid #57616c; box-shadow:0 12px 40px rgba(0,0,0,.55); }
+.dlg h3 { margin:0; padding:8px 12px; font-size:13px; font-weight:600; background:#262c33; border-bottom:1px solid #1b2026; }
+.dlg .body { padding:12px; }
+.dlg label { display:block; margin:8px 0 3px; color:var(--muted); font-size:12px; }
+.dlg input[type=text], .dlg select { width:100%; padding:5px 7px; background:#20262c; color:#fff; border:1px solid #57616c; font:inherit; user-select:text; }
+.dlg .row { display:flex; gap:8px; justify-content:flex-end; padding:10px 12px; border-top:1px solid #1b2026; }
+.dlg .row button { min-width:82px; padding:5px 12px; background:#3a424c; border:1px solid #57616c; }
+.dlg .row button.pri { background:#2f5f8f; border-color:#3d8fd6; }
+.dlg .note { color:var(--muted); font-size:12px; margin-top:10px; }
+#mNew .dlg { width:min(660px, calc(100% - 24px)); }
+.choice { display:flex; gap:10px; }
+.choice button { flex:1; text-align:left; padding:10px; background:#262c33; border:1px solid #57616c; }
+.choice button b { display:block; margin-bottom:3px; }
+.choice button span { color:var(--muted); font-size:12px; }
+#help .dlg { width:min(760px, calc(100% - 24px)); max-height:calc(100% - 40px); overflow:auto; }
+#help ol { margin:4px 0; padding-left:1.3em; } #help li { margin:3px 0; }
+#help code { font-family:Consolas,Menlo,monospace; background:#20262c; padding:0 4px; border-radius:2px; }
+#help table { border-collapse:collapse; width:100%; font-size:12.5px; }
+#help td { border-top:1px solid #454e58; padding:4px 6px; vertical-align:top; }
+#help h4 { margin:12px 0 4px; color:#e9a98f; font-size:13px; }
+#texted { position:absolute; display:none; z-index:8; background:#fff; color:#111; border:1px solid var(--accent); font:13px Arial,sans-serif; padding:1px 3px; user-select:text; }
+#toast { position:absolute; left:50%; top:10px; transform:translateX(-50%); background:#3d8fd6; color:#fff; padding:6px 12px; border-radius:4px;
+  font-size:12.5px; opacity:0; transition:opacity .2s; pointer-events:none; z-index:9; max-width:80%; text-align:center; }
+#toast.show { opacity:.96; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-new" viewBox="0 0 20 20"><path d="M5 2.5h7l3.5 3.5V17.5H5z"/><path d="M12 2.5V6h3.5"/></symbol>
+    <symbol id="i-open" viewBox="0 0 20 20"><path d="M2.5 5.5h5l1.5 2h8.5v9h-15z"/></symbol>
+    <symbol id="i-save" viewBox="0 0 20 20"><path d="M3.5 3.5h10.5l2.5 2.5v10.5h-13z"/><path d="M6.5 3.5v4h6v-4M6.5 16.5v-5h7v5"/></symbol>
+    <symbol id="i-saveas" viewBox="0 0 20 20"><path d="M3.5 3.5h9l2 2v3M3.5 3.5v13h6"/><path d="M6.5 3.5v3.5h5V3.5"/><path d="M11.5 17l1-3 5-5 2 2-5 5z"/></symbol>
+    <symbol id="i-plot" viewBox="0 0 20 20"><path d="M6 7.5V2.5h8v5"/><rect x="2.5" y="7.5" width="15" height="7" rx="1"/><path d="M6 12.5h8v5H6z"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 20 20"><path d="M7 5L3 9l4 4"/><path d="M3 9h9a5 5 0 0 1 0 10h-2"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 20 20"><path d="M13 5l4 4-4 4"/><path d="M17 9H8a5 5 0 0 0 0 10h2"/></symbol>
+    <symbol id="i-line" viewBox="0 0 20 20"><path d="M4.5 15.5l11-11"/><rect x="2.5" y="13.5" width="4" height="4"/><rect x="13.5" y="2.5" width="4" height="4"/></symbol>
+    <symbol id="i-circle" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M10 10h7.5"/><circle cx="10" cy="10" r=".9" fill="currentColor"/></symbol>
+    <symbol id="i-rect" viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10"/></symbol>
+    <symbol id="i-move" viewBox="0 0 20 20"><path d="M10 2v16M2 10h16M10 2l-2.5 2.5M10 2l2.5 2.5M10 18l-2.5-2.5M10 18l2.5-2.5M2 10l2.5-2.5M2 10l2.5 2.5M18 10l-2.5-2.5M18 10l-2.5 2.5"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 20 20"><rect x="2.5" y="2.5" width="10" height="10"/><rect x="7.5" y="7.5" width="10" height="10"/></symbol>
+    <symbol id="i-mirror" viewBox="0 0 20 20"><path d="M10 1.5v17" stroke-dasharray="2 2"/><path d="M8 4L2.5 15H8z"/><path d="M12 4l5.5 11H12z"/></symbol>
+    <symbol id="i-trim" viewBox="0 0 20 20"><path d="M2.5 10h15"/><path d="M10 2.5v4.5"/><path d="M10 13v4.5" stroke-dasharray="1.6 1.8"/><path d="M7.5 8.5l5 3M7.5 11.5l5-3"/></symbol>
+    <symbol id="i-offset" viewBox="0 0 20 20"><path d="M3 16C3 8 8 3 16 3"/><path d="M7 17c0-5.5 4.5-10 10-10"/></symbol>
+    <symbol id="i-erase" viewBox="0 0 20 20"><path d="M3 13.5l7-7 5 5-4.5 4.5H6z"/><path d="M8 8.5l5 5M10.5 16h7"/></symbol>
+    <symbol id="i-measure" viewBox="0 0 20 20"><path d="M2.5 13.5l11-11 4 4-11 11z"/><path d="M6 10l1.5 1.5M8.5 7.5l1.5 1.5M11 5l1.5 1.5"/></symbol>
+    <symbol id="i-rotate" viewBox="0 0 20 20"><path d="M15.5 9.5A5.5 5.5 0 1 1 13.2 5"/><path d="M10.6 3.6l2.8 1.4-1.6 2.6"/><circle cx="10" cy="10" r="1" fill="currentColor"/></symbol>
+    <symbol id="i-angle" viewBox="0 0 20 20"><path d="M3 16.5h14.5M3 16.5L14 4"/><path d="M10 16.5a7 7 0 0 0-2.2-5.1"/></symbol>
+    <symbol id="i-id" viewBox="0 0 20 20"><path d="M10 2.5v15M2.5 10h15"/><circle cx="10" cy="10" r="3.2"/></symbol>
+    <symbol id="i-zoom" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M12.5 12.5l5 5"/><path d="M6.5 6.5h4v4h-4z"/></symbol>
+    <symbol id="i-help" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M7.8 7.6a2.3 2.3 0 1 1 3.2 2.1c-.7.3-1 .8-1 1.6v.4"/><circle cx="10" cy="14.4" r=".8" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+<div id="appbar">
+  <div class="brand"><b>82</b>TS 82 CAD</div>
+  <button class="qat" data-c="NEW" title="New (NEW)"><svg class="ic"><use href="#i-new"/></svg></button>
+  <button class="qat" data-c="OPEN" title="Open (Ctrl+O)"><svg class="ic"><use href="#i-open"/></svg></button>
+  <button class="qat" data-c="QSAVE" title="Save (Ctrl+S)"><svg class="ic"><use href="#i-save"/></svg></button>
+  <button class="qat" data-c="SAVEAS" title="Save As (Ctrl+Shift+S)"><svg class="ic"><use href="#i-saveas"/></svg></button>
+  <button class="qat" data-c="PLOT" title="Plot (Ctrl+P)"><svg class="ic"><use href="#i-plot"/></svg></button>
+  <span class="sep"></span>
+  <button class="qat" data-c="U" title="Undo (Ctrl+Z)"><svg class="ic"><use href="#i-undo"/></svg></button>
+  <button class="qat" data-c="REDO" title="Redo (Ctrl+Y)"><svg class="ic"><use href="#i-redo"/></svg></button>
+  <div class="title"><span id="docTitle"><b>Drawing1</b></span> &nbsp;&middot;&nbsp; TS 82 CAD</div>
+  <button class="qat" data-c="HELP" title="Help (F1)"><svg class="ic"><use href="#i-help"/></svg></button>
+</div>
+<div id="tabs"><span class="on">Home</span></div>
+<div id="ribbon">
+  <div class="panel"><div class="tools">
+    <button class="big" data-c="LINE" title="LINE (L)"><svg class="ic"><use href="#i-line"/></svg>Line</button>
+    <button class="big" data-c="CIRCLE" title="CIRCLE (C)"><svg class="ic"><use href="#i-circle"/></svg>Circle</button>
+    <div class="stack"><button class="small" data-c="RECTANG" title="RECTANG (REC)"><svg class="ic"><use href="#i-rect"/></svg>Rectangle</button></div>
+  </div><div class="ptitle">Draw</div></div>
+  <div class="panel"><div class="tools">
+    <div class="stack">
+      <button class="small" data-c="MOVE" title="MOVE (M)"><svg class="ic"><use href="#i-move"/></svg>Move</button>
+      <button class="small" data-c="ROTATE" title="ROTATE (RO)"><svg class="ic"><use href="#i-rotate"/></svg>Rotate</button>
+      <button class="small" data-c="TRIM" title="TRIM (TR)"><svg class="ic"><use href="#i-trim"/></svg>Trim</button></div>
+    <div class="stack">
+      <button class="small" data-c="COPY" title="COPY (CO)"><svg class="ic"><use href="#i-copy"/></svg>Copy</button>
+      <button class="small" data-c="MIRROR" title="MIRROR (MI)"><svg class="ic"><use href="#i-mirror"/></svg>Mirror</button>
+      <button class="small" data-c="OFFSET" title="OFFSET (O)"><svg class="ic"><use href="#i-offset"/></svg>Offset</button></div>
+    <div class="stack">
+      <button class="small" data-c="ERASE" title="ERASE (E)"><svg class="ic"><use href="#i-erase"/></svg>Erase</button></div>
+  </div><div class="ptitle">Modify</div></div>
+  <div class="panel"><div class="tools"><div id="layerCtl">
+    <button id="layerBtn" title="Current layer. With objects selected, moves them to the layer you pick."><span class="sw"></span><span class="nm">SCORE</span><span>&#9662;</span></button>
+    <div id="layerMenu"></div></div></div><div class="ptitle">Layers</div></div>
+  <div class="panel"><div class="tools">
+    <div class="stack">
+      <button class="small" data-c="DIST" title="DIST (DI): distance between two points"><svg class="ic"><use href="#i-measure"/></svg>Distance</button>
+      <button class="small" data-c="MEASUREGEOM A" title="MEASUREGEOM (MEA), Angle"><svg class="ic"><use href="#i-angle"/></svg>Angle</button>
+      <button class="small" data-c="ID" title="ID: the coordinates of a point"><svg class="ic"><use href="#i-id"/></svg>ID Point</button></div>
+    <div class="stack">
+      <button class="small" data-c="ZOOM E" title="ZOOM Extents"><svg class="ic"><use href="#i-zoom"/></svg>Zoom Extents</button></div>
+  </div><div class="ptitle">Utilities</div></div>
+  <div class="panel"><div class="tools">
+    <button class="big" data-c="PLOT" title="PLOT (Ctrl+P)"><svg class="ic"><use href="#i-plot"/></svg>Plot</button>
+  </div><div class="ptitle">Output</div></div>
+</div>
+<div id="filetabs"><span class="on" id="fileTab">Drawing1</span></div>
+<div id="stage">
+  <svg id="cv" xmlns="http://www.w3.org/2000/svg"><g id="grid"></g><g id="fixed"></g><g id="world"></g><g id="ov"></g></svg>
+  <div id="dyn"></div>
+  <input id="texted" autocomplete="off" spellcheck="false">
+  <div id="toast"></div>
+  <div id="cmdwrap">
+    <div id="tipbar" aria-live="polite"></div>
+    <div id="hist"></div>
+    <div id="cmdbar"><span class="glyph">&#9656;</span><span id="prompt"></span><input id="cmd" placeholder="Type a command" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Command line"><div id="ac"></div></div>
+  </div>
+</div>
+<div id="statusbar">
+  <span class="mt on">Model</span><span class="mt">Layout1</span>
+  <span id="coords">0.00, 0.00, 0.00</span>
+  <button class="tg on" id="tgGRID" title="Grid (F7)">GRID</button>
+  <button class="tg" id="tgORTHO" title="Ortho (F8)">ORTHO</button>
+  <button class="tg on" id="tgOSNAP" title="Object snap (F3)">OSNAP</button>
+  <button class="tg on" id="tgDYN" title="Dynamic input (F12)">DYN</button>
+  <button class="tg on" id="tgTIPS" title="Tips">TIPS</button>
+</div>
+<div id="tipPop" role="tooltip"></div>
+
+<div class="modal" id="mNew"><div class="dlg"><h3>New drawing</h3><div class="body">
+  <p style="margin:0 0 8px">Start from:</p>
+  <div class="choice">
+    <button id="newPaver"><b>Permeable paver</b><span>Week 5. The 60 mm paver: draw one drain hole in the gray square, then turn it a quarter and a half (paver sheet, side 2).</span></button>
+    <button id="newStarter"><b>Starter</b><span>The gray 120 x 90 plate, ready for packet page 3. Same as Starter.dwg.</span></button>
+    <button id="newReady"><b>Ready-made plate</b><span>The whole plate, already drawn. Offset it with your kerf (packet page 4). Group A, first time.</span></button>
+    <button id="newWeek4"><b>Week 4 triangle</b><span>Triangle ABC on the grid, for the transformation lab: slide, flip, turn (Week 4 packet page 4).</span></button>
+    <button id="newLantern"><b>Star compass lantern</b><span>Your Week 1 lantern with the star compass houses as slits: MIRROR one wall, COPY it @W,0 three times (Week 4 build).</span></button>
+  </div>
+  <p class="note">The drawing on screen now is replaced. Save it first if you need it.</p></div>
+  <div class="row"><button data-close>Cancel</button></div></div></div>
+<div class="modal" id="mLantern"><div class="dlg"><h3>Star compass lantern</h3><div class="body">
+  <p style="margin:0 0 8px">Your numbers from the Week 1 lantern sheet, in mm.</p>
+  <label for="lanW">W, the panel width (D + clearance)</label><input type="text" id="lanW" value="40" autocomplete="off" spellcheck="false">
+  <label for="lanH">H, the height (T + 10 or more)</label><input type="text" id="lanH" value="50" autocomplete="off" spellcheck="false">
+  <p class="note">No Week 1 numbers? Use 40 and 50. W from 39 to 46, H from 40 to 80.</p></div>
+  <div class="row"><button data-close>Cancel</button><button class="pri" id="lanOk">OK</button></div></div></div>
+<div class="modal" id="mSave"><div class="dlg"><h3>Save Drawing As</h3><div class="body">
+  <label for="saveName">File name</label><input type="text" id="saveName" autocomplete="off" spellcheck="false">
+  <label>Files of type</label><select disabled><option>AutoCAD 2000 DXF (*.dxf)</option></select>
+  <p class="note">The file goes to your Downloads folder. It opens here (Open) and in AutoCAD, with the same layers as the starter.</p></div>
+  <div class="row"><button data-close>Cancel</button><button class="pri" id="saveOk">Save</button></div></div></div>
+<div class="modal" id="mPlot"><div class="dlg"><h3>Plot: Model</h3><div class="body">
+  <label for="plotDev">Printer/plotter</label>
+  <select id="plotDev"><option value="dxf">Laser file: DXF (for AutoCAD on the laser computer)</option><option value="svg">Laser file: SVG (for other laser software)</option></select>
+  <label>What to plot</label><select disabled><option>Limits: the 400 x 270 laser bed</option></select>
+  <label>Plot scale</label><select disabled><option>1:1, millimeters</option></select>
+  <label>Plot style table</label><select disabled><option>None</option></select>
+  <p class="note">Only red (CUT), blue (SCORE) and ENGRAVE lines plot. Gray DRAWN lines, the bed, the title block and the notes never plot.</p></div>
+  <div class="row"><button data-close>Cancel</button><button class="pri" id="plotOk">OK</button></div></div></div>
+<div class="modal" id="help"><div class="dlg"><h3>TS 82 CAD Help</h3><div class="body">
+  <p style="margin-top:0">It works like AutoCAD: type a command, press Enter or Space, answer the prompt at the bottom. Enter on its own finishes a command, or repeats the last one. Esc cancels. <code>U</code> undoes.</p>
+  <p><b>Tips:</b> while a command runs, the bar above the command line says which step it wants and how. Hover over any tool to see what it does. <b>TIPS</b> in the status bar turns the bar off and on.</p>
+  <h4>Week 5: the permeable paver (paver sheet, side 2)</h4>
+  <ol>
+    <li><code>NEW</code>, then <b>Permeable paver</b>. <code>SAVEAS</code> Lastname-paver, in the shared folder.</li>
+    <li>Layer <b>CUT</b> (red). Your drain hole: <code>CIRCLE</code> Enter, its center like <code>15,15</code> Enter, its radius like <code>6</code> Enter. Keep it inside the gray square.</li>
+    <li>Turn 1: <code>ROTATE</code> Enter, <code>W</code> Enter, <code>0,0</code> Enter, <code>32,32</code> Enter, Enter, <code>0,0</code> Enter, <code>C</code> Enter, <code>90</code> Enter.</li>
+    <li>Turn 2: <code>ROTATE</code> Enter, <code>W</code> Enter, <code>-32,0</code> Enter, <code>32,32</code> Enter, Enter, <code>0,0</code> Enter, <code>C</code> Enter, <code>180</code> Enter.</li>
+    <li>Count your holes: four of each. Ctrl+S to save. At the laser, follow the laser card with Lastname-paver.dxf.</li>
+  </ol>
+  <h4>Week 4 build: the star compass lantern</h4>
+  <ol>
+    <li><code>NEW</code>, then <b>Star compass lantern</b>. Type your W and H, OK. <code>SAVEAS</code> Lastname-lantern, in the shared folder.</li>
+    <li><code>MIRROR</code>: click the three slits right of the dashed line, Enter. Click the top end of the dashed line (wait for the green square), then its bottom end. Enter (keep them).</li>
+    <li><code>COPY</code>: click just inside the top-left corner of the Hikina panel, then just inside its bottom-right corner (a blue window: 7 found). Enter. Click the strip's bottom-left corner, then <code>@40,0</code> Enter three times (your W, not 40), Enter.</li>
+    <li><code>DIST</code>: click a corner of one slit, then the same corner on the next wall: W. Ctrl+S to save.</li>
+  </ol>
+  <h4>Week 4: slide, flip, turn (Week 4 packet page 4)</h4>
+  <ol>
+    <li><code>NEW</code>, then <b>Week 4 triangle</b>. <code>SAVEAS</code> Lastname-week4, in the shared folder.</li>
+    <li>Slide: click the triangle, then the letters A, B and C. <code>COPY</code> Enter, click corner C, <code>@70,20</code> Enter, Enter.</li>
+    <li>Flip: click the triangle, A, B and C. <code>MIRROR</code> Enter, <code>0,0</code> Enter, <code>50,0</code> Enter, <code>N</code> Enter.</li>
+    <li>Turn: click the triangle, A, B and C. <code>ROTATE</code> Enter, <code>0,0</code> Enter, <code>C</code> Enter, <code>90</code> Enter.</li>
+    <li>A side: <code>DIST</code> Enter, click one corner, then the next. An angle: <code>MEA</code> Enter, <code>A</code> Enter, click one side of the angle, then the other side; Esc when done. A corner's x and y: <code>ID</code> Enter, click it.</li>
+    <li>Ctrl+S to save.</li>
+  </ol>
+  <h4>Draw your plate (Week 3 packet page 3)</h4>
+  <ol>
+    <li>Type <code>SAVEAS</code> and name it Lastname-plate, in the shared folder.</li>
+    <li>Layer <b>SCORE</b> (blue). <code>LINE</code> <code>20,45</code> Enter <code>@40,0</code> Enter, Enter. That is AB.</li>
+    <li><code>CIRCLE</code> <code>20,45</code> Enter <code>40</code> Enter: the circle at A.</li>
+    <li><code>CIRCLE</code> <code>60,45</code> Enter <code>40</code> Enter: the circle at B.</li>
+    <li><code>LINE</code>: click the top crossing, then the bottom one (wait for the green X). Enter.</li>
+    <li><code>TRIM</code>: click the 4 outside pieces of the circles, 3 on the left circle and 1 on the right. Enter.</li>
+    <li>Layer <b>DRAWN</b> (gray). <code>CIRCLE</code> <code>92,65</code> Enter <code>10</code> Enter: the HOLE.</li>
+    <li><code>MIRROR</code>: click the HOLE, Enter, click A, click B, <code>N</code> Enter: the PEG.</li>
+    <li>Ctrl+S to save.</li>
+  </ol>
+  <h4>Offset it with your kerf (Week 3 packet page 4)</h4>
+  <ol>
+    <li>Layer <b>CUT</b> (red). <code>OFFSET</code> Enter, <code>L</code> Enter, <code>C</code> Enter, then your offset (like <code>0.1</code>) Enter.</li>
+    <li>Click the gray outline, then click outside it. Click the HOLE, then inside it. Click the PEG, then outside it. Enter.</li>
+    <li>Zoom in: red outside the gray, except inside on the HOLE. Ctrl+S.</li>
+  </ol>
+  <h4>Typing points, as in AutoCAD with dynamic input on</h4>
+  <table>
+    <tr><td><code>20,45</code></td><td>a first point: 20 across, 45 up from 0,0</td></tr>
+    <tr><td><code>@40,0</code></td><td>40 across from the last point (any point after the first works this way even without the @)</td></tr>
+    <tr><td><code>#60,45</code></td><td>the absolute point 60,45, even after the first point</td></tr>
+    <tr><td><code>40</code></td><td>40 long in the direction of the cursor (direct distance; ORTHO keeps it square)</td></tr>
+  </table>
+  <h4>Commands</h4>
+  <table>
+    <tr><td><code>LINE</code> <code>L</code> &nbsp;<code>CIRCLE</code> <code>C</code> &nbsp;<code>RECTANG</code> <code>REC</code></td><td>draw</td></tr>
+    <tr><td><code>MOVE</code> <code>M</code> &nbsp;<code>COPY</code> <code>CO</code> &nbsp;<code>MIRROR</code> <code>MI</code></td><td>select (or select first), Enter, then the points</td></tr>
+    <tr><td>Select objects: <code>W</code> or <code>C</code></td><td><code>W</code> Window: type two corners; it takes everything fully inside the box. <code>C</code> Crossing takes anything the box touches. Enter on its own when you are done selecting</td></tr>
+    <tr><td><code>ROTATE</code> <code>RO</code></td><td>select, Enter, base point, then the angle (counterclockwise is positive). <code>C</code> turns a copy and keeps the original</td></tr>
+    <tr><td><code>MEASUREGEOM</code> <code>MEA</code></td><td><code>A</code> for Angle: click two lines, or Enter and click the corner, then a point on each side. <code>D</code> Distance, <code>R</code> Radius. Esc or <code>X</code> to finish</td></tr>
+    <tr><td><code>ID</code></td><td>click a point to read its coordinates</td></tr>
+    <tr><td><code>TRIM</code> <code>TR</code></td><td>click a piece to cut it away; every line is a cutting edge</td></tr>
+    <tr><td><code>OFFSET</code> <code>O</code></td><td>distance, then the object and its side. <code>L</code>, <code>C</code> puts copies on the current layer</td></tr>
+    <tr><td><code>ERASE</code> <code>E</code> or Delete</td><td>delete selected objects</td></tr>
+    <tr><td><code>DIST</code> <code>DI</code>, <code>ZOOM</code> <code>Z</code>, <code>U</code>, <code>REDO</code></td><td>measure; <code>Z</code> then <code>E</code> shows everything; undo; redo</td></tr>
+    <tr><td><code>NEW</code> <code>OPEN</code> <code>SAVE</code> <code>SAVEAS</code> <code>PLOT</code></td><td>files. PLOT makes the laser file</td></tr>
+    <tr><td>F3 F7 F8 F12</td><td>OSNAP, GRID, ORTHO, DYN</td></tr>
+  </table>
+  <h4>Mouse</h4>
+  <p>Wheel zooms. Middle button drags to pan; double-click it to zoom extents. Shift-drag also pans. Click objects to select them before a command, or click empty space twice for a window. Right-click is Enter.</p>
+  <h4>Saving</h4>
+  <p>In Chrome and Edge, <b>Save As</b> asks where to put the file, and <b>Save</b> (Ctrl+S) writes over it, as in AutoCAD. Firefox and Safari put every save in Downloads; hand in the newest one. <b>Plot</b> makes the laser file the same way.</p>
+  <p style="color:#9aa5b1;font-size:12px">Your work also keeps itself in this browser between visits. A saved file is what opens on another computer and in AutoCAD.</p>
+  </div><div class="row"><button class="pri" data-close>Close</button></div></div></div>
+<script>
+"use strict";
+const CAD = {"dxf":{"head":"  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1015\n  9\n$ACADMAINTVER\n 70\n6\n  9\n$DWGCODEPAGE\n  3\nANSI_1252\n  9\n$INSBASE\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$EXTMIN\n 10\n1e+20\n 20\n1e+20\n 30\n1e+20\n  9\n$EXTMAX\n 10\n-1e+20\n 20\n-1e+20\n 30\n-1e+20\n  9\n$LIMMIN\n 10\n-10.0\n 20\n-170.0\n  9\n$LIMMAX\n 10\n390.0\n 20\n100.0\n  9\n$ORTHOMODE\n 70\n0\n  9\n$REGENMODE\n 70\n1\n  9\n$FILLMODE\n 70\n1\n  9\n$QTEXTMODE\n 70\n0\n  9\n$MIRRTEXT\n 70\n1\n  9\n$LTSCALE\n 40\n1.0\n  9\n$ATTMODE\n 70\n1\n  9\n$TEXTSIZE\n 40\n2.5\n  9\n$TRACEWID\n 40\n1.0\n  9\n$TEXTSTYLE\n  7\nStandard\n  9\n$CLAYER\n  8\nSCORE\n  9\n$CELTYPE\n  6\nByLayer\n  9\n$CECOLOR\n 62\n256\n  9\n$CELTSCALE\n 40\n1.0\n  9\n$DISPSILH\n 70\n0\n  9\n$DIMSCALE\n 40\n1.0\n  9\n$DIMASZ\n 40\n2.5\n  9\n$DIMEXO\n 40\n0.625\n  9\n$DIMDLI\n 40\n3.75\n  9\n$DIMRND\n 40\n0.0\n  9\n$DIMDLE\n 40\n0.0\n  9\n$DIMEXE\n 40\n1.25\n  9\n$DIMTP\n 40\n0.0\n  9\n$DIMTM\n 40\n0.0\n  9\n$DIMTXT\n 40\n2.5\n  9\n$DIMCEN\n 40\n2.5\n  9\n$DIMTSZ\n 40\n0.0\n  9\n$DIMTOL\n 70\n0\n  9\n$DIMLIM\n 70\n0\n  9\n$DIMTIH\n 70\n0\n  9\n$DIMTOH\n 70\n0\n  9\n$DIMSE1\n 70\n0\n  9\n$DIMSE2\n 70\n0\n  9\n$DIMTAD\n 70\n1\n  9\n$DIMZIN\n 70\n8\n  9\n$DIMBLK\n  1\n\n  9\n$DIMASO\n 70\n1\n  9\n$DIMSHO\n 70\n1\n  9\n$DIMPOST\n  1\n\n  9\n$DIMAPOST\n  1\n\n  9\n$DIMALT\n 70\n0\n  9\n$DIMALTD\n 70\n3\n  9\n$DIMALTF\n 40\n0.03937007874\n  9\n$DIMLFAC\n 40\n1.0\n  9\n$DIMTOFL\n 70\n1\n  9\n$DIMTVP\n 40\n0.0\n  9\n$DIMTIX\n 70\n0\n  9\n$DIMSOXD\n 70\n0\n  9\n$DIMSAH\n 70\n0\n  9\n$DIMBLK1\n  1\n\n  9\n$DIMBLK2\n  1\n\n  9\n$DIMSTYLE\n  2\nISO-25\n  9\n$DIMCLRD\n 70\n0\n  9\n$DIMCLRE\n 70\n0\n  9\n$DIMCLRT\n 70\n0\n  9\n$DIMTFAC\n 40\n1.0\n  9\n$DIMGAP\n 40\n0.625\n  9\n$DIMJUST\n 70\n0\n  9\n$DIMSD1\n 70\n0\n  9\n$DIMSD2\n 70\n0\n  9\n$DIMTOLJ\n 70\n0\n  9\n$DIMTZIN\n 70\n8\n  9\n$DIMALTZ\n 70\n0\n  9\n$DIMALTTZ\n 70\n0\n  9\n$DIMUPT\n 70\n0\n  9\n$DIMDEC\n 70\n2\n  9\n$DIMTDEC\n 70\n2\n  9\n$DIMALTU\n 70\n2\n  9\n$DIMALTTD\n 70\n3\n  9\n$DIMTXSTY\n  7\nStandard\n  9\n$DIMAUNIT\n 70\n0\n  9\n$DIMADEC\n 70\n0\n  9\n$DIMALTRND\n 40\n0.0\n  9\n$DIMAZIN\n 70\n0\n  9\n$DIMDSEP\n 70\n44\n  9\n$DIMATFIT\n 70\n3\n  9\n$DIMFRAC\n 70\n0\n  9\n$DIMLDRBLK\n  1\n\n  9\n$DIMLUNIT\n 70\n2\n  9\n$DIMLWD\n 70\n-2\n  9\n$DIMLWE\n 70\n-2\n  9\n$DIMTMOVE\n 70\n0\n  9\n$LUNITS\n 70\n2\n  9\n$LUPREC\n 70\n2\n  9\n$SKETCHINC\n 40\n1.0\n  9\n$FILLETRAD\n 40\n10.0\n  9\n$AUNITS\n 70\n0\n  9\n$AUPREC\n 70\n1\n  9\n$MENU\n  1\n.\n  9\n$ELEVATION\n 40\n0.0\n  9\n$PELEVATION\n 40\n0.0\n  9\n$THICKNESS\n 40\n0.0\n  9\n$LIMCHECK\n 70\n0\n  9\n$CHAMFERA\n 40\n0.0\n  9\n$CHAMFERB\n 40\n0.0\n  9\n$CHAMFERC\n 40\n0.0\n  9\n$CHAMFERD\n 40\n0.0\n  9\n$SKPOLY\n 70\n0\n  9\n$TDCREATE\n 40\n2461323.245787037\n  9\n$TDUCREATE\n 40\n2458532.153996898\n  9\n$TDUPDATE\n 40\n2461323.245787037\n  9\n$TDUUPDATE\n 40\n2458532.1544311\n  9\n$TDINDWG\n 40\n0.0\n  9\n$TDUSRTIMER\n 40\n0.0\n  9\n$USRTIMER\n 70\n1\n  9\n$ANGBASE\n 50\n0.0\n  9\n$ANGDIR\n 70\n0\n  9\n$PDMODE\n 70\n0\n  9\n$PDSIZE\n 40\n0.0\n  9\n$PLINEWID\n 40\n0.0\n  9\n$SPLFRAME\n 70\n0\n  9\n$SPLINETYPE\n 70\n6\n  9\n$SPLINESEGS\n 70\n8\n  9\n$HANDSEED\n  5\n3B\n  9\n$SURFTAB1\n 70\n6\n  9\n$SURFTAB2\n 70\n6\n  9\n$SURFTYPE\n 70\n6\n  9\n$SURFU\n 70\n6\n  9\n$SURFV\n 70\n6\n  9\n$UCSBASE\n  2\n\n  9\n$UCSNAME\n  2\n\n  9\n$UCSORG\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$UCSXDIR\n 10\n1.0\n 20\n0.0\n 30\n0.0\n  9\n$UCSYDIR\n 10\n0.0\n 20\n1.0\n 30\n0.0\n  9\n$UCSORTHOREF\n  2\n\n  9\n$UCSORTHOVIEW\n 70\n0\n  9\n$UCSORGTOP\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$UCSORGBOTTOM\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$UCSORGLEFT\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$UCSORGRIGHT\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$UCSORGFRONT\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$UCSORGBACK\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$PUCSBASE\n  2\n\n  9\n$PUCSNAME\n  2\n\n  9\n$PUCSORG\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$PUCSXDIR\n 10\n1.0\n 20\n0.0\n 30\n0.0\n  9\n$PUCSYDIR\n 10\n0.0\n 20\n1.0\n 30\n0.0\n  9\n$PUCSORTHOREF\n  2\n\n  9\n$PUCSORTHOVIEW\n 70\n0\n  9\n$PUCSORGTOP\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$PUCSORGBOTTOM\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$PUCSORGLEFT\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$PUCSORGRIGHT\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$PUCSORGFRONT\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$PUCSORGBACK\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$USERI1\n 70\n0\n  9\n$USERI2\n 70\n0\n  9\n$USERI3\n 70\n0\n  9\n$USERI4\n 70\n0\n  9\n$USERI5\n 70\n0\n  9\n$USERR1\n 40\n0.0\n  9\n$USERR2\n 40\n0.0\n  9\n$USERR3\n 40\n0.0\n  9\n$USERR4\n 40\n0.0\n  9\n$USERR5\n 40\n0.0\n  9\n$WORLDVIEW\n 70\n1\n  9\n$SHADEDGE\n 70\n3\n  9\n$SHADEDIF\n 70\n70\n  9\n$TILEMODE\n 70\n1\n  9\n$MAXACTVP\n 70\n64\n  9\n$PINSBASE\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  9\n$PLIMCHECK\n 70\n0\n  9\n$PEXTMIN\n 10\n1e+20\n 20\n1e+20\n 30\n1e+20\n  9\n$PEXTMAX\n 10\n-1e+20\n 20\n-1e+20\n 30\n-1e+20\n  9\n$PLIMMIN\n 10\n0.0\n 20\n0.0\n  9\n$PLIMMAX\n 10\n420.0\n 20\n297.0\n  9\n$UNITMODE\n 70\n0\n  9\n$VISRETAIN\n 70\n1\n  9\n$PLINEGEN\n 70\n0\n  9\n$PSLTSCALE\n 70\n1\n  9\n$TREEDEPTH\n 70\n3020\n  9\n$CMLSTYLE\n  2\nStandard\n  9\n$CMLJUST\n 70\n0\n  9\n$CMLSCALE\n 40\n20.0\n  9\n$PROXYGRAPHICS\n 70\n1\n  9\n$MEASUREMENT\n 70\n1\n  9\n$CELWEIGHT\n370\n-1\n  9\n$ENDCAPS\n280\n0\n  9\n$JOINSTYLE\n280\n0\n  9\n$LWDISPLAY\n290\n0\n  9\n$INSUNITS\n 70\n4\n  9\n$HYPERLINKBASE\n  1\n\n  9\n$STYLESHEET\n  1\n\n  9\n$XEDIT\n290\n1\n  9\n$CEPSNTYPE\n380\n0\n  9\n$PSTYLEMODE\n290\n1\n  9\n$FINGERPRINTGUID\n  2\n{0223075B-5384-4022-B30A-16040FEFF071}\n  9\n$VERSIONGUID\n  2\n{92D32BB7-A321-4301-A452-79F79AEBFF0A}\n  9\n$EXTNAMES\n290\n1\n  9\n$PSVPSCALE\n 40\n0.0\n  9\n$OLESTARTUP\n290\n0\n  0\nENDSEC\n  0\nSECTION\n  2\nCLASSES\n  0\nCLASS\n  1\nACDBDICTIONARYWDFLT\n  2\nAcDbDictionaryWithDefault\n  3\nObjectDBX Classes\n 90\n0\n280\n0\n281\n0\n  0\nCLASS\n  1\nSUN\n  2\nAcDbSun\n  3\nSCENEOE\n 90\n1153\n280\n0\n281\n0\n  0\nCLASS\n  1\nVISUALSTYLE\n  2\nAcDbVisualStyle\n  3\nObjectDBX Classes\n 90\n4095\n280\n0\n281\n0\n  0\nCLASS\n  1\nMATERIAL\n  2\nAcDbMaterial\n  3\nObjectDBX Classes\n 90\n1153\n280\n0\n281\n0\n  0\nCLASS\n  1\nSCALE\n  2\nAcDbScale\n  3\nObjectDBX Classes\n 90\n1153\n280\n0\n281\n0\n  0\nCLASS\n  1\nTABLESTYLE\n  2\nAcDbTableStyle\n  3\nObjectDBX Classes\n 90\n4095\n280\n0\n281\n0\n  0\nCLASS\n  1\nMLEADERSTYLE\n  2\nAcDbMLeaderStyle\n  3\nACDB_MLEADERSTYLE_CLASS\n 90\n4095\n280\n0\n281\n0\n  0\nCLASS\n  1\nDICTIONARYVAR\n  2\nAcDbDictionaryVar\n  3\nObjectDBX Classes\n 90\n0\n280\n0\n281\n0\n  0\nCLASS\n  1\nCELLSTYLEMAP\n  2\nAcDbCellStyleMap\n  3\nObjectDBX Classes\n 90\n1152\n280\n0\n281\n0\n  0\nCLASS\n  1\nMENTALRAYRENDERSETTINGS\n  2\nAcDbMentalRayRenderSettings\n  3\nSCENEOE\n 90\n1024\n280\n0\n281\n0\n  0\nCLASS\n  1\nACDBDETAILVIEWSTYLE\n  2\nAcDbDetailViewStyle\n  3\nObjectDBX Classes\n 90\n1025\n280\n0\n281\n0\n  0\nCLASS\n  1\nACDBSECTIONVIEWSTYLE\n  2\nAcDbSectionViewStyle\n  3\nObjectDBX Classes\n 90\n1025\n280\n0\n281\n0\n  0\nCLASS\n  1\nRASTERVARIABLES\n  2\nAcDbRasterVariables\n  3\nISM\n 90\n0\n280\n0\n281\n0\n  0\nCLASS\n  1\nACDBPLACEHOLDER\n  2\nAcDbPlaceHolder\n  3\nObjectDBX Classes\n 90\n0\n280\n0\n281\n0\n  0\nCLASS\n  1\nLAYOUT\n  2\nAcDbLayout\n  3\nObjectDBX Classes\n 90\n0\n280\n0\n281\n0\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nVPORT\n  5\n8\n330\n0\n100\nAcDbSymbolTable\n 70\n1\n  0\nVPORT\n  5\n37\n330\n8\n100\nAcDbSymbolTableRecord\n100\nAcDbViewportTableRecord\n  2\n*Active\n 70\n0\n 10\n0.0\n 20\n0.0\n 11\n1.0\n 21\n1.0\n 12\n296.0\n 22\n-68.0\n 13\n0.0\n 23\n0.0\n 14\n0.5\n 24\n0.5\n 15\n0.5\n 25\n0.5\n 16\n0.0\n 26\n0.0\n 36\n1.0\n 17\n0.0\n 27\n0.0\n 37\n0.0\n 40\n361.92\n 41\n1.34\n 42\n50.0\n 43\n0.0\n 44\n0.0\n 50\n0.0\n 51\n0.0\n 71\n0\n 72\n1000\n 73\n1\n 74\n3\n 75\n0\n 76\n0\n 77\n0\n 78\n0\n281\n0\n 65\n1\n110\n0.0\n120\n0.0\n130\n0.0\n111\n1.0\n121\n0.0\n131\n0.0\n112\n0.0\n122\n1.0\n132\n0.0\n 79\n0\n146\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLTYPE\n  5\n2\n330\n0\n100\nAcDbSymbolTable\n 70\n3\n  0\nLTYPE\n  5\n24\n330\n2\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nByBlock\n 70\n0\n  3\n\n 72\n65\n 73\n0\n 40\n0.0\n  0\nLTYPE\n  5\n25\n330\n2\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nByLayer\n 70\n0\n  3\n\n 72\n65\n 73\n0\n 40\n0.0\n  0\nLTYPE\n  5\n26\n330\n2\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\nContinuous\n 70\n0\n  3\n\n 72\n65\n 73\n0\n 40\n0.0\n  0\nENDTAB\n  0\nTABLE\n  2\nLAYER\n  5\n1\n330\n0\n100\nAcDbSymbolTable\n 70\n9\n  0\nLAYER\n  5\n27\n330\n1\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\n0\n 70\n0\n 62\n7\n  6\nContinuous\n370\n-3\n390\n13\n  0\nLAYER\n  5\n28\n330\n1\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nDefpoints\n 70\n0\n 62\n7\n  6\nContinuous\n290\n0\n370\n-3\n390\n13\n  0\nLAYER\n  5\n30\n330\n1\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nCUT\n 70\n0\n 62\n1\n  6\nContinuous\n370\n0\n390\n13\n  0\nLAYER\n  5\n31\n330\n1\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nSCORE\n 70\n0\n 62\n5\n  6\nContinuous\n370\n0\n390\n13\n  0\nLAYER\n  5\n32\n330\n1\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nENGRAVE\n 70\n0\n 62\n7\n  6\nContinuous\n370\n0\n390\n13\n  0\nLAYER\n  5\n33\n330\n1\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nDRAWN\n 70\n0\n 62\n8\n  6\nContinuous\n290\n0\n370\n-3\n390\n13\n  0\nLAYER\n  5\n34\n330\n1\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nNOTES\n 70\n0\n 62\n30\n  6\nContinuous\n290\n0\n370\n-3\n390\n13\n  0\nLAYER\n  5\n35\n330\n1\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nBED\n 70\n4\n 62\n9\n  6\nContinuous\n290\n0\n370\n-3\n390\n13\n  0\nLAYER\n  5\n36\n330\n1\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nTITLE\n 70\n4\n 62\n9\n  6\nContinuous\n290\n0\n370\n-3\n390\n13\n  0\nENDTAB\n  0\nTABLE\n  2\nSTYLE\n  5\n5\n330\n0\n100\nAcDbSymbolTable\n 70\n2\n  0\nSTYLE\n  5\n29\n330\n5\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nStandard\n 70\n0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n0\n 42\n2.5\n  3\ntxt\n  4\n\n  0\nSTYLE\n  5\n2F\n330\n5\n100\nAcDbSymbolTableRecord\n100\nAcDbTextStyleTableRecord\n  2\nTS82\n 70\n0\n 40\n0.0\n 41\n1.0\n 50\n0.0\n 71\n0\n 42\n2.5\n  3\narial.ttf\n  4\n\n  0\nENDTAB\n  0\nTABLE\n  2\nVIEW\n  5\n7\n330\n0\n100\nAcDbSymbolTable\n 70\n0\n  0\nENDTAB\n  0\nTABLE\n  2\nUCS\n  5\n6\n330\n0\n100\nAcDbSymbolTable\n 70\n0\n  0\nENDTAB\n  0\nTABLE\n  2\nAPPID\n  5\n3\n330\n0\n100\nAcDbSymbolTable\n 70\n3\n  0\nAPPID\n  5\n2A\n330\n3\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nACAD\n 70\n0\n  0\nAPPID\n  5\n38\n330\n3\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nHATCHBACKGROUNDCOLOR\n 70\n0\n  0\nAPPID\n  5\n39\n330\n3\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nEZDXF\n 70\n0\n  0\nENDTAB\n  0\nTABLE\n  2\nDIMSTYLE\n  5\n4\n330\n0\n100\nAcDbSymbolTable\n 70\n1\n100\nAcDbDimStyleTable\n  0\nDIMSTYLE\n105\n2B\n330\n4\n100\nAcDbSymbolTableRecord\n100\nAcDbDimStyleTableRecord\n  2\nStandard\n 70\n0\n  3\n\n  4\n\n 40\n1.0\n 41\n2.5\n 42\n0.625\n 43\n3.75\n 44\n1.25\n 45\n0.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n140\n2.5\n141\n2.5\n142\n0.0\n143\n0.03937007874\n144\n1.0\n145\n0.0\n146\n1.0\n147\n0.625\n148\n0.0\n 71\n0\n 72\n0\n 73\n0\n 74\n0\n 75\n0\n 76\n0\n 77\n1\n 78\n8\n 79\n3\n170\n0\n171\n3\n172\n1\n173\n0\n174\n0\n175\n0\n176\n0\n177\n0\n178\n0\n179\n2\n271\n2\n272\n2\n273\n2\n274\n3\n275\n0\n276\n0\n277\n2\n278\n44\n279\n0\n280\n0\n281\n0\n282\n0\n283\n0\n284\n8\n285\n0\n286\n0\n288\n0\n289\n3\n371\n-2\n372\n-2\n  0\nENDTAB\n  0\nTABLE\n  2\nBLOCK_RECORD\n  5\n9\n330\n0\n100\nAcDbSymbolTable\n 70\n2\n  0\nBLOCK_RECORD\n  5\n17\n330\n9\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*Model_Space\n340\n1A\n  0\nBLOCK_RECORD\n  5\n1B\n330\n9\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n*Paper_Space\n340\n1E\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\n18\n330\n17\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*Model_Space\n 70\n0\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  3\n*Model_Space\n  1\n\n  0\nENDBLK\n  5\n19\n330\n17\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nBLOCK\n  5\n1C\n330\n1B\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockBegin\n  2\n*Paper_Space\n 70\n0\n 10\n0.0\n 20\n0.0\n 30\n0.0\n  3\n*Paper_Space\n  1\n\n  0\nENDBLK\n  5\n1D\n330\n1B\n100\nAcDbEntity\n  8\n0\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES\n","tail":"  0\nENDSEC\n  0\nSECTION\n  2\nOBJECTS\n  0\nDICTIONARY\n  5\nA\n330\n0\n100\nAcDbDictionary\n281\n1\n  3\nACAD_COLOR\n350\nB\n  3\nACAD_GROUP\n350\nC\n  3\nACAD_LAYOUT\n350\nD\n  3\nACAD_MATERIAL\n350\nE\n  3\nACAD_MLEADERSTYLE\n350\nF\n  3\nACAD_MLINESTYLE\n350\n10\n  3\nACAD_PLOTSETTINGS\n350\n11\n  3\nACAD_PLOTSTYLENAME\n350\n12\n  3\nACAD_SCALELIST\n350\n14\n  3\nACAD_TABLESTYLE\n350\n15\n  3\nACAD_VISUALSTYLE\n350\n16\n  3\nEZDXF_META\n350\n2D\n  0\nDICTIONARY\n  5\nB\n330\nA\n100\nAcDbDictionary\n281\n1\n  0\nDICTIONARY\n  5\nC\n330\nA\n100\nAcDbDictionary\n281\n1\n  0\nDICTIONARY\n  5\nD\n330\nA\n100\nAcDbDictionary\n281\n1\n  3\nModel\n350\n1A\n  3\nLayout1\n350\n1E\n  0\nDICTIONARY\n  5\nE\n330\nA\n100\nAcDbDictionary\n281\n1\n  3\nByBlock\n350\n1F\n  3\nByLayer\n350\n20\n  3\nGlobal\n350\n21\n  0\nDICTIONARY\n  5\nF\n330\nA\n100\nAcDbDictionary\n281\n1\n  3\nStandard\n350\n2C\n  0\nDICTIONARY\n  5\n10\n330\nA\n100\nAcDbDictionary\n281\n1\n  3\nStandard\n350\n22\n  0\nDICTIONARY\n  5\n11\n330\nA\n100\nAcDbDictionary\n281\n1\n  0\nACDBDICTIONARYWDFLT\n  5\n12\n330\nA\n100\nAcDbDictionary\n281\n1\n  3\nNormal\n350\n13\n100\nAcDbDictionaryWithDefault\n340\n13\n  0\nACDBPLACEHOLDER\n  5\n13\n330\n12\n  0\nDICTIONARY\n  5\n14\n330\nA\n100\nAcDbDictionary\n281\n1\n  0\nDICTIONARY\n  5\n15\n330\nA\n100\nAcDbDictionary\n281\n1\n  0\nDICTIONARY\n  5\n16\n330\nA\n100\nAcDbDictionary\n281\n1\n  0\nLAYOUT\n  5\n1A\n330\nD\n100\nAcDbPlotSettings\n  1\n\n  4\nA3\n  6\n\n 40\n7.5\n 41\n20.0\n 42\n7.5\n 43\n20.0\n 44\n420.0\n 45\n297.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n 49\n0.0\n140\n0.0\n141\n0.0\n142\n1.0\n143\n1.0\n 70\n1024\n 72\n1\n 73\n0\n 74\n5\n  7\n\n 75\n16\n 76\n0\n 77\n2\n 78\n300\n147\n1.0\n148\n0.0\n149\n0.0\n100\nAcDbLayout\n  1\nModel\n 70\n1\n 71\n0\n 10\n-10.0\n 20\n-170.0\n 11\n390.0\n 21\n100.0\n 12\n0.0\n 22\n0.0\n 32\n0.0\n 14\n1e+20\n 24\n1e+20\n 34\n1e+20\n 15\n-1e+20\n 25\n-1e+20\n 35\n-1e+20\n146\n0.0\n 13\n0.0\n 23\n0.0\n 33\n0.0\n 16\n1.0\n 26\n0.0\n 36\n0.0\n 17\n0.0\n 27\n1.0\n 37\n0.0\n 76\n1\n330\n17\n  0\nLAYOUT\n  5\n1E\n330\nD\n100\nAcDbPlotSettings\n  1\n\n  4\nA3\n  6\n\n 40\n7.5\n 41\n20.0\n 42\n7.5\n 43\n20.0\n 44\n420.0\n 45\n297.0\n 46\n0.0\n 47\n0.0\n 48\n0.0\n 49\n0.0\n140\n0.0\n141\n0.0\n142\n1.0\n143\n1.0\n 70\n0\n 72\n1\n 73\n0\n 74\n5\n  7\n\n 75\n16\n 76\n0\n 77\n2\n 78\n300\n147\n1.0\n148\n0.0\n149\n0.0\n100\nAcDbLayout\n  1\nLayout1\n 70\n1\n 71\n1\n 10\n0.0\n 20\n0.0\n 11\n420.0\n 21\n297.0\n 12\n0.0\n 22\n0.0\n 32\n0.0\n 14\n1e+20\n 24\n1e+20\n 34\n1e+20\n 15\n-1e+20\n 25\n-1e+20\n 35\n-1e+20\n146\n0.0\n 13\n0.0\n 23\n0.0\n 33\n0.0\n 16\n1.0\n 26\n0.0\n 36\n0.0\n 17\n0.0\n 27\n1.0\n 37\n0.0\n 76\n1\n330\n1B\n  0\nMATERIAL\n  5\n1F\n102\n{ACAD_REACTORS\n330\nE\n102\n}\n330\nE\n100\nAcDbMaterial\n  1\nByBlock\n  2\n\n 70\n0\n 40\n1.0\n 71\n1\n 41\n1.0\n 91\n-1023410177\n 42\n1.0\n 72\n1\n  3\n\n 73\n1\n 74\n1\n 75\n1\n 44\n0.5\n 73\n0\n 45\n1.0\n 46\n1.0\n 77\n1\n  4\n\n 78\n1\n 79\n1\n170\n1\n 48\n1.0\n171\n1\n  6\n\n172\n1\n173\n1\n174\n1\n140\n1.0\n141\n1.0\n175\n1\n  7\n\n176\n1\n177\n1\n178\n1\n143\n1.0\n179\n1\n  8\n\n270\n1\n271\n1\n272\n1\n145\n1.0\n146\n1.0\n273\n1\n  9\n\n274\n1\n275\n1\n276\n1\n 42\n1.0\n 72\n1\n  3\n\n 73\n1\n 74\n1\n 75\n1\n 94\n63\n  0\nMATERIAL\n  5\n20\n102\n{ACAD_REACTORS\n330\nE\n102\n}\n330\nE\n100\nAcDbMaterial\n  1\nByLayer\n  2\n\n 70\n0\n 40\n1.0\n 71\n1\n 41\n1.0\n 91\n-1023410177\n 42\n1.0\n 72\n1\n  3\n\n 73\n1\n 74\n1\n 75\n1\n 44\n0.5\n 73\n0\n 45\n1.0\n 46\n1.0\n 77\n1\n  4\n\n 78\n1\n 79\n1\n170\n1\n 48\n1.0\n171\n1\n  6\n\n172\n1\n173\n1\n174\n1\n140\n1.0\n141\n1.0\n175\n1\n  7\n\n176\n1\n177\n1\n178\n1\n143\n1.0\n179\n1\n  8\n\n270\n1\n271\n1\n272\n1\n145\n1.0\n146\n1.0\n273\n1\n  9\n\n274\n1\n275\n1\n276\n1\n 42\n1.0\n 72\n1\n  3\n\n 73\n1\n 74\n1\n 75\n1\n 94\n63\n  0\nMATERIAL\n  5\n21\n102\n{ACAD_REACTORS\n330\nE\n102\n}\n330\nE\n100\nAcDbMaterial\n  1\nGlobal\n  2\n\n 70\n0\n 40\n1.0\n 71\n1\n 41\n1.0\n 91\n-1023410177\n 42\n1.0\n 72\n1\n  3\n\n 73\n1\n 74\n1\n 75\n1\n 44\n0.5\n 73\n0\n 45\n1.0\n 46\n1.0\n 77\n1\n  4\n\n 78\n1\n 79\n1\n170\n1\n 48\n1.0\n171\n1\n  6\n\n172\n1\n173\n1\n174\n1\n140\n1.0\n141\n1.0\n175\n1\n  7\n\n176\n1\n177\n1\n178\n1\n143\n1.0\n179\n1\n  8\n\n270\n1\n271\n1\n272\n1\n145\n1.0\n146\n1.0\n273\n1\n  9\n\n274\n1\n275\n1\n276\n1\n 42\n1.0\n 72\n1\n  3\n\n 73\n1\n 74\n1\n 75\n1\n 94\n63\n  0\nMLINESTYLE\n  5\n22\n102\n{ACAD_REACTORS\n330\n10\n102\n}\n330\n10\n100\nAcDbMlineStyle\n  2\nStandard\n 70\n0\n  3\n\n 62\n256\n 51\n90.0\n 52\n90.0\n 71\n2\n 49\n0.5\n 62\n256\n  6\nBYLAYER\n 49\n-0.5\n 62\n256\n  6\nBYLAYER\n  0\nMLEADERSTYLE\n  5\n2C\n102\n{ACAD_REACTORS\n330\nF\n102\n}\n330\nF\n100\nAcDbMLeaderStyle\n179\n2\n170\n2\n171\n1\n172\n0\n 90\n2\n 40\n0.0\n 41\n0.0\n173\n1\n 91\n-1056964608\n 92\n-2\n290\n1\n 42\n2.0\n291\n1\n 43\n8.0\n  3\nStandard\n 44\n4.0\n300\n\n342\n29\n174\n1\n175\n1\n176\n0\n178\n1\n 93\n-1056964608\n 45\n4.0\n292\n0\n297\n0\n 46\n4.0\n 94\n-1056964608\n 47\n1.0\n 49\n1.0\n140\n1.0\n294\n1\n141\n0.0\n177\n0\n142\n1.0\n295\n0\n296\n0\n143\n3.75\n271\n0\n272\n9\n273\n9\n  0\nDICTIONARY\n  5\n2D\n330\nA\n100\nAcDbDictionary\n280\n1\n281\n1\n  3\nCREATED_BY_EZDXF\n350\n2E\n  3\nWRITTEN_BY_EZDXF\n350\n3A\n  0\nDICTIONARYVAR\n  5\n2E\n330\n2D\n100\nDictionaryVariables\n280\n0\n  1\n1.4.4 @ 2026-10-09T05:53:56.197627+00:00\n  0\nDICTIONARYVAR\n  5\n3A\n330\n2D\n100\nDictionaryVariables\n280\n0\n  1\n1.4.4 @ 2026-10-09T05:53:56.198963+00:00\n  0\nENDSEC\n  0\nEOF\n","ms":"17","seed":"3B"},"tpl":{"starter":{"fixed":[{"type":"poly","layer":"BED","pts":[[-10.0,-170.0],[390.0,-170.0],[390.0,100.0],[-10.0,100.0]],"closed":true},{"type":"text","layer":"BED","t":"PLOT AREA (gray lines never cut)","x":-8.0,"y":-167.5,"h":4.0,"anchor":"left"},{"type":"poly","layer":"TITLE","pts":[[-10.0,-228.0],[390.0,-228.0],[390.0,-176.0],[-10.0,-176.0]],"closed":true},{"type":"line","layer":"TITLE","x1":-10.0,"y1":-194.0,"x2":390.0,"y2":-194.0},{"type":"line","layer":"TITLE","x1":240.0,"y1":-228.0,"x2":240.0,"y2":-194.0},{"type":"text","layer":"TITLE","t":"TS 82   Week 3   Construction Plate","x":-6.0,"y":-187.0,"h":7.0,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Red CUT   Blue SCORE   Black ENGRAVE   Gray DRAWN never cuts","x":-6.0,"y":-191.5,"h":3.2,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Name:","x":-6.0,"y":-203.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Date:","x":-6.0,"y":-213.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Material:","x":-6.0,"y":-223.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"TITLE","t":"My kerf:","x":244.0,"y":-203.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Offset (half my kerf):","x":244.0,"y":-213.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Move every cut line toward the scrap by half your kerf.","x":-6.0,"y":-235.0,"h":4.4,"anchor":"left"}],"ents":[{"type":"poly","layer":"DRAWN","pts":[[0.0,0.0],[120.0,0.0],[120.0,90.0],[0.0,90.0]],"closed":true},{"type":"text","layer":"NOTES","t":"________________________","x":50.0,"y":-203.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"NOTES","t":"Fri Oct 9","x":50.0,"y":-213.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"NOTES","t":"3 mm ply","x":50.0,"y":-223.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"NOTES","t":"______ mm","x":330.0,"y":-203.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"NOTES","t":"______ mm","x":330.0,"y":-213.0,"h":4.4,"anchor":"left"},{"type":"poly","layer":"NOTES","pts":[[402.0,-170.0],[602.0,-170.0],[602.0,100.0],[402.0,100.0]],"closed":true},{"type":"text","layer":"NOTES","t":"Draw your plate (packet page 3)","x":407.0,"y":89.0,"h":6.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"1. SAVEAS: Lastname-plate, in the shared folder.","x":407.0,"y":76.0,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"2. Layer SCORE (blue). LINE 20,45 Enter, @40,0 Enter,","x":407.0,"y":67.0,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    Enter. That is AB.","x":407.0,"y":60.8,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"3. CIRCLE 20,45 Enter, 40 Enter. The circle at A.","x":407.0,"y":51.8,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"4. CIRCLE 60,45 Enter, 40 Enter. The circle at B.","x":407.0,"y":42.8,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"5. LINE: click the top crossing, then the bottom one","x":407.0,"y":33.8,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    (wait for the green X). Enter.","x":407.0,"y":27.599999999999998,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"6. TRIM: click the 4 outside pieces of the circles (3","x":407.0,"y":18.599999999999998,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    on the left circle, 1 on the right). Enter.","x":407.0,"y":12.399999999999999,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"7. Layer DRAWN (gray). CIRCLE 92,65 Enter, 10 Enter.","x":407.0,"y":3.3999999999999986,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    The HOLE.","x":407.0,"y":-2.8000000000000016,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"8. MIRROR: click the HOLE, Enter, click A, click B, N","x":407.0,"y":-11.8,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    Enter. The PEG.","x":407.0,"y":-18.0,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"9. Ctrl+S to save.","x":407.0,"y":-27.0,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"10. With your kerf (packet page 4): layer CUT (red).","x":407.0,"y":-36.0,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    OFFSET, L, C, your offset. Outline: click it, then","x":407.0,"y":-42.2,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    outside. HOLE: then inside. PEG: then outside.","x":407.0,"y":-48.400000000000006,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    Enter.","x":407.0,"y":-54.60000000000001,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"11. Zoom in to check the red. Ctrl+S.","x":407.0,"y":-63.60000000000001,"h":4.0,"anchor":"left"}]},"ready":{"fixed":[{"type":"poly","layer":"BED","pts":[[-10.0,-170.0],[390.0,-170.0],[390.0,100.0],[-10.0,100.0]],"closed":true},{"type":"text","layer":"BED","t":"PLOT AREA (gray lines never cut)","x":-8.0,"y":-167.5,"h":4.0,"anchor":"left"},{"type":"poly","layer":"TITLE","pts":[[-10.0,-228.0],[390.0,-228.0],[390.0,-176.0],[-10.0,-176.0]],"closed":true},{"type":"line","layer":"TITLE","x1":-10.0,"y1":-194.0,"x2":390.0,"y2":-194.0},{"type":"line","layer":"TITLE","x1":240.0,"y1":-228.0,"x2":240.0,"y2":-194.0},{"type":"text","layer":"TITLE","t":"TS 82   Week 3   Construction Plate (ready-made)","x":-6.0,"y":-187.0,"h":7.0,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Red CUT   Blue SCORE   Black ENGRAVE   Gray DRAWN never cuts","x":-6.0,"y":-191.5,"h":3.2,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Name:","x":-6.0,"y":-203.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Date:","x":-6.0,"y":-213.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Material:","x":-6.0,"y":-223.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"TITLE","t":"My kerf:","x":244.0,"y":-203.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Offset (half my kerf):","x":244.0,"y":-213.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Move every cut line toward the scrap by half your kerf.","x":-6.0,"y":-235.0,"h":4.4,"anchor":"left"}],"ents":[{"type":"poly","layer":"DRAWN","pts":[[0.0,0.0],[120.0,0.0],[120.0,90.0],[0.0,90.0]],"closed":true},{"type":"line","layer":"SCORE","x1":20.0,"y1":45.0,"x2":60.0,"y2":45.0},{"type":"arc","layer":"SCORE","cx":20.0,"cy":45.0,"r":40.0,"a0":300.0,"a1":60.0},{"type":"arc","layer":"SCORE","cx":60.0,"cy":45.0,"r":40.0,"a0":120.0,"a1":240.0},{"type":"line","layer":"SCORE","x1":40.0,"y1":79.64101615137756,"x2":40.0,"y2":10.35898384862245},{"type":"circle","layer":"DRAWN","cx":92.0,"cy":65.0,"r":10.0},{"type":"circle","layer":"DRAWN","cx":92.0,"cy":25.0,"r":10.0},{"type":"text","layer":"NOTES","t":"HOLE","x":92.0,"y":78.0,"h":4.0,"anchor":"middle"},{"type":"text","layer":"NOTES","t":"PEG","x":92.0,"y":8.0,"h":4.0,"anchor":"middle"},{"type":"text","layer":"NOTES","t":"A","x":13.5,"y":46.5,"h":3.6,"anchor":"left"},{"type":"text","layer":"NOTES","t":"B","x":62.5,"y":46.5,"h":3.6,"anchor":"left"},{"type":"text","layer":"NOTES","t":"________________________","x":50.0,"y":-203.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"NOTES","t":"Fri Oct 9","x":50.0,"y":-213.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"NOTES","t":"3 mm ply","x":50.0,"y":-223.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"NOTES","t":"______ mm","x":330.0,"y":-203.0,"h":4.4,"anchor":"left"},{"type":"text","layer":"NOTES","t":"______ mm","x":330.0,"y":-213.0,"h":4.4,"anchor":"left"},{"type":"poly","layer":"NOTES","pts":[[402.0,-170.0],[602.0,-170.0],[602.0,100.0],[402.0,100.0]],"closed":true},{"type":"text","layer":"NOTES","t":"Ready-made plate (packet page 4)","x":407.0,"y":89.0,"h":6.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"1. SAVEAS: Lastname-plate, in the shared folder.","x":407.0,"y":76.0,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"2. Layer CUT (red) is already on.","x":407.0,"y":67.0,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"3. OFFSET Enter, L Enter, C Enter.","x":407.0,"y":58.0,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"4. Type your offset (like 0.1), Enter.","x":407.0,"y":49.0,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"5. Click the gray outline, then click outside it.","x":407.0,"y":40.0,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"6. Click the HOLE, then click inside it.","x":407.0,"y":30.999999999999996,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"7. Click the PEG, then click outside it. Enter.","x":407.0,"y":21.999999999999996,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"8. Zoom in: red outside the gray, but inside on the","x":407.0,"y":12.999999999999996,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    HOLE.","x":407.0,"y":6.799999999999996,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"9. Ctrl+S to save. Tell the person at the laser.","x":407.0,"y":-2.2000000000000037,"h":4.0,"anchor":"left"}]},"week4":{"fixed":[{"type":"line","layer":"BED","x1":-55.0,"y1":0.0,"x2":135.0,"y2":0.0},{"type":"line","layer":"BED","x1":0.0,"y1":-50.0,"x2":0.0,"y2":70.0},{"type":"text","layer":"BED","t":"-50","x":-50.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"-40","x":-40.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"-30","x":-30.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"-20","x":-20.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"-10","x":-10.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"10","x":10.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"20","x":20.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"30","x":30.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"40","x":40.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"50","x":50.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"60","x":60.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"70","x":70.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"80","x":80.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"90","x":90.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"100","x":100.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"110","x":110.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"120","x":120.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"130","x":130.0,"y":-4.2,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"-40","x":-4.6,"y":-41.1,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"-30","x":-4.6,"y":-31.1,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"-20","x":-4.6,"y":-21.1,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"-10","x":-4.6,"y":-11.1,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"10","x":-4.6,"y":8.9,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"20","x":-4.6,"y":18.9,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"30","x":-4.6,"y":28.9,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"40","x":-4.6,"y":38.9,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"50","x":-4.6,"y":48.9,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"60","x":-4.6,"y":58.9,"h":2.4,"anchor":"middle"},{"type":"text","layer":"BED","t":"x","x":137.5,"y":-1.2,"h":3.6,"anchor":"left"},{"type":"text","layer":"BED","t":"y","x":1.6,"y":71.5,"h":3.6,"anchor":"left"},{"type":"text","layer":"BED","t":"O","x":-3.2,"y":-4.4,"h":3.6,"anchor":"middle"},{"type":"poly","layer":"TITLE","pts":[[145.0,38.0],[275.0,38.0],[275.0,72.0],[145.0,72.0]],"closed":true},{"type":"line","layer":"TITLE","x1":145.0,"y1":59.0,"x2":275.0,"y2":59.0},{"type":"text","layer":"TITLE","t":"TS 82   Week 4   Transformation Lab","x":149.0,"y":65.0,"h":4.6,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Slide, flip, turn: what changes and what doesn't?","x":149.0,"y":60.8,"h":2.4,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Name:","x":149.0,"y":52.0,"h":3.4,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Date:","x":149.0,"y":45.8,"h":3.4,"anchor":"left"},{"type":"text","layer":"TITLE","t":"File:","x":149.0,"y":39.6,"h":3.4,"anchor":"left"}],"ents":[{"type":"poly","layer":"DRAWN","pts":[[10.0,10.0],[50.0,10.0],[20.0,40.0]],"closed":true},{"type":"text","layer":"NOTES","t":"A","x":5.538167981534415,"y":4.784093434349293,"h":4.0,"anchor":"middle"},{"type":"text","layer":"NOTES","t":"B","x":55.08133742881208,"y":5.895241121992006,"h":4.0,"anchor":"middle"},{"type":"text","layer":"NOTES","t":"C","x":18.736358936989514,"y":43.35286944207252,"h":4.0,"anchor":"middle"},{"type":"text","layer":"NOTES","t":"________________________","x":171.0,"y":52.0,"h":3.4,"anchor":"left"},{"type":"text","layer":"NOTES","t":"Fri Oct 16","x":171.0,"y":45.8,"h":3.4,"anchor":"left"},{"type":"text","layer":"NOTES","t":"Lastname-week4.dxf","x":171.0,"y":39.6,"h":3.4,"anchor":"left"},{"type":"poly","layer":"NOTES","pts":[[145.0,-52.0],[275.0,-52.0],[275.0,32.0],[145.0,32.0]],"closed":true},{"type":"text","layer":"NOTES","t":"Transformation lab (packet page 4)","x":149.0,"y":24.0,"h":4.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"1. SAVEAS: Lastname-week4, in the shared folder.","x":149.0,"y":16.0,"h":3.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"2. SLIDE: click the triangle, A, B and C. COPY Enter.","x":149.0,"y":9.9,"h":3.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    Click corner A. @70,20 Enter. Enter.","x":149.0,"y":5.300000000000001,"h":3.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"3. FLIP: click the triangle, A, B and C. MIRROR Enter.","x":149.0,"y":-0.7999999999999989,"h":3.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    0,0 Enter. 50,0 Enter. N Enter.","x":149.0,"y":-5.399999999999999,"h":3.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"4. TURN: click the triangle, A, B and C. ROTATE Enter.","x":149.0,"y":-11.499999999999998,"h":3.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    0,0 Enter. C Enter. 90 Enter.","x":149.0,"y":-16.099999999999998,"h":3.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"5. A side: DIST Enter. Click one corner, then the next.","x":149.0,"y":-22.199999999999996,"h":3.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"6. An angle: MEA Enter, A Enter. Click one side, then","x":149.0,"y":-28.299999999999997,"h":3.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    the other side. Esc.","x":149.0,"y":-32.9,"h":3.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"7. A corner's x and y: ID Enter. Click the corner.","x":149.0,"y":-39.0,"h":3.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"8. Ctrl+S to save.","x":149.0,"y":-45.1,"h":3.0,"anchor":"left"}],"view":[-62.0,-58.0,280.0,76.0]},"lantern":{"fixed":[{"type":"poly","layer":"TITLE","pts":[[-10.0,-44.0],[200.0,-44.0],[200.0,-10.0],[-10.0,-10.0]],"closed":true},{"type":"line","layer":"TITLE","x1":-10.0,"y1":-26.0,"x2":200.0,"y2":-26.0},{"type":"text","layer":"TITLE","t":"TS 82   Week 4   Star Compass Lantern","x":-6.0,"y":-19.0,"h":5.0,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Red CUT   Blue SCORE   Gray DRAWN never cuts","x":-6.0,"y":-24.0,"h":2.6,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Name:","x":-6.0,"y":-32.0,"h":3.6,"anchor":"left"},{"type":"text","layer":"TITLE","t":"1  MIRROR the 3 slits right of the dashed line.   2  COPY all 7 slits @W,0 three times.   3  DIST: W.","x":-6.0,"y":-40.5,"h":2.6,"anchor":"left"}],"ents":[],"view":[-14,-48,204,60]},"paver":{"fixed":[{"type":"line","layer":"BED","x1":-38,"y1":0,"x2":38,"y2":0},{"type":"line","layer":"BED","x1":0,"y1":-38,"x2":0,"y2":38},{"type":"text","layer":"BED","t":"x","x":39.5,"y":-1.2,"h":3.2,"anchor":"left"},{"type":"text","layer":"BED","t":"y","x":1.4,"y":39.0,"h":3.2,"anchor":"left"},{"type":"text","layer":"BED","t":"O","x":-3.0,"y":-4.4,"h":3.2,"anchor":"middle"},{"type":"text","layer":"BED","t":"-20","x":-20,"y":-4.2,"h":2.2,"anchor":"middle"},{"type":"text","layer":"BED","t":"-20","x":-4.4,"y":-21.0,"h":2.2,"anchor":"middle"},{"type":"text","layer":"BED","t":"-10","x":-10,"y":-4.2,"h":2.2,"anchor":"middle"},{"type":"text","layer":"BED","t":"-10","x":-4.4,"y":-11.0,"h":2.2,"anchor":"middle"},{"type":"text","layer":"BED","t":"10","x":10,"y":-4.2,"h":2.2,"anchor":"middle"},{"type":"text","layer":"BED","t":"10","x":-4.4,"y":9.0,"h":2.2,"anchor":"middle"},{"type":"text","layer":"BED","t":"20","x":20,"y":-4.2,"h":2.2,"anchor":"middle"},{"type":"text","layer":"BED","t":"20","x":-4.4,"y":19.0,"h":2.2,"anchor":"middle"},{"type":"text","layer":"BED","t":"your quarter","x":15.0,"y":33.0,"h":2.6,"anchor":"middle"},{"type":"poly","layer":"TITLE","closed":true,"pts":[[46.0,12.0],[178.0,12.0],[178.0,38.0],[46.0,38.0]]},{"type":"line","layer":"TITLE","x1":46.0,"y1":27.0,"x2":178.0,"y2":27.0},{"type":"text","layer":"TITLE","t":"TS 82   Week 5   Permeable Paver","x":50.0,"y":32.6,"h":4.2,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Two or more holes a quarter, turned: 12% to 25% open.","x":50.0,"y":28.6,"h":2.2,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Name:","x":50.0,"y":22.4,"h":3.0,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Date:","x":50.0,"y":18.0,"h":3.0,"anchor":"left"},{"type":"text","layer":"TITLE","t":"File:","x":50.0,"y":13.6,"h":3.0,"anchor":"left"}],"ents":[{"type":"poly","layer":"CUT","closed":true,"pts":[[-30.0,-30.0],[30.0,-30.0],[30.0,30.0],[-30.0,30.0]]},{"type":"poly","layer":"DRAWN","closed":true,"pts":[[4.0,4.0],[26.0,4.0],[26.0,26.0],[4.0,26.0]]},{"type":"text","layer":"NOTES","t":"________________________","x":68.0,"y":22.4,"h":3.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"Fri Oct 23","x":68.0,"y":18.0,"h":3.0,"anchor":"left"},{"type":"text","layer":"NOTES","t":"Lastname-paver.dxf","x":68.0,"y":13.6,"h":3.0,"anchor":"left"},{"type":"poly","layer":"NOTES","closed":true,"pts":[[46.0,-62.0],[178.0,-62.0],[178.0,8.0],[46.0,8.0]]},{"type":"text","layer":"NOTES","t":"Permeable paver (paver sheet, side 2)","x":50.0,"y":1.6,"h":3.6,"anchor":"left"},{"type":"text","layer":"NOTES","t":"2. SAVEAS: Lastname-paver, in the shared folder.","x":50.0,"y":-5.6,"h":2.7,"anchor":"left"},{"type":"text","layer":"NOTES","t":"3. Layer CUT (red). Draw all your holes inside the gray.","x":50.0,"y":-11.6,"h":2.7,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    Circle: CIRCLE x,y Enter, radius Enter.","x":50.0,"y":-15.8,"h":2.7,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    Slot: RECTANG Enter, bottom-left corner x,y Enter, @width,height Enter.","x":50.0,"y":-20.0,"h":2.7,"anchor":"left"},{"type":"text","layer":"NOTES","t":"4. TURN 1: ROTATE Enter. W Enter. 0,0 Enter.","x":50.0,"y":-26.0,"h":2.7,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    32,32 Enter. Enter. 0,0 Enter. C Enter. 90 Enter.","x":50.0,"y":-30.2,"h":2.7,"anchor":"left"},{"type":"text","layer":"NOTES","t":"5. TURN 2: ROTATE Enter. W Enter. -32,0 Enter.","x":50.0,"y":-36.2,"h":2.7,"anchor":"left"},{"type":"text","layer":"NOTES","t":"    32,32 Enter. Enter. 0,0 Enter. C Enter. 180 Enter.","x":50.0,"y":-40.4,"h":2.7,"anchor":"left"},{"type":"text","layer":"NOTES","t":"6. Count your holes: 4 of each? Ctrl+S to save.","x":50.0,"y":-46.4,"h":2.7,"anchor":"left"},{"type":"text","layer":"NOTES","t":"7. At the laser: the laser card, with Lastname-paver.dxf.","x":50.0,"y":-52.4,"h":2.7,"anchor":"left"}],"view":[-44.0,-66.0,182.0,42.0],"bed":[-40.0,-40.0,400.0,270.0]}},"view":[-16.0,-242.0,608.0,106.0],"bed":[-10.0,-170.0,400.0,270.0],"start":"paver","lantern":{"title":[{"type":"poly","layer":"TITLE","pts":[[-10.0,-44.0],[200.0,-44.0],[200.0,-10.0],[-10.0,-10.0]],"closed":true},{"type":"line","layer":"TITLE","x1":-10.0,"y1":-26.0,"x2":200.0,"y2":-26.0},{"type":"text","layer":"TITLE","t":"TS 82   Week 4   Star Compass Lantern","x":-6.0,"y":-19.0,"h":5.0,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Red CUT   Blue SCORE   Gray DRAWN never cuts","x":-6.0,"y":-24.0,"h":2.6,"anchor":"left"},{"type":"text","layer":"TITLE","t":"Name:","x":-6.0,"y":-32.0,"h":3.6,"anchor":"left"},{"type":"text","layer":"TITLE","t":"1  MIRROR the 3 slits right of the dashed line.   2  COPY all 7 slits @W,0 three times.   3  DIST: W.","x":-6.0,"y":-40.5,"h":2.6,"anchor":"left"}],"names":[[[[-6.8468,4.8568],[-6.3883,4.8568],[-6.3883,3.4667],[-4.7213,3.4667],[-4.7213,4.8568],[-4.2627,4.8568],[-4.2627,1.4661],[-4.7213,1.4661],[-4.7213,3.0808],[-6.3883,3.0808],[-6.3883,1.4661],[-6.8468,1.4661]],[[-3.3675,4.0095],[-2.9496,4.0095],[-2.9496,1.4661],[-3.3675,1.4661]],[[-3.3675,5.0],[-2.9496,5.0],[-2.9496,4.4702],[-3.3675,4.4702]],[[-2.0914,5.0],[-1.6714,5.0],[-1.6714,2.913],[-0.4244,4.0095],[0.109,4.0095],[-1.2397,2.8199],[0.1664,1.4661],[-0.3786,1.4661],[-1.6714,2.708],[-1.6714,1.4661],[-2.0914,1.4661]],[[0.6177,4.0095],[1.0355,4.0095],[1.0355,1.4661],[0.6177,1.4661]],[[0.6177,5.0],[1.0355,5.0],[1.0355,4.4702],[0.6177,4.4702]],[[4.0244,3.0016],[4.0244,1.4661],[3.6065,1.4661],[3.6065,2.9878],[3.5713,3.3034],[3.4656,3.5277],[3.2895,3.6624],[3.0434,3.7072],[2.7405,3.6533],[2.5092,3.4914],[2.3626,3.2369],[2.3138,2.9035],[2.3138,1.4661],[1.8937,1.4661],[1.8937,4.0095],[2.3138,4.0095],[2.3138,3.6142],[2.4773,3.8148],[2.6669,3.9572],[2.886,4.0422],[3.1364,4.0706],[3.5212,4.0028],[3.7991,3.7995],[3.9681,3.4645]],[[6.0133,2.7444],[5.5846,2.7155],[5.3113,2.6288],[5.1647,2.4722],[5.1159,2.2335],[5.1526,2.034],[5.2627,1.8803],[5.4356,1.7828],[5.6609,1.7503],[5.9744,1.8118],[6.219,1.9966],[6.3765,2.2835],[6.429,2.6514],[6.429,2.7444]],[[6.8468,2.9173],[6.8468,1.4661],[6.429,1.4661],[6.429,1.852],[6.2682,1.6511],[6.0722,1.5105],[5.8347,1.4276],[5.5497,1.4],[5.1993,1.4549],[4.9284,1.6195],[4.7556,1.876],[4.698,2.2066],[4.7698,2.5827],[4.9851,2.8534],[5.3433,3.0169],[5.8426,3.0714],[6.429,3.0714],[6.429,3.1128],[6.3816,3.3686],[6.2393,3.559],[6.0113,3.6773],[5.7067,3.7167],[5.4914,3.7036],[5.2816,3.6644],[5.0792,3.599],[4.8848,3.5074],[4.8848,3.894],[5.1104,3.9714],[5.3295,4.0262],[5.5424,4.0595],[5.7495,4.0706],[6.2319,3.999],[6.5743,3.7843],[6.7787,3.4247]]],[[[-4.7868,3.383],[-5.1927,3.383],[-5.1927,3.7162],[-4.8773,4.3304],[-4.6291,4.3304],[-4.7868,3.7162]],[[-3.5024,5.0],[-2.3516,5.0],[-2.3516,4.7148],[-3.5024,4.7148]],[[-2.927,3.9472],[-3.4549,2.5168],[-2.3978,2.5168]],[[-3.1469,4.3304],[-2.7059,4.3304],[-1.6106,1.4561],[-2.0147,1.4561],[-2.2765,2.1934],[-3.572,2.1934],[-3.8338,1.4561],[-4.244,1.4561]],[[-1.22,4.4517],[-0.864,4.4517],[-0.864,2.6825],[0.1931,3.6121],[0.6453,3.6121],[-0.498,2.6037],[0.6939,1.4561],[0.2319,1.4561],[-0.864,2.5088],[-0.864,1.4561],[-1.22,1.4561]],[[1.9876,2.5396],[1.6241,2.5151],[1.3925,2.4417],[1.2682,2.3089],[1.2268,2.1066],[1.2579,1.9375],[1.3512,1.8072],[1.4978,1.7245],[1.6888,1.6969],[1.9546,1.7491],[2.1619,1.9057],[2.2954,2.1489],[2.3399,2.4608],[2.3399,2.5396]],[[2.6941,2.6862],[2.6941,1.4561],[2.3399,1.4561],[2.3399,1.7832],[2.2036,1.6128],[2.0375,1.4936],[1.8362,1.4234],[1.5946,1.4],[1.2975,1.4465],[1.0679,1.586],[0.9214,1.8035],[0.8726,2.0838],[0.9334,2.4026],[1.1159,2.632],[1.4196,2.7706],[1.8428,2.8168],[2.3399,2.8168],[2.3399,2.852],[2.2997,3.0688],[2.1792,3.2302],[1.9859,3.3304],[1.7276,3.3639],[1.5451,3.3528],[1.3672,3.3195],[1.1957,3.2641],[1.0309,3.1864],[1.0309,3.5142],[1.2222,3.5798],[1.4079,3.6263],[1.5884,3.6545],[1.764,3.6639],[2.1728,3.6032],[2.4631,3.4211],[2.6364,3.1164]],[[3.3872,2.3068],[3.3872,3.6121],[3.7414,3.6121],[3.7414,2.3203],[3.7711,2.0524],[3.8603,1.8608],[4.0097,1.7462],[4.2188,1.708],[4.4752,1.7537],[4.6716,1.891],[4.7968,2.1072],[4.8385,2.3899],[4.8385,3.6121],[5.1927,3.6121],[5.1927,1.4561],[4.8385,1.4561],[4.8385,1.7875],[4.6993,1.6162],[4.5391,1.4955],[4.3552,1.4239],[4.1436,1.4],[3.8168,1.4578],[3.5794,1.631],[3.4352,1.9155]]],[[[-11.878,4.8568],[-11.4195,4.8568],[-11.4195,3.4238],[-9.8978,4.8568],[-9.307,4.8568],[-10.99,3.2763],[-9.1871,1.4661],[-9.791,1.4661],[-11.4195,3.099],[-11.4195,1.4661],[-11.878,1.4661]],[[-8.0927,3.7167],[-8.3934,3.6511],[-8.6239,3.4543],[-8.7705,3.1435],[-8.8194,2.7356],[-8.7709,2.3278],[-8.6254,2.017],[-8.3949,1.8202],[-8.0927,1.7546],[-7.7933,1.8204],[-7.5637,2.0177],[-7.4171,2.3291],[-7.3682,2.7356],[-7.4171,3.1408],[-7.5637,3.4522],[-7.7933,3.6505]],[[-8.0927,4.0706],[-7.6062,3.9819],[-7.2367,3.7159],[-7.0029,3.2939],[-6.9249,2.7356],[-7.0029,2.1785],[-7.2367,1.7553],[-7.6062,1.4888],[-8.0927,1.4],[-8.5807,1.4888],[-8.9502,1.7553],[-9.1824,2.1785],[-9.2598,2.7356],[-9.1824,3.2939],[-8.9502,3.7159],[-8.5807,3.9819]],[[-4.2522,3.5212],[-4.08,3.7661],[-3.8772,3.9369],[-3.64,4.0371],[-3.3642,4.0706],[-3.0121,4.001],[-2.7509,3.7922],[-2.589,3.4558],[-2.535,3.0016],[-2.535,1.4661],[-2.9551,1.4661],[-2.9551,2.9878],[-2.9876,3.3061],[-3.0851,3.5299],[-3.2485,3.6629],[-3.4797,3.7072],[-3.7706,3.6533],[-3.9935,3.4914],[-4.1347,3.2369],[-4.1817,2.9035],[-4.1817,1.4661],[-4.6017,1.4661],[-4.6017,2.9878],[-4.6341,3.3075],[-4.7311,3.5314],[-4.8957,3.6633],[-5.1308,3.7072],[-5.4183,3.6531],[-5.6402,3.4907],[-5.7813,3.2356],[-5.8284,2.9035],[-5.8284,1.4661],[-6.2484,1.4661],[-6.2484,4.0095],[-5.8284,4.0095],[-5.8284,3.6142],[-5.6711,3.8175],[-5.4854,3.9594],[-5.2668,4.0428],[-5.0109,4.0706],[-4.7542,4.0353],[-4.5392,3.9296],[-4.3705,3.7574]],[[-0.7169,3.7167],[-1.0175,3.6511],[-1.2481,3.4543],[-1.3947,3.1435],[-1.4436,2.7356],[-1.3951,2.3278],[-1.2495,2.017],[-1.019,1.8202],[-0.7169,1.7546],[-0.4175,1.8204],[-0.1878,2.0177],[-0.0412,2.3291],[0.0076,2.7356],[-0.0412,3.1408],[-0.1878,3.4522],[-0.4175,3.6505]],[[-0.7169,4.0706],[-0.2304,3.9819],[0.1392,3.7159],[0.373,3.2939],[0.4509,2.7356],[0.373,2.1785],[0.1392,1.7553],[-0.2304,1.4888],[-0.7169,1.4],[-1.2048,1.4888],[-1.5744,1.7553],[-1.8065,2.1785],[-1.8839,2.7356],[-1.8065,3.2939],[-1.5744,3.7159],[-1.2048,3.9819]],[[3.2581,3.0016],[3.2581,1.4661],[2.8403,1.4661],[2.8403,2.9878],[2.805,3.3034],[2.6993,3.5277],[2.5232,3.6624],[2.2771,3.7072],[1.9742,3.6533],[1.743,3.4914],[1.5963,3.2369],[1.5475,2.9035],[1.5475,1.4661],[1.1275,1.4661],[1.1275,5.0],[1.5475,5.0],[1.5475,3.6142],[1.711,3.8148],[1.9006,3.9572],[2.1197,4.0422],[2.3701,4.0706],[2.7549,4.0028],[3.0328,3.7995],[3.2018,3.4645]],[[5.247,2.7444],[4.8183,2.7155],[4.5451,2.6288],[4.3984,2.4722],[4.3496,2.2335],[4.3863,2.034],[4.4964,1.8803],[4.6693,1.7828],[4.8946,1.7503],[5.2082,1.8118],[5.4527,1.9966],[5.6102,2.2835],[5.6627,2.6514],[5.6627,2.7444]],[[6.0805,2.9173],[6.0805,1.4661],[5.6627,1.4661],[5.6627,1.852],[5.5019,1.6511],[5.3059,1.5105],[5.0684,1.4276],[4.7834,1.4],[4.433,1.4549],[4.1621,1.6195],[3.9893,1.876],[3.9317,2.2066],[4.0035,2.5827],[4.2188,2.8534],[4.577,3.0169],[5.0763,3.0714],[5.6627,3.0714],[5.6627,3.1128],[5.6153,3.3686],[5.473,3.559],[5.245,3.6773],[4.9404,3.7167],[4.7251,3.7036],[4.5153,3.6644],[4.3129,3.599],[4.1185,3.5074],[4.1185,3.894],[4.3441,3.9714],[4.5632,4.0262],[4.7761,4.0595],[4.9832,4.0706],[5.4656,3.999],[5.808,3.7843],[6.0124,3.4247]],[[9.0556,3.0016],[9.0556,1.4661],[8.6377,1.4661],[8.6377,2.9878],[8.6025,3.3034],[8.4968,3.5277],[8.3207,3.6624],[8.0746,3.7072],[7.7717,3.6533],[7.5405,3.4914],[7.3938,3.2369],[7.345,2.9035],[7.345,1.4661],[6.9249,1.4661],[6.9249,4.0095],[7.345,4.0095],[7.345,3.6142],[7.5085,3.8148],[7.6981,3.9572],[7.9172,4.0422],[8.1676,4.0706],[8.5524,4.0028],[8.8303,3.7995],[8.9993,3.4645]],[[11.0445,2.7444],[10.6158,2.7155],[10.3426,2.6288],[10.1959,2.4722],[10.1471,2.2335],[10.1838,2.034],[10.2939,1.8803],[10.4668,1.7828],[10.6921,1.7503],[11.0057,1.8118],[11.2502,1.9966],[11.4077,2.2835],[11.4602,2.6514],[11.4602,2.7444]],[[11.878,2.9173],[11.878,1.4661],[11.4602,1.4661],[11.4602,1.852],[11.2994,1.6511],[11.1034,1.5105],[10.8659,1.4276],[10.5809,1.4],[10.2305,1.4549],[9.9596,1.6195],[9.7868,1.876],[9.7292,2.2066],[9.801,2.5827],[10.0163,2.8534],[10.3745,3.0169],[10.8738,3.0714],[11.4602,3.0714],[11.4602,3.1128],[11.4128,3.3686],[11.2705,3.559],[11.0425,3.6773],[10.7379,3.7167],[10.5226,3.7036],[10.3128,3.6644],[10.1104,3.599],[9.916,3.5074],[9.916,3.894],[10.1416,3.9714],[10.3607,4.0262],[10.5736,4.0595],[10.7807,4.0706],[11.2631,3.999],[11.6055,3.7843],[11.8099,3.4247]]],[[[-6.6967,5.0],[-6.2192,5.0],[-6.2192,3.5523],[-4.4832,3.5523],[-4.4832,5.0],[-4.0056,5.0],[-4.0056,1.4689],[-4.4832,1.4689],[-4.4832,3.1504],[-6.2192,3.1504],[-6.2192,1.4689],[-6.6967,1.4689]],[[-0.8075,2.9022],[-0.8075,2.6896],[-2.8084,2.6896],[-2.7263,2.2936],[-2.5375,2.0047],[-2.2476,1.8281],[-1.8624,1.7693],[-1.6157,1.7846],[-1.3766,1.8306],[-1.142,1.9074],[-0.9089,2.0153],[-0.9089,1.6036],[-1.1463,1.5162],[-1.3894,1.4522],[-1.6371,1.4131],[-1.8882,1.4],[-2.4563,1.4921],[-2.8924,1.7686],[-3.17,2.2029],[-3.2625,2.7675],[-3.1747,3.3504],[-2.9113,3.799],[-2.4989,4.0856],[-1.9638,4.1812],[-1.4854,4.0951],[-1.1185,3.8368],[-0.8852,3.4314]],[[-1.2426,3.0301],[-1.2948,3.3506],[-1.4424,3.5992],[-1.6693,3.7593],[-1.9593,3.8126],[-2.287,3.7612],[-2.542,3.6068],[-2.7144,3.3589],[-2.794,3.0271]],[[1.9691,3.609],[2.1485,3.8641],[2.3596,4.0419],[2.6067,4.1464],[2.8939,4.1812],[3.2606,4.1087],[3.5326,3.8913],[3.7012,3.5409],[3.7574,3.0679],[3.7574,1.4689],[3.32,1.4689],[3.32,3.0536],[3.2861,3.385],[3.1845,3.6181],[3.0144,3.7566],[2.7736,3.8028],[2.4707,3.7466],[2.2386,3.578],[2.0915,3.3129],[2.0425,2.9658],[2.0425,1.4689],[1.6051,1.4689],[1.6051,3.0536],[1.5715,3.3865],[1.4704,3.6196],[1.299,3.757],[1.0542,3.8028],[0.7547,3.7464],[0.5237,3.5773],[0.3767,3.3116],[0.3277,2.9658],[0.3277,1.4689],[-0.1097,1.4689],[-0.1097,4.1176],[0.3277,4.1176],[0.3277,3.7059],[0.4915,3.9176],[0.6849,4.0654],[0.9125,4.1522],[1.1791,4.1812],[1.4464,4.1445],[1.6702,4.0343],[1.846,3.855]],[[5.8287,2.8],[5.3822,2.77],[5.0977,2.6797],[4.945,2.5166],[4.8941,2.268],[4.9323,2.0603],[5.047,1.9002],[5.2271,1.7986],[5.4617,1.7648],[5.7882,1.8289],[6.0429,2.0213],[6.2069,2.3201],[6.2616,2.7032],[6.2616,2.8]],[[6.6967,2.9802],[6.6967,1.4689],[6.2616,1.4689],[6.2616,1.8707],[6.0942,1.6615],[5.89,1.515],[5.6427,1.4288],[5.3459,1.4],[4.9809,1.4571],[4.6988,1.6285],[4.5189,1.8957],[4.4589,2.24],[4.5337,2.6317],[4.7579,2.9136],[5.131,3.0838],[5.6509,3.1406],[6.2616,3.1406],[6.2616,3.1837],[6.2122,3.4501],[6.0641,3.6484],[5.8266,3.7716],[5.5094,3.8126],[5.2852,3.799],[5.0666,3.7581],[4.8559,3.69],[4.6534,3.5947],[4.6534,3.9973],[4.8884,4.0779],[5.1166,4.135],[5.3383,4.1696],[5.554,4.1812],[6.0563,4.1066],[6.4129,3.883],[6.6258,3.5086]]]]}};
+// ═══════════════════════════ layers, as in the starter ═══════════════════════════
+const LAYERS = {
+  CUT:     { color:"#FF0000", aci:1,  plot:true,  lock:false, note:"red: cuts" },
+  SCORE:   { color:"#0000FF", aci:5,  plot:true,  lock:false, note:"blue: scores" },
+  ENGRAVE: { color:"#FFFFFF", aci:7,  plot:true,  lock:false, note:"engraves" },
+  DRAWN:   { color:"#808080", aci:8,  plot:false, lock:false, note:"never plots" },
+  NOTES:   { color:"#FF7F00", aci:30, plot:false, lock:false, note:"never plots" },
+  BED:     { color:"#C0C0C0", aci:9,  plot:false, lock:true,  note:"locked" },
+  TITLE:   { color:"#C0C0C0", aci:9,  plot:false, lock:true,  note:"locked" },
+};
+const DRAW_LAYERS = ["CUT", "SCORE", "ENGRAVE", "DRAWN", "NOTES"];
+const LASER = new Set(["CUT", "SCORE", "ENGRAVE"]);
+const bedOf = () => (CAD.tpl[tpl] && CAD.tpl[tpl].bed) || CAD.bed;
+const BED = { get x0() { return bedOf()[0]; }, get y0() { return bedOf()[1]; }, get w() { return bedOf()[2]; }, get h() { return bedOf()[3]; } };
+const STORE = "ts82-cad-v1";
+const CANCEL = { cancel:true };
+const TEXT_EM = 1.4;    // AutoCAD text height is the cap height; Arial's em is about 1.4 times that
+
+// ═══════════════════════════ state ═══════════════════════════
+let ents = [], fixed = [], tpl = "starter", nextId = 1, cur = "SCORE", docName = "", saved = false;
+let view = { s:2, tx:60, ty:400 };
+let undoStack = [], redoStack = [], busy = false, lastCmd = null, req = null, lastPt = [0, 0];
+let selection = new Set(), snapCache = null, mouse = null, lastMouse = null, hover = null, drag = null, winPick = null;
+let tog = { GRID:true, ORTHO:false, OSNAP:true, DYN:true, TIPS:true };
+let offsetDist = null, offsetLayer = "Source", offsetErase = false, acIndex = 0;
+
+const $ = id => document.getElementById(id);
+const svgNS = "http://www.w3.org/2000/svg";
+const cv = $("cv"), gGrid = $("grid"), gFixed = $("fixed"), gWorld = $("world"), gOv = $("ov"), cmdIn = $("cmd");
+
+// ═══════════════════════════ geometry ═══════════════════════════
+const DEG = Math.PI / 180;
+const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+const n360 = a => { a %= 360; if (a < 0) a += 360; return a; };
+const angOf = (c, p) => n360(Math.atan2(p[1] - c[1], p[0] - c[0]) / DEG);
+const onCirc = (c, r, a) => [c[0] + r * Math.cos(a * DEG), c[1] + r * Math.sin(a * DEG)];
+const span = (a0, a1) => { const s = n360(a1 - a0); return s < 1e-12 ? 360 : s; };
+function inArc(a, a0, a1, tol = 1e-6) { const s = span(a0, a1), d = n360(a - a0); return d <= s + tol || d >= 360 - tol; }
+function fmt(v) { return (Math.abs(v) < 5e-5 ? 0 : v).toFixed(4).replace(/\.?0+$/, ""); }
+function fmt2(v) { return (Math.abs(v) < 5e-3 ? 0 : v).toFixed(2); }
+
+function prims(e) {
+  if (e.type === "line") return [{ k:"s", a:[e.x1, e.y1], b:[e.x2, e.y2] }];
+  if (e.type === "circle") return [{ k:"c", c:[e.cx, e.cy], r:e.r, full:true }];
+  if (e.type === "arc") return [{ k:"c", c:[e.cx, e.cy], r:e.r, a0:e.a0, a1:e.a1 }];
+  if (e.type === "poly") { const p = e.pts, n = p.length, out = [];
+    for (let i = 0; i < (e.closed ? n : n - 1); i++) out.push({ k:"s", a:p[i], b:p[(i + 1) % n] }); return out; }
+  return [];
+}
+const onPrim = (p, pt) => p.k !== "c" || p.full || inArc(angOf(p.c, pt), p.a0, p.a1);
+function xSS(a, b, c, d) {
+  const rx = b[0] - a[0], ry = b[1] - a[1], sx = d[0] - c[0], sy = d[1] - c[1];
+  const den = rx * sy - ry * sx; if (Math.abs(den) < 1e-12) return [];
+  const t = ((c[0] - a[0]) * sy - (c[1] - a[1]) * sx) / den, u = ((c[0] - a[0]) * ry - (c[1] - a[1]) * rx) / den;
+  const tol = 1e-7; if (t < -tol || t > 1 + tol || u < -tol || u > 1 + tol) return [];
+  return [[a[0] + t * rx, a[1] + t * ry]];
+}
+function xSC(a, b, c, r) {
+  const dx = b[0] - a[0], dy = b[1] - a[1], fx = a[0] - c[0], fy = a[1] - c[1];
+  const A = dx * dx + dy * dy; if (A < 1e-18) return [];
+  const B = 2 * (fx * dx + fy * dy), C = fx * fx + fy * fy - r * r;
+  let disc = B * B - 4 * A * C;
+  if (disc < 0) { if (disc > -1e-9 * (B * B + 4 * A * r * r)) disc = 0; else return []; }
+  const sq = Math.sqrt(disc), out = [], tol = 1e-7;
+  for (const t of (disc === 0 ? [-B / (2 * A)] : [(-B - sq) / (2 * A), (-B + sq) / (2 * A)]))
+    if (t >= -tol && t <= 1 + tol) out.push([a[0] + t * dx, a[1] + t * dy]);
+  return out;
+}
+function xCC(c1, r1, c2, r2) {
+  const d = dist(c1, c2); if (d < 1e-12) return [];
+  if (d > r1 + r2 + 1e-9 || d < Math.abs(r1 - r2) - 1e-9) return [];
+  const a = (r1 * r1 - r2 * r2 + d * d) / (2 * d); const h = Math.sqrt(Math.max(0, r1 * r1 - a * a));
+  const mx = c1[0] + a * (c2[0] - c1[0]) / d, my = c1[1] + a * (c2[1] - c1[1]) / d;
+  const ox = -(c2[1] - c1[1]) * h / d, oy = (c2[0] - c1[0]) * h / d;
+  return h < 1e-12 ? [[mx, my]] : [[mx + ox, my + oy], [mx - ox, my - oy]];
+}
+function xPrim(p, q) {
+  if (p.k === "s" && q.k === "s") return xSS(p.a, p.b, q.a, q.b);
+  if (p.k === "s") return xSC(p.a, p.b, q.c, q.r).filter(pt => onPrim(q, pt));
+  if (q.k === "s") return xSC(q.a, q.b, p.c, p.r).filter(pt => onPrim(p, pt));
+  return xCC(p.c, p.r, q.c, q.r).filter(pt => onPrim(p, pt) && onPrim(q, pt));
+}
+function xEnt(e, o) { const out = []; for (const p of prims(e)) for (const q of prims(o)) out.push(...xPrim(p, q)); return out; }
+function segDist(p, a, b) {
+  const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy;
+  let t = L2 ? ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2 : 0; t = Math.max(0, Math.min(1, t));
+  return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy);
+}
+function entDist(e, p) {
+  if (e.type === "text") { const b = textBox(e), dx = Math.max(b[0] - p[0], 0, p[0] - b[2]), dy = Math.max(b[1] - p[1], 0, p[1] - b[3]); return Math.hypot(dx, dy); }
+  let best = Infinity;
+  for (const q of prims(e)) {
+    if (q.k === "s") best = Math.min(best, segDist(p, q.a, q.b));
+    else if (q.full || inArc(angOf(q.c, p), q.a0, q.a1)) best = Math.min(best, Math.abs(dist(q.c, p) - q.r));
+    else best = Math.min(best, dist(p, onCirc(q.c, q.r, q.a0)), dist(p, onCirc(q.c, q.r, q.a1)));
+  }
+  return best;
+}
+function entPts(e) {   // points that describe an entity, for windows and extents
+  if (e.type === "text") { const b = textBox(e); return [[b[0], b[1]], [b[2], b[3]]]; }
+  if (e.type === "line") return [[e.x1, e.y1], [e.x2, e.y2]];
+  if (e.type === "poly") return e.pts;
+  if (e.type === "circle") return [[e.cx - e.r, e.cy - e.r], [e.cx + e.r, e.cy + e.r]];
+  if (e.type === "arc") { const out = [], s = span(e.a0, e.a1);
+    for (let i = 0; i <= 48; i++) out.push(onCirc([e.cx, e.cy], e.r, e.a0 + s * i / 48)); return out; }
+  return [];
+}
+function samplePts(e) {
+  if (e.type === "circle") { const out = []; for (let i = 0; i < 36; i++) out.push(onCirc([e.cx, e.cy], e.r, i * 10)); return out; }
+  return entPts(e);
+}
+function signedArea(p) { let s = 0; for (let i = 0; i < p.length; i++) { const a = p[i], b = p[(i + 1) % p.length]; s += a[0] * b[1] - b[0] * a[1]; } return s / 2; }
+function inPoly(pt, p) { let c = false; for (let i = 0, j = p.length - 1; i < p.length; j = i++) {
+  const a = p[i], b = p[j]; if ((a[1] > pt[1]) !== (b[1] > pt[1]) && pt[0] < (b[0] - a[0]) * (pt[1] - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; }
+function lineX(p1, d1, p2, d2) {  // two infinite lines, point + direction
+  const den = d1[0] * d2[1] - d1[1] * d2[0]; if (Math.abs(den) < 1e-12) return null;
+  const t = ((p2[0] - p1[0]) * d2[1] - (p2[1] - p1[1]) * d2[0]) / den; return [p1[0] + t * d1[0], p1[1] + t * d1[1]];
+}
+function reflect(p, a, b) {
+  const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy, t = ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2;
+  return [2 * (a[0] + t * dx) - p[0], 2 * (a[1] + t * dy) - p[1]];
+}
+
+// ═══════════════════════════ entity operations ═══════════════════════════
+const clone = e => JSON.parse(JSON.stringify(e));
+
+function offsetEnt(e, d, side) {
+  if (e.type === "circle" || e.type === "arc") {
+    const r = dist([e.cx, e.cy], side) < e.r ? e.r - d : e.r + d; if (r <= 1e-9) return null;
+    const n = clone(e); n.r = r; return n;
+  }
+  if (e.type === "line") {
+    const dx = e.x2 - e.x1, dy = e.y2 - e.y1, L = Math.hypot(dx, dy); if (L < 1e-12) return null;
+    let nx = -dy / L, ny = dx / L; if ((side[0] - e.x1) * nx + (side[1] - e.y1) * ny < 0) { nx = -nx; ny = -ny; }
+    const n = clone(e); n.x1 += d * nx; n.y1 += d * ny; n.x2 += d * nx; n.y2 += d * ny; return n;
+  }
+  if (e.type === "poly" && e.closed && e.pts.length >= 3) {
+    const p = e.pts, n = p.length, inward = inPoly(side, p), sOut = signedArea(p) > 0 ? 1 : -1, sgn = sOut * (inward ? -1 : 1);
+    const lines = [];
+    for (let i = 0; i < n; i++) { const a = p[i], b = p[(i + 1) % n], dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
+      if (L < 1e-12) return null; const nx = dy / L * sgn * d, ny = -dx / L * sgn * d; lines.push([[a[0] + nx, a[1] + ny], [dx, dy]]); }
+    const pts = [];
+    for (let i = 0; i < n; i++) { const prev = lines[(i - 1 + n) % n], here = lines[i];
+      const q = lineX(prev[0], prev[1], here[0], here[1]); pts.push(q || here[0]); }
+    if (inward && (Math.sign(signedArea(pts)) !== Math.sign(signedArea(p)) || Math.abs(signedArea(pts)) >= Math.abs(signedArea(p)))) return null;
+    const m = clone(e); m.pts = pts; return m;
+  }
+  if (e.type === "poly") {   // an open polyline: offset piece by piece as lines
+    return null;
+  }
+  return null;
+}
+function mirrorEnt(e, a, b) {
+  const m = clone(e), th = Math.atan2(b[1] - a[1], b[0] - a[0]) / DEG;
+  if (e.type === "line") { [m.x1, m.y1] = reflect([e.x1, e.y1], a, b); [m.x2, m.y2] = reflect([e.x2, e.y2], a, b); }
+  else if (e.type === "circle") { [m.cx, m.cy] = reflect([e.cx, e.cy], a, b); }
+  else if (e.type === "arc") { [m.cx, m.cy] = reflect([e.cx, e.cy], a, b); m.a0 = n360(2 * th - e.a1); m.a1 = n360(2 * th - e.a0); }
+  else if (e.type === "poly") { m.pts = e.pts.map(p => reflect(p, a, b)).reverse(); }
+  else if (e.type === "text") { const q = textMid(e), r = reflect(q, a, b); m.x = e.x + r[0] - q[0]; m.y = e.y + r[1] - q[1]; }
+  return m;
+}
+function moveEnt(e, dx, dy) {
+  const m = clone(e);
+  if (e.type === "line") { m.x1 += dx; m.y1 += dy; m.x2 += dx; m.y2 += dy; }
+  else if (e.type === "poly") m.pts = e.pts.map(p => [p[0] + dx, p[1] + dy]);
+  else if (e.type === "text") { m.x += dx; m.y += dy; }
+  else { m.cx += dx; m.cy += dy; }
+  return m;
+}
+// ROTATE: counterclockwise by a degrees about c. Quarter turns are exact, so 10,10 turned 90 is -10,10, not
+// -10.000000000000002,9.999999999999998.
+function cosSin(a) { const q = n360(a); for (const [d, c, s] of [[0, 1, 0], [90, 0, 1], [180, -1, 0], [270, 0, -1], [360, 1, 0]])
+  if (Math.abs(q - d) < 1e-12) return [c, s]; return [Math.cos(a * DEG), Math.sin(a * DEG)]; }
+function rotPt(p, c, a) { const [ca, sa] = cosSin(a), x = p[0] - c[0], y = p[1] - c[1];
+  const tidy = v => (Math.abs(v - Math.round(v * 1e9) / 1e9) < 1e-12 ? Math.round(v * 1e9) / 1e9 : v);
+  return [tidy(c[0] + x * ca - y * sa), tidy(c[1] + x * sa + y * ca)]; }
+function rotateEnt(e, c, a) {
+  const m = clone(e);
+  if (e.type === "line") { [m.x1, m.y1] = rotPt([e.x1, e.y1], c, a); [m.x2, m.y2] = rotPt([e.x2, e.y2], c, a); }
+  else if (e.type === "poly") m.pts = e.pts.map(p => rotPt(p, c, a));
+  else if (e.type === "text") { const q = textMid(e), r = rotPt(q, c, a); m.x = e.x + r[0] - q[0]; m.y = e.y + r[1] - q[1]; }
+  else { [m.cx, m.cy] = rotPt([e.cx, e.cy], c, a); if (e.type === "arc") { m.a0 = n360(e.a0 + a); m.a1 = n360(e.a1 + a); } }
+  return m;
+}
+function trimAt(E, pt) {
+  const cuts = []; for (const o of ents) if (o !== E) cuts.push(...xEnt(E, o));
+  if (E.type === "line") {
+    const a = [E.x1, E.y1], b = [E.x2, E.y2], dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy;
+    const tOf = p => ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2;
+    const ts = uniq(cuts.map(tOf).filter(t => t > 1e-7 && t < 1 - 1e-7));
+    const tc = Math.max(0, Math.min(1, tOf(pt)));
+    let lo = 0, hi = 1; for (const t of ts) { if (t < tc) lo = Math.max(lo, t); else hi = Math.min(hi, t); }
+    remove(E);
+    const P = t => [a[0] + t * dx, a[1] + t * dy];
+    if (lo > 1e-7) { const [x2, y2] = P(lo); add({ type:"line", layer:E.layer, x1:a[0], y1:a[1], x2, y2 }); }
+    if (hi < 1 - 1e-7) { const [x1, y1] = P(hi); add({ type:"line", layer:E.layer, x1, y1, x2:b[0], y2:b[1] }); }
+    return true;
+  }
+  if (E.type === "circle") {
+    const c = [E.cx, E.cy], angs = uniqAng(cuts.map(p => angOf(c, p)));
+    remove(E);
+    if (angs.length < 2) return true;               // nothing to keep it: Quick mode deletes it
+    const ac = angOf(c, pt); let i = angs.length - 1;
+    for (let k = 0; k < angs.length; k++) { const a0 = angs[k], a1 = angs[(k + 1) % angs.length]; if (inArc(ac, a0, a1, 0)) { i = k; break; } }
+    const cutFrom = angs[i], cutTo = angs[(i + 1) % angs.length];
+    add({ type:"arc", layer:E.layer, cx:c[0], cy:c[1], r:E.r, a0:cutTo, a1:cutFrom });
+    return true;
+  }
+  if (E.type === "arc") {
+    const c = [E.cx, E.cy], s = span(E.a0, E.a1), posOf = a => n360(a - E.a0);
+    const ds = uniq(cuts.map(p => posOf(angOf(c, p))).filter(d => d > 1e-6 && d < s - 1e-6));
+    let dc = posOf(angOf(c, pt)); if (dc > s) dc = (dc - s < 360 - dc) ? s : 0;
+    let lo = 0, hi = s; for (const d of ds) { if (d < dc) lo = Math.max(lo, d); else hi = Math.min(hi, d); }
+    remove(E);
+    if (lo > 1e-6) add({ type:"arc", layer:E.layer, cx:c[0], cy:c[1], r:E.r, a0:E.a0, a1:n360(E.a0 + lo) });
+    if (hi < s - 1e-6) add({ type:"arc", layer:E.layer, cx:c[0], cy:c[1], r:E.r, a0:n360(E.a0 + hi), a1:E.a1 });
+    return true;
+  }
+  return false;
+}
+function uniq(v) { v = v.slice().sort((a, b) => a - b); const out = []; for (const x of v) if (!out.length || Math.abs(x - out[out.length - 1]) > 1e-6) out.push(x); return out; }
+function uniqAng(v) { const u = uniq(v.map(n360)); if (u.length > 1 && 360 - u[u.length - 1] + u[0] < 1e-6) u.pop(); return u; }
+
+
+// text: AutoCAD TEXT, left or center justified on the baseline
+const measureCtx = document.createElement("canvas").getContext("2d");
+function textWidth(e) { measureCtx.font = "100px Arial, Helvetica, sans-serif"; return measureCtx.measureText(e.t).width / 100 * e.h * TEXT_EM; }
+function textBox(e) { const w = textWidth(e), x0 = e.anchor === "middle" ? e.x - w / 2 : e.x; return [x0, e.y - e.h * 0.25, x0 + w, e.y + e.h * 1.05]; }
+function textMid(e) { const b = textBox(e); return [(b[0] + b[2]) / 2, e.y + e.h / 2]; }   // the middle of the letters, which MIRROR and ROTATE keep with the shape
+
+// ═══════════════════════════ templates ═══════════════════════════
+function loadTemplate(name, msg) {
+  const t = CAD.tpl[name]; tpl = name; fixed = t.fixed;
+  ents = []; nextId = 1; for (const e of t.ents) ents.push(Object.assign(clone(e), { id:nextId++ }));
+  undoStack = []; redoStack = []; selection.clear(); docName = ""; saved = false; fileHandle = null;
+  setLayer(name === "ready" || name === "lantern" || name === "paver" ? "CUT" : name === "week4" ? "DRAWN" : "SCORE"); changed(); setTitle(); zoomView(); render();
+  if (msg) log(msg, "ok");
+}
+// ═══════════════════════════ the star compass lantern (Week 4 build) ═══════════════════════════
+const LAN = { g:6, f:10, slit:1.2 };      // Week 1's strip g and glue flap f; the slit width
+let lanSize = null;                         // [W, H] of the lantern on screen, if it came from NEW
+const R4 = v => Math.round(v * 1e4) / 1e4;
+const lanOff = (W, k) => W / 2 * Math.tan(k * 11.25 * Math.PI / 180);   // equal angles, so not equal steps
+function lanSlit(cx, H) { const s = LAN.slit / 2;
+  return { type:"poly", layer:"CUT", closed:true, pts:[[R4(cx - s), LAN.g], [R4(cx + s), LAN.g], [R4(cx + s), R4(H - LAN.g)], [R4(cx - s), R4(H - LAN.g)]] }; }
+function lanternEnts(W, H) {
+  const L = R4(4 * W + LAN.f), out = [{ type:"poly", layer:"CUT", closed:true, pts:[[0, 0], [L, 0], [L, H], [0, H]] }];
+  for (let i = 1; i <= 4; i++) out.push({ type:"line", layer:"SCORE", x1:R4(W * i), y1:0, x2:R4(W * i), y2:H });
+  for (const k of [0, 1, 2, 3]) out.push(lanSlit(W / 2 + lanOff(W, k), H));          // Hikina and the Koʻolau side
+  out.push(lanSlit(4 * W + W / 2 - lanOff(W, 3), H));      // the flap's slit: four slides of W round, it lands on Noio Malanai
+  out.push({ type:"line", layer:"DRAWN", x1:R4(W / 2), y1:-4, x2:R4(W / 2), y2:R4(H + 4) });   // the middle of Hikina: the mirror line
+  return out;
+}
+function setLanternTpl(size) {
+  const fixedItems = CAD.lantern.title.map(clone);
+  if (size) { const [W, H] = size;
+    CAD.lantern.names.forEach((nm, p) => { for (const c of nm)
+      fixedItems.push({ type:"poly", layer:"SCORE", closed:true, pts:c.map(q => [R4(q[0] + (p + 0.5) * W), q[1]]) }); });
+    fixedItems.push({ type:"text", layer:"TITLE", t:`W = ${W}   H = ${H}`, x:110, y:-32, h:3.6, anchor:"left" }); }
+  const L = size ? 4 * size[0] + LAN.f : 170, H = size ? size[1] : 50;
+  CAD.tpl.lantern = { fixed:fixedItems, ents:size ? lanternEnts(size[0], size[1]) : [], view:[-14, -48, Math.max(204, L + 12), H + 10] };
+}
+function newLantern(W, H) {
+  lanSize = [W, H]; setLanternTpl(lanSize);
+  loadTemplate("lantern", `New drawing: your star compass lantern, W = ${W}, H = ${H}. MIRROR the three slits right of the dashed line, then COPY all seven @${W},0 three times.`);
+  if (W < 40) log(`W = ${W}: the outer slits sit closer than 6 mm to the folds. 40 or more is stronger.`, "err");
+}
+const START_MSG = {
+  paver: "TS 82 CAD: the permeable paver is open. Layer CUT is current. The steps are on your paver sheet, side 2; F1 for help.",
+  starter: "TS 82 CAD: the starter is open. Layer SCORE is current. The steps are on page 3 of your packet; F1 for help.",
+  week4: "TS 82 CAD: the Week 4 triangle is open. The steps are on page 4 of your Week 4 packet; F1 for help.",
+};
+
+// ═══════════════════════════ saving in the browser ═══════════════════════════
+function save() { try { localStorage.setItem(STORE, JSON.stringify({ ents, tpl, cur, docName, tog, lan:lanSize })); } catch (e) {} }
+function restore() {
+  try { const s = JSON.parse(localStorage.getItem(STORE) || "null");
+    if (s && Array.isArray(s.ents) && CAD.tpl[s.tpl]) { tpl = s.tpl;
+      if (tpl === "lantern") { lanSize = Array.isArray(s.lan) ? s.lan : null; setLanternTpl(lanSize); }
+      fixed = CAD.tpl[tpl].fixed; ents = []; nextId = 1;
+      for (const e of s.ents) ents.push(Object.assign(e, { id:nextId++ })); docName = s.docName || ""; saved = !!docName;
+      if (s.tog) Object.assign(tog, s.tog); setLayer(s.cur || "SCORE"); return true; } } catch (e) {}
+  return false;
+}
+const defaultName = () => tpl === "paver" ? "Lastname-paver" : tpl === "week4" ? "Lastname-week4" : tpl === "lantern" ? "Lastname-lantern" : "Lastname-plate";   // what Save As suggests
+function setTitle() { const n = docName || "Drawing1"; $("docTitle").innerHTML = `<b>${esc(n)}.dxf</b>`; $("fileTab").textContent = n; }
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+// ═══════════════════════════ view ═══════════════════════════
+function toScr(p) { return [view.tx + view.s * p[0], view.ty - view.s * p[1]]; }
+function toWorld(x, y) { return [(x - view.tx) / view.s, (view.ty - y) / view.s]; }
+function stageSize() { const r = cv.getBoundingClientRect(); return [r.width, r.height]; }
+function fitBox(x0, y0, x1, y1, pad = 28) {
+  const [W, H] = stageSize(); if (!W || !H) return; const bottom = 96;   // keep clear of the command line
+  const s = Math.min((W - 2 * pad) / Math.max(1e-6, x1 - x0), (H - pad - bottom) / Math.max(1e-6, y1 - y0));
+  view.s = Math.max(0.05, Math.min(4000, s)); view.tx = W / 2 - view.s * (x0 + x1) / 2; view.ty = (H - bottom + pad) / 2 + view.s * (y0 + y1) / 2;
+}
+function zoomView() { const v = (CAD.tpl[tpl] && CAD.tpl[tpl].view) || CAD.view; fitBox(v[0], v[1], v[2], v[3]); render(); }
+function extents() {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const e of ents.concat(fixed)) for (const p of entPts(e)) { x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); }
+  return x0 === Infinity ? null : [x0, y0, x1, y1];
+}
+function zoomExtents() { const e = extents(); if (e) fitBox(e[0], e[1], e[2], e[3]); render(); }
+
+// ═══════════════════════════ drawing ═══════════════════════════
+function el(tag, attrs) { const n = document.createElementNS(svgNS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; }
+function entPathD(e) {
+  if (e.type === "line") return `M${e.x1} ${e.y1}L${e.x2} ${e.y2}`;
+  if (e.type === "poly") return "M" + e.pts.map(p => p[0] + " " + p[1]).join("L") + (e.closed ? "Z" : "");
+  if (e.type === "circle") return `M${e.cx + e.r} ${e.cy}A${e.r} ${e.r} 0 1 1 ${e.cx - e.r} ${e.cy}A${e.r} ${e.r} 0 1 1 ${e.cx + e.r} ${e.cy}Z`;
+  if (e.type === "arc") { const s = span(e.a0, e.a1), p = onCirc([e.cx, e.cy], e.r, e.a0), q = onCirc([e.cx, e.cy], e.r, e.a1);
+    if (s >= 359.999) return entPathD({ type:"circle", cx:e.cx, cy:e.cy, r:e.r });
+    return `M${p[0]} ${p[1]}A${e.r} ${e.r} 0 ${s > 180 ? 1 : 0} 1 ${q[0]} ${q[1]}`; }
+  return "";
+}
+function drawEnt(g, e, opts = {}) {
+  const L = LAYERS[e.layer] || LAYERS.DRAWN, col = L.color, op = L.lock ? 0.5 : 1;
+  if (e.type === "text") {
+    const t = el("text", { transform:`matrix(1,0,0,-1,${e.x},${e.y})`, "font-size":e.h * TEXT_EM, fill:col, opacity:op,
+      "font-family":"Arial, Helvetica, sans-serif", "text-anchor":e.anchor === "middle" ? "middle" : "start" });
+    t.textContent = e.t; g.appendChild(t);
+    if (opts.sel || opts.hov) { const b = textBox(e); g.appendChild(el("rect", { x:b[0], y:b[1], width:b[2] - b[0], height:b[3] - b[1], fill:"none",
+      stroke:opts.sel ? "#5aa9ff" : "#9fc7ef", "stroke-width":1, "vector-effect":"non-scaling-stroke", "stroke-dasharray":"4 3" })); }
+    return;
+  }
+  const d = entPathD(e);
+  if (opts.sel) g.appendChild(el("path", { d, fill:"none", stroke:"rgba(90,169,255,.45)", "stroke-width":6, "vector-effect":"non-scaling-stroke", "stroke-linejoin":"round" }));
+  g.appendChild(el("path", { d, fill:"none", stroke:col, opacity:op, "stroke-width":opts.sel ? 2 : (opts.hov ? 2.6 : 1),
+    "vector-effect":"non-scaling-stroke", "stroke-linejoin":"round" }));
+}
+function render() {
+  const M = `matrix(${view.s},0,0,${-view.s},${view.tx},${view.ty})`;
+  for (const g of [gGrid, gFixed, gWorld]) { g.setAttribute("transform", M); g.innerHTML = ""; }
+  if (tog.GRID) {
+    const [W, H] = stageSize(), a = toWorld(0, H), b = toWorld(W, 0);
+    for (const [step, col] of [[10, "#262e37"], [50, "#2d3640"]]) {
+      if (step * view.s < 6) continue; let d = "";
+      for (let x = Math.ceil(a[0] / step) * step; x <= b[0]; x += step) d += `M${x} ${a[1]}V${b[1]}`;
+      for (let y = Math.ceil(a[1] / step) * step; y <= b[1]; y += step) d += `M${a[0]} ${y}H${b[0]}`;
+      gGrid.appendChild(el("path", { d, stroke:col, "stroke-width":1, "vector-effect":"non-scaling-stroke", fill:"none" }));
+    }
+  }
+  for (const e of fixed) drawEnt(gFixed, e);
+  for (const e of ents) drawEnt(gWorld, e, { sel:selection.has(e), hov:hover === e && !selection.has(e) });
+  overlay();
+}
+function overlay() {
+  gOv.innerHTML = "";
+  const [W, H] = stageSize();
+  // UCS icon
+  { const o = [22, H - 112]; gOv.appendChild(el("path", { d:`M${o[0]} ${o[1]}h34M${o[0]} ${o[1]}v-34`, stroke:"#d6dde4", "stroke-width":1.5, fill:"none" }));
+    gOv.appendChild(el("path", { d:`M${o[0] + 34} ${o[1]}l-6 -3v6zM${o[0]} ${o[1] - 34}l-3 6h6z`, fill:"#d6dde4" }));
+    const tx = (x, y, s) => { const t = el("text", { x, y, fill:"#d6dde4", "font-size":11, "font-family":"Segoe UI,sans-serif" }); t.textContent = s; gOv.appendChild(t); };
+    tx(o[0] + 38, o[1] + 4, "X"); tx(o[0] - 4, o[1] - 40, "Y"); }
+  if (!mouse) { $("dyn").style.display = "none"; return; }
+  const wantPoint = req && req.kind === "point";
+  const sn = wantPoint ? curSnap() : null;
+  const pt = wantPoint ? curPoint() : mouse.w;
+  // previews and rubber band
+  if (req && req.opts.preview && mouse.w) {
+    let gh = []; try { gh = req.opts.preview(pt) || []; } catch (e) { gh = []; }
+    const g = el("g", { transform:`matrix(${view.s},0,0,${-view.s},${view.tx},${view.ty})`, opacity:.8 });
+    for (const e of gh) { const L = LAYERS[e.layer] || LAYERS.DRAWN;
+      if (e.type === "text") continue;
+      g.appendChild(el("path", { d:entPathD(e), fill:"none", stroke:L.color === "#0000FF" ? "#5a7dff" : L.color, "stroke-width":1.2,
+        "stroke-dasharray":"6 4", "vector-effect":"non-scaling-stroke" })); }
+    gOv.appendChild(g);
+  }
+  if (wantPoint && req.opts.base) { const a = toScr(req.opts.base), b = toScr(pt);
+    gOv.appendChild(el("line", { x1:a[0], y1:a[1], x2:b[0], y2:b[1], stroke:"#e3e7eb", "stroke-width":1, "stroke-dasharray":"5 4" })); }
+  // selection window
+  const wa = (drag && drag.window) ? [drag.x0, drag.y0] : (winPick ? toScr(winPick) : (req && req.kind === "point" && req.opts.boxFrom ? toScr(req.opts.boxFrom) : null));
+  if (wa) { const x = Math.min(wa[0], mouse.x), y = Math.min(wa[1], mouse.y), w = Math.abs(mouse.x - wa[0]), h = Math.abs(mouse.y - wa[1]), crossing = mouse.x < wa[0];
+    gOv.appendChild(el("rect", { x, y, width:w, height:h, fill:crossing ? "rgba(86,180,92,.18)" : "rgba(61,143,214,.2)",
+      stroke:crossing ? "#6fd16f" : "#5aa9ff", "stroke-dasharray":crossing ? "5 3" : "none" }));
+    if (tog.TIPS) { const t = el("text", { x:x + 2, y:y > 24 ? y - 7 : y + h + 17, fill:crossing ? "#9ae69a" : "#9ccbff", "font-size":12,
+      "font-family":"Segoe UI,sans-serif", stroke:"#161b20", "stroke-width":3, "paint-order":"stroke" });
+      t.textContent = crossing ? "Crossing: takes anything it touches" : "Window: takes only what's fully inside"; gOv.appendChild(t); } }
+  // object snap marker
+  if (sn) { const [x, y] = toScr(sn.p), c = "#58d36b", r = 6; let d;
+    if (sn.t === "end") d = `M${x - r} ${y - r}h${2 * r}v${2 * r}h${-2 * r}Z`;
+    else if (sn.t === "int") d = `M${x - r} ${y - r}L${x + r} ${y + r}M${x + r} ${y - r}L${x - r} ${y + r}`;
+    else if (sn.t === "mid") d = `M${x} ${y - r}L${x + r} ${y + r * .8}L${x - r} ${y + r * .8}Z`;
+    else d = `M${x + r} ${y}A${r} ${r} 0 1 1 ${x - r} ${y}A${r} ${r} 0 1 1 ${x + r} ${y}`;
+    gOv.appendChild(el("path", { d, fill:"none", stroke:c, "stroke-width":2 }));
+    const lab = el("text", { x:x + 12, y:y - 12, fill:"#111", "font-size":11.5, "font-family":"Segoe UI,sans-serif" });
+    lab.textContent = { end:"Endpoint", int:"Intersection", mid:"Midpoint", cen:"Center" }[sn.t];
+    const bg = el("rect", { x:x + 8, y:y - 24, width:{ end:58, int:78, mid:58, cen:48 }[sn.t], height:16, fill:"#f4f4f4", stroke:"#7c8792" });
+    gOv.appendChild(bg); gOv.appendChild(lab); }
+  // crosshair cursor with pickbox
+  { const [cx, cy] = wantPoint ? toScr(pt) : [mouse.x, mouse.y], L = Math.max(W, H) * 0.05, pb = 5;
+    const showBox = !wantPoint, gap = showBox ? pb : 0;
+    let d = `M${cx - L} ${cy}H${cx - gap}M${cx + gap} ${cy}H${cx + L}M${cx} ${cy - L}V${cy - gap}M${cx} ${cy + gap}V${cy + L}`;
+    if (showBox) d += `M${cx - pb} ${cy - pb}h${2 * pb}v${2 * pb}h${-2 * pb}Z`;
+    gOv.appendChild(el("path", { d, stroke:"#f0f3f6", "stroke-width":1, fill:"none", "shape-rendering":"crispEdges" })); }
+  dynTip(pt);
+}
+function dynTip(pt) {
+  const d = $("dyn");
+  if (!tog.DYN || !mouse || !req) { d.style.display = "none"; return; }
+  let p = req.prompt.replace(/^[A-Z]+ /, "").replace(/\s*\[.*$/, "").replace(/:$/, "").replace(/ <.*>$/, "");
+  let meas = "";
+  if (req.kind === "point" && req.opts.base) { const b = req.opts.base, L = dist(b, pt), a = angOf(b, pt);
+    meas = `<span class="meas">${fmt2(L)} &lt; ${fmt2(a)}&deg;</span>`; }
+  d.innerHTML = `${esc(p)}<span class="in">${esc(cmdIn.value) || "&nbsp;"}</span>${meas}`;
+  d.style.display = "block"; d.style.left = (mouse.x + 18) + "px"; d.style.top = (mouse.y + 18) + "px";
+}
+
+// ═══════════════════════════ snapping, ortho and picking ═══════════════════════════
+function snapPoints() {
+  if (snapCache) return snapCache;
+  const out = [];
+  for (const e of ents) {
+    if (e.type === "line") out.push({ p:[e.x1, e.y1], t:"end" }, { p:[e.x2, e.y2], t:"end" }, { p:[(e.x1 + e.x2) / 2, (e.y1 + e.y2) / 2], t:"mid" });
+    else if (e.type === "poly") { const n = e.pts.length; e.pts.forEach(p => out.push({ p, t:"end" }));
+      for (let i = 0; i < (e.closed ? n : n - 1); i++) { const a = e.pts[i], b = e.pts[(i + 1) % n]; out.push({ p:[(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], t:"mid" }); } }
+    else if (e.type === "circle") out.push({ p:[e.cx, e.cy], t:"cen" });
+    else if (e.type === "arc") out.push({ p:[e.cx, e.cy], t:"cen" }, { p:onCirc([e.cx, e.cy], e.r, e.a0), t:"end" }, { p:onCirc([e.cx, e.cy], e.r, e.a1), t:"end" });
+  }
+  for (let i = 0; i < ents.length; i++) for (let j = i + 1; j < ents.length; j++) for (const p of xEnt(ents[i], ents[j])) out.push({ p, t:"int" });
+  snapCache = out; return out;
+}
+function findSnap(sx, sy) {
+  if (!tog.OSNAP) return null; let best = null, bd = 13; const rank = { int:0, end:0, mid:1, cen:2 };
+  for (const s of snapPoints()) { const [x, y] = toScr(s.p), d = Math.hypot(x - sx, y - sy) + rank[s.t] * 0.75; if (d < bd) { bd = d; best = s; } }
+  return best;
+}
+function curSnap() { return mouse && req && req.kind === "point" && !req.opts.noSnap ? findSnap(mouse.x, mouse.y) : null; }
+function orthoPt(p, base) { if (!tog.ORTHO || !base) return p; const dx = p[0] - base[0], dy = p[1] - base[1];
+  return Math.abs(dx) >= Math.abs(dy) ? [p[0], base[1]] : [base[0], p[1]]; }
+function curPoint() { const sn = curSnap(); if (sn) return sn.p; return req && req.opts.base && !req.opts.noSnap ? orthoPt(mouse.w, req.opts.base) : mouse.w; }
+function pickAt(sx, sy) { const w = toWorld(sx, sy), tol = 6 / view.s; let best = null, bd = tol;
+  for (const e of ents) { const d = entDist(e, w); if (d < bd) { bd = d; best = e; } } return best; }
+
+// ═══════════════════════════ messages ═══════════════════════════
+function log(s, cls) { const h = $("hist"), d = document.createElement("div"); if (cls) d.className = cls; d.textContent = s; h.appendChild(d);
+  while (h.children.length > 300) h.removeChild(h.firstChild); h.scrollTop = h.scrollHeight; }
+function setPrompt(s) {
+  const p = $("prompt"); p.innerHTML = ""; cmdIn.placeholder = s ? "" : "Type a command";
+  const m = s.match(/^(.*?)\[(.*?)\](.*)$/);
+  if (!m) { p.textContent = s; return; }
+  p.appendChild(document.createTextNode(m[1] + "["));
+  m[2].split("/").forEach((k, i) => { if (i) p.appendChild(document.createTextNode("/"));
+    const sp = document.createElement("span"); sp.className = "kw"; sp.textContent = k;
+    sp.addEventListener("mousedown", ev => { ev.preventDefault(); submitText(k); }); p.appendChild(sp); });
+  p.appendChild(document.createTextNode("]" + m[3]));
+}
+let toastT = null;
+function toast(s) { const t = $("toast"); t.textContent = s; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2800); }
+// ═══════════════════════════ tips ═══════════════════════════
+// The helper bar: which command, which step, one tip. Each step is [prompt pattern, step number (0: no count), words,
+// words in the lantern drawing (a function of W, or text)]. Words are plain text, with `code` in backquotes.
+const TIP_SELECT = "Blue window (drag left to right): only what's fully inside. Green (right to left): anything it touches.";
+const TIPS = {
+  line:{ name:"LINE", n:2, tip:"Wait for the green square before you click a corner, so the lines meet exactly.", steps:[
+    [/^LINE Specify first point/, 1, "Click where the line starts, or type `x,y` and Enter."],
+    [/^Specify next point/, 2, "Click the next point, or type `@length,0`. Enter to stop; `C` closes the shape."]] },
+  circle:{ name:"CIRCLE", n:2, tip:"The laser burns away a little (the kerf), so holes come out slightly big.", steps:[
+    [/center point/, 1, "Click the center, or type `x,y` and Enter."],
+    [/radius of circle/, 2, "Type the radius and Enter. Know the diameter? `D` first."],
+    [/diameter of circle/, 2, "Type the diameter and Enter."]] },
+  rectang:{ name:"RECTANG", n:2, tip:"`@` means from the last point: `@40,50` is 40 across and 50 up.", steps:[
+    [/first corner/, 1, "Click one corner, or type `x,y` and Enter."],
+    [/other corner/, 2, "Type `@width,height` and Enter, for an exact size."]] },
+  trim:{ name:"TRIM", n:0, tip:"Clicked the wrong piece? `U` takes it back.", steps:[
+    [/object to trim/, 0, "Click each piece you want gone, between the crossings. Enter when you're done."]] },
+  offset:{ name:"OFFSET", n:3, tip:"Every edge moves out, or in, by the same distance.", steps:[
+    [/offset distance/, 1, "Type the distance and Enter."],
+    [/object to offset/, 2, "Click the line or circle to copy."],
+    [/side to offset/, 3, "Click on the side where the copy should go."]] },
+  mirror:{ name:"MIRROR", geo:"a flip (reflection)", n:4, tip:"A flip keeps every length and angle. The copy faces the other way.", steps:[
+    [/^Select objects/, 1, "Pick what to flip: click each object, or drag a window. Enter when you're done.",
+     "Click the three slits right of the dashed line, one at a time. Then Enter."],
+    [/first point of mirror line/, 2, "Click one end of the mirror line. Wait for the green square.",
+     "Click the top end of the dashed line. Wait for the green square."],
+    [/second point of mirror line/, 3, "Click the other end. The dashed preview shows the flip.",
+     "Now its bottom end. The preview shows the three new slits."],
+    [/^Erase source objects/, 4, "Press Enter to keep the original. `Y` would delete it.",
+     "Press Enter to keep the three you clicked."]] },
+  copy:{ name:"COPY", geo:"a slide (translation)", n:3, tip:"`@` means from the last point, so each copy lands one more step along. A slide moves a shape without changing its size.", steps:[
+    [/^Select objects/, 1, "Pick what to copy: click, or drag a window left to right. Enter when you're done.",
+     "Click just inside the Hikina panel's top-left corner, then just inside its bottom-right: a blue window, 7 found. Enter."],
+    [/^Specify base point/, 2, "Click a point to measure from, like a corner. Wait for the green square.",
+     "Click the strip's bottom-left corner. Wait for the green square."],
+    [/^Specify displacement/, 2, "Type `x,y`: how far across and how far up."],
+    [/^Specify second point/, 3, "Type `@x,y` and Enter for each copy. Enter on its own when you're done.",
+     W => `Type \`@${fmt(W)},0\` and Enter, three times (your W). Then Enter on its own.`]] },
+  move:{ name:"MOVE", geo:"a slide (translation)", n:3, tip:"A slide changes where a shape is, not its size or the way it faces.", steps:[
+    [/^Select objects/, 1, "Pick what to move. Enter when you're done."],
+    [/^Specify base point/, 2, "Click a point to move it by, like a corner."],
+    [/^Specify displacement/, 2, "Type `x,y`: how far across and how far up."],
+    [/^Specify second point/, 3, "Click where that point goes, or type `@x,y` and Enter."]] },
+  rotate:{ name:"ROTATE", geo:"a turn (rotation)", n:3, tip:"A turn keeps every length and angle. Only where it is and which way it points change.", steps:[
+    [/^Select objects/, 1, "Pick what to turn. On the paver: type `W` and Enter, then the box's corners from your sheet."],
+    [/first corner/, 1, "Type the box's first corner, like `0,0`, and Enter."],
+    [/opposite corner/, 1, "Type the other corner, like `32,32`, and Enter. Then Enter on its own to finish selecting."],
+    [/^Specify base point/, 2, "Click the point to turn around. Wait for the green square."],
+    [/rotation angle/, 3, "Type the angle and Enter: `90` is a quarter turn counterclockwise, `-90` clockwise. `C` first keeps the original."]] },
+  erase:{ name:"ERASE", n:0, tip:"Took too much? `U` brings it back.", steps:[
+    [/^Select objects/, 0, "Click what to delete, then Enter."]] },
+  dist:{ name:"DIST", n:2, tip:"Use matching points on both shapes: corner to the same corner.", lanTip:W => `Between neighboring walls it should read your W: ${fmt(W)}.`, steps:[
+    [/^DIST Specify first point/, 1, "Click the first point. Wait for the green square.", "Click a corner of one slit. Wait for the green square."],
+    [/^Specify second point/, 2, "Click the second point. The distance shows on the command line.", "Click the same corner on the next wall's matching slit."]] },
+  measuregeom:{ name:"MEASUREGEOM", n:0, tip:"Esc when you're done measuring.", steps:[
+    [/^Enter an option/, 0, "Type `A` and Enter for an angle, `D` for a distance, `R` for a radius."],
+    [/^Select arc, circle, line/, 0, "Click one side of the angle."],
+    [/^Select second line/, 0, "Click the other side. The angle shows on the command line."],
+    [/angle vertex/, 0, "Click the corner of the angle."],
+    [/first angle endpoint/, 0, "Click a point on one side."],
+    [/second angle endpoint/, 0, "Click a point on the other side."],
+    [/first point/, 0, "Click the first point."], [/second point/, 0, "Click the second point."],
+    [/arc or circle/, 0, "Click the circle."]] },
+  id:{ name:"ID", n:0, tip:"Wait for the green square, so you get the exact corner.", steps:[
+    [/ID Specify point/, 0, "Click a point. Its x and y show on the command line."]] },
+  zoom:{ name:"ZOOM", n:0, tip:"", steps:[[/corner of window/, 0, "Type `E` and Enter to fit the whole drawing on screen."]] },
+};
+let tipCmd = null;
+const tipHtml = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+const lanternW = () => tpl === "lantern" && Array.isArray(lanSize) ? lanSize[0] : null;
+function tipsShow() {
+  try {
+    const bar = $("tipbar"), T = tipCmd && TIPS[tipCmd];
+    if (!tog.TIPS || !busy || !req || !T) { bar.classList.remove("show"); return; }
+    const st = T.steps.find(s => s[0].test(req.prompt));
+    if (!st) { bar.classList.remove("show"); return; }
+    const W = lanternW(), lw = W != null && st[3] != null ? st[3] : null;
+    const words = lw == null ? st[2] : typeof lw === "function" ? lw(W) : lw;
+    const tip = req.kind === "select" ? TIP_SELECT : (W != null && T.lanTip ? T.lanTip(W) : T.tip);
+    bar.innerHTML = `<span class="c">${T.name}</span>${T.geo ? ` <span class="g">&middot; ${T.geo}</span>` : ""} &nbsp;` +
+      (st[1] && T.n ? `<span class="st">Step ${st[1]} of ${T.n}:</span> ` : "") + tipHtml(words) +
+      (tip ? `<span class="tp">Tip: ${tipHtml(tip)}</span>` : "");
+    bar.classList.add("show");
+  } catch (e) { $("tipbar").classList.remove("show"); }
+}
+// The hover cards
+const TOOLTIP = {
+  NEW:"<b>New</b> (NEW) &middot; Start a drawing: the permeable paver, the star compass lantern, the Week 4 triangle, or a plate.",
+  OPEN:"<b>Open</b> (Ctrl+O) &middot; Open a .dxf you saved.",
+  QSAVE:"<b>Save</b> (Ctrl+S) &middot; Save again, same name.",
+  SAVEAS:"<b>Save As</b> &middot; Save under a new name, like Lastname-paver.",
+  PLOT:"<b>Plot</b> (Ctrl+P) &middot; Make the laser file: red cuts, blue scores.",
+  U:"<b>Undo</b> (<code>U</code> or Ctrl+Z) &middot; Take back the last thing you did. Again to go further back.",
+  REDO:"<b>Redo</b> (Ctrl+Y) &middot; Put back what Undo took.",
+  HELP:"<b>Help</b> (F1) &middot; The steps for this week's build, and every command.",
+  LINE:"<b>Line</b> (<code>L</code>) &middot; Click point to point. Enter stops; <code>C</code> closes the shape.",
+  CIRCLE:"<b>Circle</b> (<code>C</code>) &middot; Click the center, then type the radius.",
+  RECTANG:"<b>Rectangle</b> (<code>REC</code>) &middot; One corner, then <code>@width,height</code> for the other.",
+  MOVE:"<b>Move</b> (<code>M</code>) &middot; A slide. Pick it, click a base point, then where it goes.",
+  ROTATE:"<b>Rotate</b> (<code>RO</code>) &middot; A turn. Pick it, click the point to turn around, type the angle: 90 is a quarter turn counterclockwise.",
+  TRIM:"<b>Trim</b> (<code>TR</code>) &middot; Click the bits to cut away, between crossings. Enter to stop.",
+  COPY:"<b>Copy</b> (<code>CO</code>) &middot; A slide that keeps the original. Pick it, click a base point, then <code>@x,y</code> for each copy.",
+  MIRROR:"<b>Mirror</b> (<code>MI</code>) &middot; A flip. Pick it, click two points on the mirror line, then Enter to keep the original.",
+  OFFSET:"<b>Offset</b> (<code>O</code>) &middot; A parallel copy: type the distance, click the line, click the side.",
+  ERASE:"<b>Erase</b> (<code>E</code>) &middot; Pick it, then Enter. <code>U</code> brings it back.",
+  DIST:"<b>Distance</b> (<code>DI</code>) &middot; Click two points. The distance shows on the command line.",
+  "MEASUREGEOM A":"<b>Angle</b> (<code>MEA</code>, then <code>A</code>) &middot; Click one side of the angle, then the other.",
+  ID:"<b>ID Point</b> &middot; Click a point to read its x and y.",
+  "ZOOM E":"<b>Zoom Extents</b> (<code>Z</code>, then <code>E</code>) &middot; Fit the whole drawing on screen.",
+  layerBtn:"<b>Layer</b> &middot; New lines go on this layer. CUT (red) cuts through; SCORE (blue) only marks. With objects picked, choosing a layer moves them to it.",
+  tgGRID:"<b>Grid</b> (F7) &middot; The dots in the background. Just for looking: it changes nothing.",
+  tgORTHO:"<b>Ortho</b> (F8) &middot; Lines and moves go only straight across, or straight up and down.",
+  tgOSNAP:"<b>Object snap</b> (F3) &middot; The green square that locks onto ends, middles and centers. Leave it on.",
+  tgDYN:"<b>Dynamic input</b> (F12) &middot; The box by the cursor that shows lengths and angles as you go.",
+  tgTIPS:"<b>Tips</b> &middot; The helper above the command line: what each step wants. Click to turn it off or on.",
+};
+(function tipsHover() {
+  const pop = $("tipPop"); let t = null;
+  const hide = () => { clearTimeout(t); pop.style.display = "none"; };
+  document.querySelectorAll("[data-c], #layerBtn, .tg").forEach(b => {
+    const html = TOOLTIP[b.dataset.c] || TOOLTIP[b.id]; if (!html) return;
+    b.setAttribute("aria-label", html.replace(/<[^>]+>/g, "").replace(/&middot;/g, ":")); b.removeAttribute("title");
+    b.addEventListener("mouseenter", () => { clearTimeout(t); t = setTimeout(() => {
+      pop.innerHTML = html; pop.style.display = "block";
+      const r = b.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+      let y = r.bottom + 6; if (y + h > innerHeight - 6) y = r.top - h - 6;
+      pop.style.left = Math.min(Math.max(6, r.left), innerWidth - w - 6) + "px"; pop.style.top = y + "px"; }, 350); });
+    b.addEventListener("mouseleave", hide); b.addEventListener("mousedown", hide);
+  });
+})();
+
+
+// ═══════════════════════════ layers ═══════════════════════════
+function buildLayerMenu() {
+  const m = $("layerMenu"); m.innerHTML = "";
+  for (const [name, L] of Object.entries(LAYERS)) {
+    const r = document.createElement("div"); r.className = "lrow" + (L.lock ? " dis" : "") + (name === cur ? " on" : "");
+    r.innerHTML = `<span class="sw" style="background:${L.color}"></span><span>${name}</span><span class="note">${L.note}</span>`;
+    if (!L.lock) r.addEventListener("mousedown", ev => { ev.preventDefault(); pickLayer(name); m.classList.remove("show"); });
+    m.appendChild(r);
+  }
+}
+function pickLayer(name) {
+  if (selection.size && !busy) {          // as in AutoCAD: with objects selected, the layer list moves them
+    const list = [...selection].filter(e => !(e.type === "text" && name !== "NOTES" && false));
+    pushUndo(); for (const e of list) e.layer = name; changed(); log(`${list.length} object${list.length === 1 ? "" : "s"} moved to layer ${name}.`, "ok");
+    selection.clear(); render(); refreshLayerBtn(); return;
+  }
+  setLayer(name); log(`Current layer: ${name}`);
+}
+function setLayer(l) { cur = l; refreshLayerBtn(); save(); }
+function refreshLayerBtn() { const L = LAYERS[cur]; $("layerBtn").querySelector(".sw").style.background = L.color; $("layerBtn").querySelector(".nm").textContent = cur; buildLayerMenu(); }
+
+// ═══════════════════════════ asking for input ═══════════════════════════
+function ask(kind, prompt, opts = {}) { return new Promise((resolve, reject) => { req = { kind, prompt, opts, resolve, reject }; setPrompt(prompt); overlay(); tipsShow(); }); }
+let typed = "";
+function finish(v) { const r = req; req = null; drag = null; winPick = null;
+  if (r.kind !== "select" || typed) log(r.prompt + (typed ? " " + typed : "")); typed = ""; r.resolve(v); }
+function cancelReq() { if (req) { const r = req; req = null; drag = null; winPick = null; r.reject(CANCEL); } }
+// As in AutoCAD, a keyword's capital letters are its shortcut (eXit is X, ARea is AR); otherwise any start of it works.
+const kwAbbr = k => { const u = k.replace(/[^A-Z]/g, ""); return u || k.toUpperCase(); };
+function matchKw(s, kws) { if (!kws || !s) return null; const u = s.toUpperCase(); if (!/^[A-Z]+$/.test(u)) return null;
+  for (const k of kws) if (kwAbbr(k) === u) return k;
+  for (const k of kws) if (k.toUpperCase().startsWith(u)) return k; return null; }
+function parsePoint(s, base) {
+  const m = s.replace(/\s+/g, "").match(/^([#@])?(-?\d*\.?\d+)([,<])(-?\d*\.?\d+)$/); if (!m) return null;
+  const a = parseFloat(m[2]), b = parseFloat(m[4]);
+  let p = m[3] === "<" ? [a * Math.cos(b * DEG), a * Math.sin(b * DEG)] : [a, b];
+  const rel = m[1] === "@" || (!m[1] && tog.DYN && base);           // dynamic input: points after the first are relative
+  if (rel) { const from = m[1] === "@" ? lastPt : base; p = [from[0] + p[0], from[1] + p[1]]; }
+  return p;
+}
+function submitText(raw) {
+  const s = raw.trim(); hideAc();
+  if (!req) { if (!s) { if (lastCmd) run(lastCmd); return; } run(s); return; }
+  const o = req.opts, kw = matchKw(s, o.keywords);
+  if (!s) { if (o.allowEnter) return finish(null); if (req.kind === "select") return finish([...selection]);
+    log(req.kind === "point" ? "Point or option keyword required." : "Requires a value or an option.", "err"); return; }
+  if (kw) return finish({ kw });
+  if (req.kind === "point") {
+    const p = parsePoint(s, o.base); if (p) { lastPt = p; return finish(p); }
+    if (/^-?\d*\.?\d+$/.test(s)) {
+      if (o.allowNumber) return finish({ num:parseFloat(s) });
+      const m = mouse || lastMouse;
+      if (o.base && m) { const dir = orthoPt(m.w, o.base), L = dist(o.base, dir); if (L > 1e-9) { const k = parseFloat(s) / L;
+        const p2 = [o.base[0] + (dir[0] - o.base[0]) * k, o.base[1] + (dir[1] - o.base[1]) * k]; lastPt = p2; return finish(p2); } }
+    }
+    log("Point or option keyword required.", "err"); return;
+  }
+  if (req.kind === "number") { if (/^-?\d*\.?\d+$/.test(s)) return finish({ num:parseFloat(s) }); log("Requires a distance, or an option.", "err"); return; }
+  if (req.kind === "select") { if (/^ALL$/i.test(s)) { const n = ents.length; ents.forEach(e => selection.add(e)); log(`${n} found`); render(); return; }
+    log(parsePoint(s) ? "Still selecting. Press Enter on its own to finish selecting, then type that point again." : "*Invalid selection*  Expects a point, W, C or ALL.", "err"); return; }
+  if (req.kind === "pick") { log("Click an object" + (o.keywords ? `, or type ${o.keywords.join(" or ")}` : "") + ".", "err"); return; }
+  if (req.kind === "text") { log("Invalid option keyword.", "err"); return; }
+}
+
+// ═══════════════════════════ commands ═══════════════════════════
+const ALIAS = { LINE:"line", L:"line", CIRCLE:"circle", C:"circle", RECTANG:"rectang", REC:"rectang", RECTANGLE:"rectang",
+  TRIM:"trim", TR:"trim", OFFSET:"offset", O:"offset", MIRROR:"mirror", MI:"mirror", MOVE:"move", M:"move",
+  COPY:"copy", CO:"copy", CP:"copy", ERASE:"erase", E:"erase", DELETE:"erase", U:"undo", UNDO:"undo", REDO:"redo",
+  DIST:"dist", DI:"dist", ZOOM:"zoom", Z:"zoom", CLAYER:"clayer", LAYER:"layer", LA:"layer", HELP:"help",
+  NEW:"new", QNEW:"new", OPEN:"open", SAVE:"qsave", QSAVE:"qsave", SAVEAS:"saveas", PLOT:"plot", PRINT:"plot", EXPORT:"plot",
+  ORTHO:"ortho", DDEDIT:"textedit", TEXTEDIT:"textedit", ED:"textedit",
+  ROTATE:"rotate", RO:"rotate", MEASUREGEOM:"measuregeom", MEA:"measuregeom", ID:"id" };
+const NAMES = { line:"LINE", circle:"CIRCLE", rectang:"RECTANG", trim:"TRIM", offset:"OFFSET", mirror:"MIRROR", move:"MOVE",
+  copy:"COPY", erase:"ERASE", undo:"U", redo:"REDO", dist:"DIST", zoom:"ZOOM", clayer:"CLAYER", layer:"LAYER", help:"HELP",
+  new:"NEW", open:"OPEN", qsave:"QSAVE", saveas:"SAVEAS", plot:"PLOT", ortho:"ORTHO", textedit:"TEXTEDIT",
+  rotate:"ROTATE", measuregeom:"MEASUREGEOM", id:"ID" };
+const HINT = { line:"Creates straight lines", circle:"Creates a circle", rectang:"Creates a rectangle", trim:"Trims objects",
+  offset:"Creates parallel lines and concentric circles", mirror:"Creates a mirrored copy", move:"Moves objects", copy:"Copies objects",
+  erase:"Removes objects", undo:"Undoes the last action", redo:"Redoes the undone action", dist:"Measures a distance",
+  zoom:"Changes the view", layer:"Layers", clayer:"Sets the current layer", help:"Help", new:"New drawing", open:"Opens a drawing",
+  qsave:"Saves the drawing", saveas:"Saves under a new name", plot:"Makes the laser file", ortho:"Constrains to horizontal and vertical",
+  textedit:"Edits text", rotate:"Rotates objects around a base point", measuregeom:"Measures distance, radius or angle",
+  id:"Shows the coordinates of a point" };
+const PICKFIRST = new Set(["move", "copy", "mirror", "erase", "rotate"]);
+async function run(text) {
+  const parts = text.trim().split(/\s+/), key = parts[0].toUpperCase(), name = ALIAS[key];
+  if (!name) { log(`Unknown command "${key}".  Press F1 for help.`, "err"); return; }
+  if (busy) { cancelReq(); await new Promise(r => setTimeout(r, 0)); }
+  closeMenus();
+  if (name === "undo") { lastCmd = "U"; log("Command: U"); doUndo(); return; }
+  if (name === "redo") { lastCmd = "REDO"; log("Command: REDO"); doRedo(); return; }
+  if (name === "help") { $("help").classList.add("show"); return; }
+  if (["new", "open", "qsave", "saveas", "plot"].includes(name)) { log("Command: " + NAMES[name]); FILES[name](); return; }
+  if (!PICKFIRST.has(name)) { selection.clear(); render(); }
+  busy = true; lastCmd = NAMES[name]; tipCmd = name; log("Command: " + NAMES[name]);
+  const before = JSON.stringify(ents);
+  try { await CMDS[name](parts.slice(1)); }
+  catch (e) { if (e === CANCEL) log("*Cancel*"); else { log("Something went wrong: " + e.message, "err"); console.error(e); } }
+  if (JSON.stringify(ents) !== before) { undoStack.push(before); redoStack = []; if (undoStack.length > 150) undoStack.shift(); }
+  busy = false; req = null; selection.clear(); hover = null; setPrompt(""); render(); tipCmd = null; tipsShow();
+}
+function pushUndo() { undoStack.push(JSON.stringify(ents)); redoStack = []; }
+function restoreEnts(json) { ents = []; nextId = 1; for (const e of JSON.parse(json)) ents.push(Object.assign(e, { id:nextId++ })); selection.clear(); changed(); render(); }
+function doUndo() { if (!undoStack.length) { log("Everything has been undone.", "err"); return; } redoStack.push(JSON.stringify(ents)); restoreEnts(undoStack.pop()); }
+function doRedo() { if (!redoStack.length) { log("Nothing to redo.", "err"); return; } undoStack.push(JSON.stringify(ents)); restoreEnts(redoStack.pop()); }
+async function getPoint(prompt, opts = {}) { const p = await ask("point", prompt, opts); if (Array.isArray(p)) lastPt = p; return p; }
+async function getSelection() {
+  if (selection.size) { const s = [...selection]; log(`${s.length} found`); return s; }
+  while (true) {
+    const r = await ask("select", "Select objects or [Window/Crossing]:", { allowEnter:true, keywords:["Window", "Crossing"] });
+    if (r === null) return [...selection];
+    if (Array.isArray(r)) return r;
+    if (r.kw === "Window" || r.kw === "Crossing") {
+      const a = await getPoint("Specify first corner:"); if (!Array.isArray(a)) continue;
+      const b = await getPoint("Specify opposite corner:", { boxFrom:a }); if (!Array.isArray(b)) continue;
+      const n = typedWindow(a, b, r.kw === "Crossing"); log(`${n} found, ${selection.size} total`); render();
+    }
+  }
+}
+// a typed window: W takes what is fully inside the box, C anything it touches
+function typedWindow(p, q, crossing) {
+  const x0 = Math.min(p[0], q[0]), x1 = Math.max(p[0], q[0]), y0 = Math.min(p[1], q[1]), y1 = Math.max(p[1], q[1]);
+  const edges = [[[x0, y0], [x1, y0]], [[x1, y0], [x1, y1]], [[x1, y1], [x0, y1]], [[x0, y1], [x0, y0]]];
+  let n = 0;
+  for (const e of ents) { const pts = samplePts(e), inside = pt => pt[0] >= x0 && pt[0] <= x1 && pt[1] >= y0 && pt[1] <= y1;
+    const hit = crossing ? (pts.some(inside) || prims(e).some(pr => edges.some(([u, v]) => xPrim(pr, { k:"s", a:u, b:v }).length > 0))) : pts.every(inside);
+    if (hit && !selection.has(e)) { selection.add(e); n++; } }
+  return n;
+}
+function add(e) { e.id = nextId++; ents.push(e); changed(); return e; }
+function remove(e) { ents = ents.filter(x => x !== e); selection.delete(e); changed(); }
+function changed() { snapCache = null; save(); }
+
+const CMDS = {
+  async line() {
+    const p0 = await getPoint("LINE Specify first point:"); if (!Array.isArray(p0)) return;
+    let prev = p0; const made = [];
+    while (true) {
+      const kws = made.length >= 2 ? ["Close", "Undo"] : ["Undo"];
+      const r = await getPoint(`Specify next point or [${kws.join("/")}]:`, { allowEnter:true, keywords:kws, base:prev });
+      if (r === null) break;
+      if (r.kw === "Undo") { const e = made.pop(); if (e) { remove(e); prev = [e.x1, e.y1]; lastPt = prev; render(); } continue; }
+      if (r.kw === "Close") { made.push(add({ type:"line", layer:cur, x1:prev[0], y1:prev[1], x2:p0[0], y2:p0[1] })); break; }
+      if (dist(r, prev) < 1e-9) continue;
+      made.push(add({ type:"line", layer:cur, x1:prev[0], y1:prev[1], x2:r[0], y2:r[1] })); prev = r; render();
+    }
+  },
+  async circle() {
+    const c = await getPoint("CIRCLE Specify center point for circle:"); if (!Array.isArray(c)) return;
+    const r = await getPoint("Specify radius of circle or [Diameter]:", { keywords:["Diameter"], allowNumber:true, base:c,
+      preview:p => [{ type:"circle", layer:cur, cx:c[0], cy:c[1], r:Math.max(1e-6, dist(c, p)) }] });
+    let rad;
+    if (r.kw === "Diameter") { const d = await ask("number", "Specify diameter of circle:"); rad = d.num / 2; }
+    else rad = Array.isArray(r) ? dist(c, r) : r.num;
+    if (!(rad > 0)) { log("Value must be positive and nonzero.", "err"); return; }
+    add({ type:"circle", layer:cur, cx:c[0], cy:c[1], r:rad }); lastPt = c;
+  },
+  async rectang() {
+    const a = await getPoint("RECTANG Specify first corner point:"); if (!Array.isArray(a)) return;
+    const b = await getPoint("Specify other corner point:", { base:a, preview:p => [{ type:"poly", layer:cur, closed:true, pts:rectPts(a, p) }] });
+    if (!Array.isArray(b) || Math.abs(a[0] - b[0]) < 1e-9 || Math.abs(a[1] - b[1]) < 1e-9) { log("The corners must differ in both directions.", "err"); return; }
+    add({ type:"poly", layer:cur, closed:true, pts:rectPts(a, b) });
+  },
+  async trim() {
+    log("Current settings: Projection=UCS, Edge=None, Mode=Quick");
+    let tu = [];
+    while (true) {
+      const r = await ask("pick", "Select object to trim or [Undo]:", { allowEnter:true, keywords:["Undo"], withPoint:true });
+      if (r === null) break;
+      if (r.kw === "Undo") { if (tu.length) { const s = JSON.parse(tu.pop()); ents = []; nextId = 1; for (const e of s) ents.push(Object.assign(e, { id:nextId++ })); changed(); render(); } continue; }
+      tu.push(JSON.stringify(ents));
+      if (!trimAt(r.ent, r.pt)) { tu.pop(); log("That object can't be trimmed. TRIM works on lines, circles and arcs.", "err"); }
+      render();
+    }
+  },
+  async offset() {
+    log(`Current settings: Erase source=${offsetErase ? "Yes" : "No"}  Layer=${offsetLayer}  OFFSETGAPTYPE=0`);
+    let d = null;
+    while (d === null) {
+      const r = await ask("number", `OFFSET Specify offset distance or [Erase/Layer] <${offsetDist == null ? "Through" : fmt(offsetDist)}>:`,
+        { keywords:["Erase", "Layer"], allowEnter:true });
+      if (r === null) { if (offsetDist != null) d = offsetDist; else log("Type a distance: half your kerf.", "err"); }
+      else if (r.kw === "Layer") { const s = await ask("text", `Enter layer option for offset objects [Current/Source] <${offsetLayer}>:`, { keywords:["Current", "Source"], allowEnter:true });
+        if (s && s.kw) offsetLayer = s.kw; }
+      else if (r.kw === "Erase") { const s = await ask("text", `Erase source object after offsetting? [Yes/No] <${offsetErase ? "Yes" : "No"}>:`, { keywords:["Yes", "No"], allowEnter:true });
+        if (s && s.kw) offsetErase = s.kw === "Yes"; }
+      else if (r.num > 0) d = r.num; else log("Value must be positive and nonzero.", "err");
+    }
+    offsetDist = d;
+    while (true) {
+      const e = await ask("pick", "Select object to offset or [Exit] <Exit>:", { allowEnter:true, keywords:["Exit"] });
+      if (e === null || e.kw) break;
+      if (e.type === "text") { log("Cannot offset that object.", "err"); continue; }
+      selection.clear(); selection.add(e); render();
+      const side = await ask("point", "Specify point on side to offset or [Exit] <Exit>:", { allowEnter:true, keywords:["Exit"], noSnap:true,
+        preview:p => { const n = offsetEnt(e, d, p); if (n && offsetLayer === "Current") n.layer = cur; return n ? [n] : []; } });
+      selection.clear();
+      if (side === null || side.kw) break;
+      const n = offsetEnt(e, d, side);
+      if (!n) { log("Cannot offset that object that way.", "err"); continue; }
+      if (offsetLayer === "Current") n.layer = cur; add(n); if (offsetErase) remove(e); render();
+    }
+  },
+  async mirror() {
+    const sel = await getSelection(); if (!sel.length) return;
+    const a = await getPoint("MIRROR Specify first point of mirror line:"); if (!Array.isArray(a)) return;
+    const b = await getPoint("Specify second point of mirror line:", { base:a, preview:p => dist(a, p) > 1e-9 ? sel.map(e => mirrorEnt(e, a, p)) : [] });
+    if (!Array.isArray(b) || dist(a, b) < 1e-9) { log("The two points must be different.", "err"); return; }
+    const yn = await ask("text", "Erase source objects? [Yes/No] <No>:", { keywords:["Yes", "No"], allowEnter:true });
+    for (const e of sel) add(mirrorEnt(e, a, b));
+    if (yn && yn.kw === "Yes") { for (const e of sel) remove(e);
+      if (lanternW() != null) { log("Y removed the slits you clicked. U brings them back; next time press Enter at that question.", "err"); toast("Y removed the slits: U brings them back"); } }
+  },
+  async move() { await moveCopy(false); },
+  async copy() { await moveCopy(true); },
+  async erase() { const sel = await getSelection(); for (const e of sel) remove(e); if (sel.length) log(`${sel.length} erased.`); },
+  async dist() {
+    const a = await getPoint("DIST Specify first point:"); if (!Array.isArray(a)) return;
+    const b = await getPoint("Specify second point or [Multiple points]:", { base:a }); if (!Array.isArray(b)) return;
+    log(`Distance = ${fmt2(dist(a, b))},  Angle in XY Plane = ${fmt2(angOf(a, b))},  Delta X = ${fmt2(b[0] - a[0])},  Delta Y = ${fmt2(b[1] - a[1])}`, "ok");
+    { const W = lanternW(), d = dist(a, b);
+      if (W != null && Math.abs(d - W) < 0.005) log("That's your W: each wall's slits are the last wall's, slid exactly W along.", "ok");
+      else if (W != null && tog.TIPS && Math.abs(d - W) < 0.25 * W) log(`Close to your W (${fmt(W)}), but not equal: click the same corner on both slits.`); }
+    toast(`Distance = ${fmt2(dist(a, b))}`);
+  },
+  async rotate() {
+    log("Current positive angle in UCS:  ANGDIR=counterclockwise  ANGBASE=0");
+    const sel = await getSelection(); if (!sel.length) return;
+    const c = await getPoint("Specify base point:"); if (!Array.isArray(c)) return;
+    let copy = false, a = null;
+    while (a === null) {
+      const r = await getPoint(`Specify rotation angle or [Copy/Reference] <${fmt(rotLast)}>:`, { keywords:["Copy", "Reference"],
+        allowNumber:true, allowEnter:true, base:c, preview:p => dist(c, p) > 1e-9 ? sel.map(e => rotateEnt(e, c, angOf(c, p))) : [] });
+      if (r === null) a = rotLast;
+      else if (r.kw === "Copy") { copy = true; log("Rotating a copy of the selected objects."); }
+      else if (r.kw === "Reference") log("Reference isn't in TS 82 CAD. Type the angle instead, like 90.", "err");
+      else a = Array.isArray(r) ? angOf(c, r) : r.num;
+    }
+    rotLast = a;
+    if (copy) for (const e of sel) add(rotateEnt(e, c, a));
+    else { for (const e of sel) Object.assign(e, rotateEnt(e, c, a)); changed(); }
+  },
+  async measuregeom(args) {
+    const KW = ["Distance", "Radius", "Angle", "ARea", "Volume", "eXit"];
+    let opt = args && args[0] ? matchKw(args[0], KW) : null, last = opt || "Distance";
+    while (true) {
+      if (!opt) { const r = await ask("text", `Enter an option [Distance/Radius/Angle/ARea/Volume/eXit] <${last}>:`, { keywords:KW, allowEnter:true });
+        opt = r && r.kw ? r.kw : last; }
+      if (opt === "eXit") return;
+      last = opt;
+      if (opt === "Distance") await measDistance();
+      else if (opt === "Radius") await measRadius();
+      else if (opt === "Angle") await measAngle();
+      else log(`${opt === "ARea" ? "Area" : "Volume"} isn't in TS 82 CAD.`, "err");
+      opt = null;
+    }
+  },
+  async id() {
+    const p = await getPoint("ID Specify point:"); if (!Array.isArray(p)) return;
+    const m = `X = ${fmt2(p[0])}     Y = ${fmt2(p[1])}     Z = ${fmt2(0)}`; log(m, "ok"); toast(m);
+  },
+  async zoom(args) {
+    let k = args && args[0] ? matchKw(args[0], ["All", "Extents"]) : null;
+    if (!k) { const r = await ask("text", "Specify corner of window or [All/Extents] <real time>:", { keywords:["All", "Extents"], allowEnter:true }); k = r && r.kw ? r.kw : "Extents"; }
+    if (k === "All") zoomView(); else zoomExtents();
+  },
+  async layer() { $("layerMenu").classList.add("show"); log("Pick a layer from the list at the top (Layers panel)."); },
+  async clayer(args) {
+    let v = args && args[0];
+    if (!v) { const r = await ask("text", `Enter new value for CLAYER <"${cur}">:`, { keywords:DRAW_LAYERS, allowEnter:true }); if (!r) return; v = r.kw; }
+    const k = matchKw(v, DRAW_LAYERS); if (k) setLayer(k); else log("Layer not found. Layers: CUT, SCORE, ENGRAVE, DRAWN, NOTES.", "err");
+  },
+  async ortho() { const r = await ask("text", `Enter mode [ON/OFF] <${tog.ORTHO ? "ON" : "OFF"}>:`, { keywords:["ON", "OFF"], allowEnter:true });
+    if (r && r.kw) setTog("ORTHO", r.kw === "ON"); },
+  async textedit() { const e = await ask("pick", "Select an annotation object:", {}); if (e && e.type === "text") editText(e); else log("That is not text.", "err"); },
+};
+async function moveCopy(copy) {
+  const sel = await getSelection(); if (!sel.length) return;
+  const b = await getPoint("Specify base point or [Displacement] <Displacement>:", { allowEnter:true, keywords:["Displacement"] });
+  const ghost = p => sel.map(e => moveEnt(e, p[0] - b[0], p[1] - b[1])); let lastD = null;
+  if (b === null || b.kw) { const d = await ask("point", "Specify displacement <0.00, 0.00>:", { allowEnter:true }); if (!Array.isArray(d)) return; apply(d[0], d[1]); return; }
+  while (true) {
+    const s = await getPoint(copy ? "Specify second point or [Exit/Undo] <Exit>:" : "Specify second point or <use first point as displacement>:",
+      { allowEnter:true, base:b, keywords:copy ? ["Exit", "Undo"] : null, preview:ghost });
+    if (s === null) { if (!copy) apply(b[0], b[1]); return; }
+    if (s.kw === "Exit") return;
+    if (s.kw === "Undo") { if (copied.length) for (const e of copied.pop()) remove(e); render(); continue; }
+    const same = copy && lastD && Math.abs(s[0] - b[0] - lastD[0]) < 1e-6 && Math.abs(s[1] - b[1] - lastD[1]) < 1e-6;
+    apply(s[0] - b[0], s[1] - b[1]); if (!copy) return; lastD = [s[0] - b[0], s[1] - b[1]];
+    if (same) { log("That copy landed on top of the last one. U takes it back. Then type the step with the @ (like @40,0), so each copy moves on from the last.", "err");
+      toast("That copy landed on top of the last one: U, then use the @"); }
+  }
+  function apply(dx, dy) {
+    if (copy) { const made = sel.map(e => add(moveEnt(e, dx, dy))); copied.push(made); }
+    else { for (const e of sel) Object.assign(e, moveEnt(e, dx, dy)); changed(); }
+    render();
+  }
+}
+let copied = [], rotLast = 0;
+
+// ═══════════════════════════ MEASUREGEOM ═══════════════════════════
+async function measDistance() {
+  const a = await getPoint("Specify first point:"); if (!Array.isArray(a)) return;
+  const b = await getPoint("Specify second point:", { base:a }); if (!Array.isArray(b)) return;
+  const m = `Distance = ${fmt2(dist(a, b))},  Angle in XY Plane = ${fmt2(angOf(a, b))}°,  Delta X = ${fmt2(b[0] - a[0])},  Delta Y = ${fmt2(b[1] - a[1])}`;
+  log(m, "ok"); toast(`Distance = ${fmt2(dist(a, b))}`);
+}
+async function measRadius() {
+  const e = await ask("pick", "Select arc or circle:", {});
+  if (!e || (e.type !== "circle" && e.type !== "arc")) { log("That isn't a circle or an arc.", "err"); return; }
+  const m = `Radius = ${fmt2(e.r)}   Diameter = ${fmt2(2 * e.r)}`; log(m, "ok"); toast(m);
+}
+function segAt(e, p) {          // the straight piece of an object nearest the click
+  if (e.type === "line") return [[e.x1, e.y1], [e.x2, e.y2]];
+  if (e.type !== "poly") return null;
+  const n = e.pts.length; let best = null, bd = Infinity;
+  for (let i = 0; i < (e.closed ? n : n - 1); i++) { const a = e.pts[i], b = e.pts[(i + 1) % n], d = segDist(p, a, b); if (d < bd) { bd = d; best = [a, b]; } }
+  return best;
+}
+function angleAt(v, p, q) {     // 0 to 180 degrees, the angle pVq
+  const a = Math.atan2(p[1] - v[1], p[0] - v[0]), b = Math.atan2(q[1] - v[1], q[0] - v[0]);
+  let d = Math.abs(a - b) / DEG % 360; return d > 180 ? 360 - d : d;
+}
+function towards(s, I, pick) {  // the end of a segment on the same side of I as the click
+  const [a, b] = s, da = dist(a, I), db = dist(b, I);
+  if (da < 1e-9) return b; if (db < 1e-9) return a;
+  const dir = [b[0] - a[0], b[1] - a[1]], t = (pick[0] - I[0]) * dir[0] + (pick[1] - I[1]) * dir[1];
+  return t >= 0 ? [I[0] + dir[0], I[1] + dir[1]] : [I[0] - dir[0], I[1] - dir[1]];
+}
+async function measAngle() {
+  const r = await ask("pick", "Select arc, circle, line, or <specify vertex>:", { allowEnter:true, withPoint:true });
+  let ang;
+  if (r === null) {
+    const v = await getPoint("Specify angle vertex:"); if (!Array.isArray(v)) return;
+    const p = await getPoint("Specify first angle endpoint:", { base:v }); if (!Array.isArray(p)) return;
+    const q = await getPoint("Specify second angle endpoint:", { base:v }); if (!Array.isArray(q)) return;
+    ang = angleAt(v, p, q);
+  } else {
+    const s1 = segAt(r.ent, r.pt);
+    if (!s1) { log("Click a straight line, or press Enter and click the corner, then a point on each side.", "err"); return; }
+    const r2 = await ask("pick", "Select second line:", { withPoint:true });
+    const s2 = r2 && segAt(r2.ent, r2.pt); if (!s2) { log("That isn't a straight line.", "err"); return; }
+    const I = lineX(s1[0], [s1[1][0] - s1[0][0], s1[1][1] - s1[0][1]], s2[0], [s2[1][0] - s2[0][0], s2[1][1] - s2[0][1]]);
+    if (!I) { log("Those lines are parallel, so they make no angle.", "err"); return; }
+    ang = angleAt(I, towards(s1, I, r.pt), towards(s2, I, r2.pt));
+  }
+  const m = `Angle = ${fmt2(ang)}°`; log(m, "ok"); toast(m);
+}
+function rectPts(a, b) { const x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]);
+  return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]; }
+
+// ═══════════════════════════ editing text in place ═══════════════════════════
+let editing = null;
+function editText(e) {
+  const ed = $("texted"), b = textBox(e), p = toScr([b[0], b[3]]), q = toScr([b[2], b[1]]);
+  editing = e; ed.value = e.t; ed.style.display = "block";
+  ed.style.left = p[0] + "px"; ed.style.top = p[1] + "px"; ed.style.minWidth = Math.max(90, q[0] - p[0] + 30) + "px";
+  ed.style.fontSize = Math.max(11, Math.min(22, e.h * TEXT_EM * view.s)) + "px"; ed.focus(); ed.select();
+}
+function endEdit(keep) {
+  const ed = $("texted"); if (!editing) return;
+  if (keep && ed.value !== editing.t) { pushUndo(); editing.t = ed.value; changed(); log(`Text changed to "${ed.value}".`); }
+  editing = null; ed.style.display = "none"; render(); cmdIn.focus();
+}
+$("texted").addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); endEdit(true); } if (ev.key === "Escape") { ev.preventDefault(); endEdit(false); } ev.stopPropagation(); });
+$("texted").addEventListener("blur", () => endEdit(true));
+
+// ═══════════════════════════ files ═══════════════════════════
+function safeName(n) { return (n || "").trim().replace(/\.dxf$/i, "").replace(/[^A-Za-z0-9_ -]+/g, "-").replace(/\s+/g, "-").replace(/^-+|-+$/g, ""); }
+function download(text, filename, type) {
+  const blob = new Blob([text], { type }), a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+const N = v => (Math.abs(v) < 5e-10 ? 0 : v).toFixed(6);
+function dxfText(list) {
+  let h = parseInt(CAD.dxf.seed, 16); const L = [];
+  const g = (c, v) => L.push(String(c).padStart(3, " "), String(v));
+  for (const e of list) {
+    const hx = (h++).toString(16).toUpperCase();
+    const base = (t, sub) => { g(0, t); g(5, hx); g(330, CAD.dxf.ms); g(100, "AcDbEntity"); g(8, e.layer); g(100, sub); };
+    if (e.type === "line") { base("LINE", "AcDbLine"); g(10, N(e.x1)); g(20, N(e.y1)); g(30, N(0)); g(11, N(e.x2)); g(21, N(e.y2)); g(31, N(0)); }
+    else if (e.type === "circle") { base("CIRCLE", "AcDbCircle"); g(10, N(e.cx)); g(20, N(e.cy)); g(30, N(0)); g(40, N(e.r)); }
+    else if (e.type === "arc") { base("ARC", "AcDbCircle"); g(10, N(e.cx)); g(20, N(e.cy)); g(30, N(0)); g(40, N(e.r));
+      g(100, "AcDbArc"); g(50, N(n360(e.a0))); g(51, N(n360(e.a1))); }
+    else if (e.type === "poly") { base("LWPOLYLINE", "AcDbPolyline"); g(90, e.pts.length); g(70, e.closed ? 1 : 0);
+      for (const p of e.pts) { g(10, N(p[0])); g(20, N(p[1])); } }
+    else if (e.type === "text") { base("TEXT", "AcDbText"); g(10, N(e.x)); g(20, N(e.y)); g(30, N(0)); g(40, N(e.h)); g(1, e.t.replace(/[\r\n]+/g, " "));
+      g(7, "TS82"); if (e.anchor === "middle") { g(72, 1); g(11, N(e.x)); g(21, N(e.y)); g(31, N(0)); } g(100, "AcDbText"); }
+  }
+  const head = CAD.dxf.head.replace(`$HANDSEED\n  5\n${CAD.dxf.seed}\n`, `$HANDSEED\n  5\n${h.toString(16).toUpperCase()}\n`)
+    .replace("$CLAYER\n  8\nSCORE\n", `$CLAYER\n  8\n${cur}\n`);
+  const lim = (code, x, y) => `$${code}\n 10\n${N(x)}\n 20\n${N(y)}\n`;
+  const head2 = head.replace(/\$LIMMIN\n 10\n[^\n]*\n 20\n[^\n]*\n/, lim("LIMMIN", BED.x0, BED.y0))
+    .replace(/\$LIMMAX\n 10\n[^\n]*\n 20\n[^\n]*\n/, lim("LIMMAX", BED.x0 + BED.w, BED.y0 + BED.h));
+  const tail2 = CAD.dxf.tail.replace(/(AcDbLayout\n  1\nModel\n 70\n1\n 71\n0\n) 10\n[^\n]*\n 20\n[^\n]*\n 11\n[^\n]*\n 21\n[^\n]*\n/,
+    (m, k) => `${k} 10\n${N(BED.x0)}\n 20\n${N(BED.y0)}\n 11\n${N(BED.x0 + BED.w)}\n 21\n${N(BED.y0 + BED.h)}\n`);
+  return head2 + (L.length ? L.join("\n") + "\n" : "") + tail2;
+}
+function laserList() { return fixed.concat(ents).filter(e => LASER.has(e.layer) && e.type !== "text"); }
+function laserChecks(list) {
+  const msgs = [];
+  if (!list.some(e => e.layer === "CUT")) msgs.push("Nothing is on CUT yet, so nothing will cut out. Offset the outline, the HOLE and the PEG onto CUT first.");
+  for (const e of list) { if (entPts(e).some(p => p[0] < BED.x0 - 1e-6 || p[1] < BED.y0 - 1e-6 || p[0] > BED.x0 + BED.w + 1e-6 || p[1] > BED.y0 + BED.h + 1e-6)) {
+    msgs.push("Some red or blue lines are outside the plot area. MOVE them back near your plate."); break; } }
+  if (tpl === "paver") { const isOutline = e => e.type === "poly" && e.pts.every(p => Math.abs(Math.abs(p[0]) - 30) < 1e-6 && Math.abs(Math.abs(p[1]) - 30) < 1e-6);
+    const holes = list.filter(e => e.layer === "CUT" && !isOutline(e));
+    if (holes.length % 4) msgs.push(`Your paver has ${holes.length} red hole${holes.length === 1 ? "" : "s"}. They come in fours: check turn 1 and turn 2.`); }
+  return msgs;
+}
+function laserSVG() {
+  const list = laserList(), X = x => x - BED.x0, Y = y => BED.y0 + BED.h - y, out = [], col = { CUT:"#FF0000", SCORE:"#0000FF", ENGRAVE:"#000000" };
+  for (const e of list) { const st = `fill="none" stroke="${col[e.layer]}" stroke-width="0.025"`;
+    if (e.type === "line") out.push(`<path d="M ${N(X(e.x1))} ${N(Y(e.y1))} L ${N(X(e.x2))} ${N(Y(e.y2))}" ${st}/>`);
+    else if (e.type === "poly") out.push(`<path d="M ${e.pts.map(p => N(X(p[0])) + " " + N(Y(p[1]))).join(" L ")}${e.closed ? " Z" : ""}" ${st}/>`);
+    else if (e.type === "circle") out.push(`<circle cx="${N(X(e.cx))}" cy="${N(Y(e.cy))}" r="${N(e.r)}" ${st}/>`);
+    else if (e.type === "arc") { const s = span(e.a0, e.a1), p = onCirc([e.cx, e.cy], e.r, e.a0), q = onCirc([e.cx, e.cy], e.r, e.a1);
+      out.push(`<path d="M ${N(X(p[0]))} ${N(Y(p[1]))} A ${N(e.r)} ${N(e.r)} 0 ${s > 180 ? 1 : 0} 0 ${N(X(q[0]))} ${N(Y(q[1]))}" ${st}/>`); } }
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${BED.w}mm" height="${BED.h}mm" viewBox="0 0 ${BED.w} ${BED.h}">\n` +
+    `<title>${esc(docName || "Drawing1")}: laser file (red cuts, blue scores)</title>\n${out.join("\n")}\n</svg>\n`;
+}
+function drawingDXF() { return dxfText(fixed.concat(ents)); }
+function showModal(id) { closeMenus(); if (document.activeElement) document.activeElement.blur(); $(id).classList.add("show"); }
+function hideModals() { document.querySelectorAll(".modal").forEach(m => m.classList.remove("show")); cmdIn.focus(); }
+// Save As and Plot use the computer's own Save dialog where the browser has one (Chrome, Edge), so you pick the
+// folder and Save writes over the same file, as in AutoCAD. Elsewhere (Firefox, Safari) each save is a download.
+let fsOK = typeof window.showSaveFilePicker === "function", fileHandle = null;
+const FTYPES = { dxf:[{ description:"AutoCAD DXF", accept:{ "application/dxf":[".dxf"] } }],
+                 svg:[{ description:"SVG laser file", accept:{ "image/svg+xml":[".svg"] } }] };
+async function writeHandle(h, text) { const w = await h.createWritable(); await w.write(text); await w.close(); }
+async function pickFile(name, kind) {     // a file handle; null if cancelled; undefined if this browser can't
+  if (!fsOK) return undefined;
+  try { return await window.showSaveFilePicker({ suggestedName:name, types:FTYPES[kind], id:"ts82-cad", startIn:"downloads" }); }
+  catch (e) { if (e && e.name === "AbortError") return null; fsOK = false; console.warn(e); return undefined; }
+}
+const FILES = {
+  new() { showModal("mNew"); },
+  open() { $("file").click(); },
+  qsave() { if (fileHandle) return quickSave(); if (!docName) return FILES.saveas(); if (fsOK) return saveAsPicked(); doSave(); },
+  saveas() { if (fsOK) return saveAsPicked();
+    $("saveName").value = docName || defaultName(); showModal("mSave"); setTimeout(() => { $("saveName").focus(); $("saveName").select(); }, 30); },
+  plot() { showModal("mPlot"); },
+};
+async function saveAsPicked() {
+  const h = await pickFile((docName || defaultName()) + ".dxf", "dxf");
+  if (h === null) { log("*Cancel*"); return; }
+  if (h === undefined) { FILES.saveas(); return; }      // no Save dialog after all: name it here, then download
+  try { await writeHandle(h, drawingDXF()); }
+  catch (e) { fsOK = false; log("Couldn't save there, so it goes to Downloads instead.", "err"); FILES.saveas(); return; }
+  fileHandle = h; docName = h.name.replace(/\.dxf$/i, "") || "Drawing1"; saved = true; setTitle(); save();
+  log(`Saved ${h.name}. Save (Ctrl+S) now writes over this file.`, "ok");
+}
+async function quickSave() {
+  try { await writeHandle(fileHandle, drawingDXF()); saved = true; setTitle(); save(); log(`Saved ${fileHandle.name}.`, "ok"); }
+  catch (e) { fileHandle = null; log("Couldn't write to that file. Choose where to save it.", "err"); saveAsPicked(); }
+}
+function doSave() { download(drawingDXF(), `${docName}.dxf`, "application/dxf"); saved = true; setTitle(); save();
+  log(`Saved ${docName}.dxf to your Downloads folder.`, "ok"); }
+async function doPlot(kind) {
+  const list = laserList(); for (const m of laserChecks(list)) { log(m, "err"); toast(m); }
+  if (!list.length) return;
+  const name = `${docName || "Drawing1"}-LASER.${kind}`, text = kind === "svg" ? laserSVG() : dxfText(list);
+  const what = "red and blue lines only, 1:1 on the 400 x 270 bed.";
+  const h = await pickFile(name, kind);
+  if (h === null) { log("*Cancel*"); return; }
+  if (h) { try { await writeHandle(h, text); log(`Plotted to ${h.name}: ${what}`, "ok"); return; } catch (e) { fsOK = false; } }
+  download(text, name, kind === "svg" ? "image/svg+xml" : "application/dxf");
+  log(`Plotted to ${name} in your Downloads folder: ${what}`, "ok");
+}
+function parseDXF(text) {
+  const lines = text.split(/\r?\n/), pairs = [];
+  for (let i = 0; i + 1 < lines.length; i += 2) { const c = parseInt(lines[i].trim(), 10);
+    pairs.push([c, c === 1 ? lines[i + 1].replace(/\r$/, "") : lines[i + 1].trim()]); }
+  const out = []; let i = 0, section = null;
+  const known = l => { const u = (l || "0").toUpperCase(); if (u === "BED" || u === "TITLE") return null; return LAYERS[u] ? u : "DRAWN"; };
+  while (i < pairs.length) {
+    const [c, v] = pairs[i];
+    if (c === 0 && v === "SECTION") { section = pairs[i + 1] && pairs[i + 1][1]; i += 2; continue; }
+    if (c === 0 && v === "ENDSEC") { section = null; i++; continue; }
+    if (section !== "ENTITIES" || c !== 0) { i++; continue; }
+    const type = v, grp = []; i++;
+    while (i < pairs.length && pairs[i][0] !== 0) { grp.push(pairs[i]); i++; }
+    const get = (code, def = 0) => { const p = grp.find(q => q[0] === code); return p ? parseFloat(p[1]) : def; };
+    const lay = known((grp.find(q => q[0] === 8) || [8, "0"])[1]); const ez = get(230, 1);
+    if (type === "LINE" && lay) out.push({ type:"line", layer:lay, x1:get(10), y1:get(20), x2:get(11), y2:get(21) });
+    else if (type === "CIRCLE" && lay) out.push({ type:"circle", layer:lay, cx:get(10) * (ez < 0 ? -1 : 1), cy:get(20), r:get(40) });
+    else if (type === "ARC" && lay) { let a0 = get(50), a1 = get(51), cx = get(10);
+      if (ez < 0) { cx = -cx; [a0, a1] = [n360(180 - a1), n360(180 - a0)]; }
+      out.push({ type:"arc", layer:lay, cx, cy:get(20), r:get(40), a0:n360(a0), a1:n360(a1) }); }
+    else if (type === "LWPOLYLINE" && lay) { const pts = []; let x = null;
+      for (const [cc, vv] of grp) { if (cc === 10) x = parseFloat(vv); else if (cc === 20 && x !== null) { pts.push([x, parseFloat(vv)]); x = null; } }
+      if (pts.length >= 2) out.push({ type:"poly", layer:lay, closed:(get(70) & 1) === 1, pts }); }
+    else if (type === "POLYLINE") { const closed = (get(70) & 1) === 1, pts = [];
+      while (i < pairs.length && !(pairs[i][0] === 0 && pairs[i][1] === "SEQEND")) {
+        if (pairs[i][0] === 0 && pairs[i][1] === "VERTEX") { i++; let x = 0, y = 0;
+          while (i < pairs.length && pairs[i][0] !== 0) { if (pairs[i][0] === 10) x = parseFloat(pairs[i][1]); if (pairs[i][0] === 20) y = parseFloat(pairs[i][1]); i++; }
+          pts.push([x, y]); } else i++; }
+      if (lay && pts.length >= 2) out.push({ type:"poly", layer:lay, closed, pts }); }
+    else if (type === "TEXT" && lay === "NOTES") { const t = (grp.find(q => q[0] === 1) || [1, ""])[1], j = get(72, 0);
+      out.push({ type:"text", layer:"NOTES", t, x:j ? get(11) : get(10), y:j ? get(21) : get(20), h:get(40, 3), anchor:j === 1 ? "middle" : "left" }); }
+  }
+  return out;
+}
+function openDrawing(file) {
+  const r = new FileReader();
+  r.onload = () => { const list = parseDXF(String(r.result));
+    if (!list.length) { log("No lines, circles, arcs or notes found in that file.", "err"); toast("Nothing to open in that file."); return; }
+    if (busy) cancelReq();
+    const ready = list.some(e => e.type === "text" && /ready-made/i.test(e.t));
+    const week4 = /Transformation Lab/i.test(String(r.result));      // the Week 4 title block (a locked layer, not opened as an object)
+    const lantern = /Star Compass Lantern/i.test(String(r.result));
+    const paver = /Permeable Paver/i.test(String(r.result));
+    if (lantern) { lanSize = null; setLanternTpl(null); }
+    tpl = paver ? "paver" : lantern ? "lantern" : week4 ? "week4" : ready ? "ready" : "starter"; fixed = CAD.tpl[tpl].fixed;
+    pushUndo(); ents = []; nextId = 1; for (const e of list) ents.push(Object.assign(e, { id:nextId++ }));
+    docName = safeName(file.name.replace(/-LASER/i, "")) || "Drawing1"; saved = true; selection.clear(); fileHandle = null;
+    setTitle(); changed(); zoomView(); log(`Opened ${file.name}: ${list.length} objects.`, "ok"); };
+  r.readAsText(file);
+}
+
+// ═══════════════════════════ mouse ═══════════════════════════
+function evPos(ev) { const r = cv.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; }
+cv.addEventListener("contextmenu", ev => ev.preventDefault());
+cv.addEventListener("wheel", ev => { ev.preventDefault(); const [x, y] = evPos(ev), w = toWorld(x, y);
+  const f = Math.exp(-ev.deltaY * (ev.deltaMode === 1 ? 0.05 : 0.0016)); view.s = Math.max(0.05, Math.min(4000, view.s * f));
+  view.tx = x - view.s * w[0]; view.ty = y + view.s * w[1]; render(); }, { passive:false });
+let lastMid = 0;
+cv.addEventListener("pointerdown", ev => {
+  const [x, y] = evPos(ev); if (editing) endEdit(true); closeMenus(); cmdIn.focus();
+  if (ev.button === 1 || (ev.button === 0 && ev.shiftKey && !(req && req.kind === "select") && !(!req && pickAt(x, y)))) {
+    if (ev.button === 1) { const t = performance.now(); if (t - lastMid < 350) { zoomExtents(); lastMid = 0; ev.preventDefault(); return; } lastMid = t; }
+    drag = { pan:true, x0:x, y0:y, tx:view.tx, ty:view.ty }; cv.setPointerCapture(ev.pointerId); ev.preventDefault(); return; }
+  if (ev.button === 2) { submitText(cmdIn.value); cmdIn.value = ""; return; }
+  if (ev.button !== 0) return;
+  drag = { x0:x, y0:y, down:true, shift:ev.shiftKey }; cv.setPointerCapture(ev.pointerId);
+});
+cv.addEventListener("pointermove", ev => {
+  const [x, y] = evPos(ev), w = toWorld(x, y); mouse = { x, y, w }; lastMouse = mouse;
+  const shown = req && req.kind === "point" ? curPoint() : w;
+  $("coords").textContent = `${fmt2(shown[0])}, ${fmt2(shown[1])}, 0.00`;
+  if (drag && drag.pan) { view.tx = drag.tx + x - drag.x0; view.ty = drag.ty + y - drag.y0; render(); return; }
+  const selecting = !req || req.kind === "select";
+  if (drag && drag.down && selecting && Math.hypot(x - drag.x0, y - drag.y0) > 5) drag.window = true;
+  const want = !busy || (req && (req.kind === "pick" || req.kind === "select")) ? pickAt(x, y) : null;
+  if (want !== hover) { hover = want; render(); } else overlay();
+});
+cv.addEventListener("pointerleave", () => { mouse = null; hover = null; overlay(); });
+cv.addEventListener("mousedown", ev => ev.preventDefault());     // keep the command line focused, as AutoCAD does
+let lastClick = { t:0, x:0, y:0 };
+function isDouble(x, y) { const t = performance.now(), d = t - lastClick.t < 400 && Math.hypot(x - lastClick.x, y - lastClick.y) < 6;
+  lastClick = d ? { t:0, x:0, y:0 } : { t, x, y }; return d; }
+cv.addEventListener("pointerup", ev => {
+  const [x, y] = evPos(ev), d = drag; drag = null;
+  if (!d || d.pan) { overlay(); return; }
+  const selecting = !req || req.kind === "select";
+  if (selecting && d.window) { windowSelect([d.x0, d.y0], [x, y], d.shift); return; }
+  if (!busy && isDouble(x, y)) { const e = pickAt(x, y); if (e && e.type === "text") { selection.clear(); winPick = null; editText(e); return; } }
+  clickAt(x, y, d.shift);
+});
+function windowSelect(a, b, remove) {
+  const p = toWorld(a[0], a[1]), q = toWorld(b[0], b[1]), x0 = Math.min(p[0], q[0]), x1 = Math.max(p[0], q[0]), y0 = Math.min(p[1], q[1]), y1 = Math.max(p[1], q[1]);
+  const crossing = b[0] < a[0]; let n = 0; winPick = null;
+  const edges = [[[x0, y0], [x1, y0]], [[x1, y0], [x1, y1]], [[x1, y1], [x0, y1]], [[x0, y1], [x0, y0]]];
+  for (const e of ents) { const pts = samplePts(e), inside = pt => pt[0] >= x0 && pt[0] <= x1 && pt[1] >= y0 && pt[1] <= y1;
+    const touches = () => prims(e).some(pr => edges.some(([u, v]) => xPrim(pr, { k:"s", a:u, b:v }).length > 0));
+    const hit = crossing ? (pts.some(inside) || touches()) : pts.every(inside);
+    if (hit) { if (remove) selection.delete(e); else if (!selection.has(e)) { selection.add(e); n++; } } }
+  if (req) log(`${n} found, ${selection.size} total`);
+  render();
+}
+function clickAt(x, y, shift) {
+  if (!req) {        // pick-first, as in AutoCAD: click objects, or click twice for a window
+    const e = pickAt(x, y);
+    if (winPick) { const a = toScr(winPick); windowSelect(a, [x, y], shift); return; }
+    if (e) { if (shift) selection.delete(e); else selection.add(e); render(); return; }
+    winPick = toWorld(x, y); return;
+  }
+  if (req.kind === "number" || req.kind === "text") { log("Type your answer at the command line, then press Enter.", "err"); return; }
+  if (req.kind === "point") { const p = req.opts.noSnap ? toWorld(x, y) : curPointAt(x, y); lastPt = p; finish(p); return; }
+  if (req.kind === "pick") { const e = pickAt(x, y); if (!e) { log("No object found.", "err"); return; } finish(req.opts.withPoint ? { ent:e, pt:toWorld(x, y) } : e); return; }
+  if (req.kind === "select") {
+    if (winPick) { const a = toScr(winPick); windowSelect(a, [x, y], shift); return; }
+    const e = pickAt(x, y);
+    if (!e) { winPick = toWorld(x, y); return; }
+    if (shift) selection.delete(e); else selection.add(e); log(`1 found, ${selection.size} total`); render(); return;
+  }
+}
+function curPointAt(x, y) { const sn = findSnap(x, y); if (sn) return sn.p; const w = toWorld(x, y); return req && req.opts.base ? orthoPt(w, req.opts.base) : w; }
+
+// ═══════════════════════════ keys ═══════════════════════════
+function acMatches(s) { const u = s.trim().toUpperCase(); if (!u || /[^A-Z]/.test(u)) return [];
+  const seen = new Set(), out = [];
+  for (const [k, v] of Object.entries(ALIAS)) if (k.startsWith(u) && !seen.has(v)) { seen.add(v); out.push([NAMES[v], v]); }
+  out.sort((a, b) => (a[0] === u ? -1 : b[0] === u ? 1 : a[0].localeCompare(b[0]))); return out.slice(0, 7); }
+function showAc() {
+  const ac = $("ac"); if (req || busy) { hideAc(); return; }
+  const m = acMatches(cmdIn.value); if (!m.length) { hideAc(); return; }
+  acIndex = Math.min(acIndex, m.length - 1);
+  ac.innerHTML = m.map(([n, v], i) => `<div data-i="${i}" class="${i === acIndex ? "on" : ""}">${n}<span>${HINT[v] || ""}</span></div>`).join("");
+  ac.querySelectorAll("div").forEach((d, i) => d.addEventListener("mousedown", ev => { ev.preventDefault(); cmdIn.value = ""; hideAc(); run(m[i][0]); }));
+  ac.classList.add("show");
+}
+function hideAc() { $("ac").classList.remove("show"); acIndex = 0; }
+cmdIn.addEventListener("input", () => { acIndex = 0; showAc(); overlay(); });
+cmdIn.addEventListener("keydown", ev => {
+  const acOpen = $("ac").classList.contains("show");
+  if (acOpen && (ev.key === "ArrowDown" || ev.key === "ArrowUp")) { ev.preventDefault(); const n = $("ac").children.length;
+    acIndex = (acIndex + (ev.key === "ArrowDown" ? 1 : n - 1)) % n; showAc(); return; }
+  if (ev.key === "Enter" || ev.key === " ") {
+    ev.preventDefault(); let v = cmdIn.value;
+    if (!req && v.trim() && !ALIAS[v.trim().toUpperCase().split(/\s+/)[0]]) { const m = acMatches(v); if (m.length) v = m[acIndex][0]; }
+    ev.stopPropagation(); cmdIn.value = ""; typed = req ? v.trim() : ""; submitText(v); typed = ""; overlay(); return; }
+  if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); cmdIn.value = ""; hideAc(); closeMenus();
+    if (busy) cancelReq(); else if (selection.size || winPick) { selection.clear(); winPick = null; render(); } return; }
+  if ((ev.key === "Delete" || ev.key === "Backspace") && !cmdIn.value && !busy && selection.size) { ev.preventDefault(); run("ERASE"); return; }
+});
+function setTog(k, v) { tog[k] = v; $("tg" + k).classList.toggle("on", v); log(`<${k === "OSNAP" ? "Osnap" : k === "DYN" ? "Dynamic input" : k === "GRID" ? "Grid" : k === "TIPS" ? "Tips" : "Ortho"} ${v ? "on" : "off"}>`); save(); render(); tipsShow(); }
+for (const k of ["GRID", "ORTHO", "OSNAP", "DYN", "TIPS"]) $("tg" + k).addEventListener("click", () => { setTog(k, !tog[k]); cmdIn.focus(); });
+document.addEventListener("keydown", ev => {
+  const modal = document.querySelector(".modal.show");
+  if (modal) { if (ev.key === "Escape") { ev.preventDefault(); hideModals(); }
+    if (ev.key === "Enter" && modal.id === "mSave") { ev.preventDefault(); $("saveOk").click(); }
+    if (ev.key === "Enter" && modal.id === "mPlot") { ev.preventDefault(); $("plotOk").click(); } return; }
+  if (editing) return;
+  const fk = { F1:() => $("help").classList.add("show"), F2:() => $("hist").classList.toggle("tall"), F3:() => setTog("OSNAP", !tog.OSNAP),
+    F7:() => setTog("GRID", !tog.GRID), F8:() => setTog("ORTHO", !tog.ORTHO), F12:() => setTog("DYN", !tog.DYN) };
+  if (fk[ev.key]) { ev.preventDefault(); fk[ev.key](); return; }
+  const ctrl = ev.ctrlKey || ev.metaKey, k = ev.key.toLowerCase();
+  if (ctrl && k === "z") { ev.preventDefault(); if (busy) cancelReq(); else run("U"); return; }
+  if (ctrl && k === "y") { ev.preventDefault(); if (!busy) run("REDO"); return; }
+  if (ctrl && k === "s") { ev.preventDefault(); run(ev.shiftKey ? "SAVEAS" : "QSAVE"); return; }
+  if (ctrl && k === "o") { ev.preventDefault(); run("OPEN"); return; }
+  if (ctrl && k === "p") { ev.preventDefault(); run("PLOT"); return; }
+  if (document.activeElement !== cmdIn && document.activeElement !== $("saveName") && ev.key.length === 1 && !ctrl) cmdIn.focus();
+});
+
+// ═══════════════════════════ buttons, menus and dialogs ═══════════════════════════
+function closeMenus() { $("layerMenu").classList.remove("show"); }
+document.querySelectorAll("[data-c]").forEach(b => b.addEventListener("click", () => { run(b.dataset.c); cmdIn.focus(); }));
+$("layerBtn").addEventListener("click", ev => { ev.stopPropagation(); buildLayerMenu(); $("layerMenu").classList.toggle("show"); });
+document.addEventListener("mousedown", ev => { if (!$("layerCtl").contains(ev.target)) closeMenus(); });
+document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", hideModals));
+$("newPaver").addEventListener("click", () => { hideModals(); if (busy) cancelReq(); loadTemplate("paver", "New drawing: the permeable paver. Layer CUT is current. The steps are on your paver sheet, side 2."); });
+$("newStarter").addEventListener("click", () => { hideModals(); if (busy) cancelReq(); loadTemplate("starter", "New drawing from the starter. Layer SCORE is current."); });
+$("newReady").addEventListener("click", () => { hideModals(); if (busy) cancelReq(); loadTemplate("ready", "New drawing from the ready-made plate. Layer CUT is current: OFFSET, L, C, then half your kerf."); });
+$("newWeek4").addEventListener("click", () => { hideModals(); if (busy) cancelReq(); loadTemplate("week4", "New drawing: the Week 4 triangle. The steps are on page 4 of your Week 4 packet."); });
+$("newLantern").addEventListener("click", () => { hideModals(); if (busy) cancelReq(); showModal("mLantern"); setTimeout(() => $("lanW").select(), 30); });
+function lanternOk() { const W = parseFloat($("lanW").value), H = parseFloat($("lanH").value);
+  if (!(W >= 39 && W <= 46) || !(H >= 40 && H <= 80)) { toast("W from 39 to 46 and H from 40 to 80, in mm."); return; }
+  hideModals(); newLantern(R4(W), R4(H)); }
+$("lanOk").addEventListener("click", lanternOk);
+$("lanW").addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); $("lanH").select(); } ev.stopPropagation(); });
+$("lanH").addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); lanternOk(); } ev.stopPropagation(); });
+$("saveOk").addEventListener("click", () => { const n = safeName($("saveName").value); if (!n) { $("saveName").focus(); return; }
+  docName = n; hideModals(); doSave(); });
+$("plotOk").addEventListener("click", () => { const k = $("plotDev").value; hideModals(); doPlot(k); });
+const fileIn = document.createElement("input"); fileIn.type = "file"; fileIn.accept = ".dxf,.DXF"; fileIn.id = "file"; fileIn.hidden = true; document.body.appendChild(fileIn);
+fileIn.addEventListener("change", ev => { const f = ev.target.files[0]; if (f) openDrawing(f); ev.target.value = ""; });
+window.addEventListener("resize", () => render());
+cmdIn.addEventListener("blur", () => setTimeout(hideAc, 120));
+
+// ═══════════════════════════ start ═══════════════════════════
+for (const k of Object.keys(tog)) $("tg" + k).classList.toggle("on", tog[k]);
+if (restore()) {
+  for (const k of Object.keys(tog)) $("tg" + k).classList.toggle("on", tog[k]);
+  setTitle(); zoomView(); const who = docName ? `${docName}` : "the last drawing on this computer";
+  log(`Opened ${who}. Not yours? Type NEW and pick the one your packet says.`, "ok"); toast(`Opened ${who}. Not yours? Type NEW.`);
+} else { const st = CAD.start && CAD.tpl[CAD.start] ? CAD.start : "starter"; loadTemplate(st, START_MSG[st] || ""); }
+setPrompt(""); render(); cmdIn.focus();
+window.ts82 = { toScr:p => { const r = cv.getBoundingClientRect(), s = toScr(p); return [s[0] + r.left, s[1] + r.top]; },
+  ents:() => JSON.parse(JSON.stringify(ents)), laserSVG, dxf:drawingDXF, laserDXF:() => dxfText(laserList()), parseDXF,
+  zoom:(x0, y0, x1, y1) => { fitBox(x0, y0, x1, y1, 10); render(); }, view:() => ({ ...view }), busy:() => busy, tog:() => ({ ...tog }),
+  sel:() => selection.size, laserChecks:() => laserChecks(laserList()), tpl:() => tpl };
+</script>
+</body>
+</html>
