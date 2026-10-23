@@ -2,7 +2,7 @@
 
 A small AutoCAD-style drawing tool for TS 82, Exploring STEM through Geometry, at Everett Community College. It runs in the browser and works offline. Nothing a student draws leaves their computer: drawings stay in the browser and save as `.dxf` files.
 
-**Open it:** https://stem-evcc.github.io/geo-cad/
+**Open it:** https://stem-evcc.github.io/geo-cad/ (once Pages is on: Settings → Pages → Deploy from a branch → main, / (root))
 
 ## Turning on the site (once)
 
