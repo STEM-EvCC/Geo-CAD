@@ -4,6 +4,8 @@ A small AutoCAD-style drawing tool for TS 82, Exploring STEM through Geometry, a
 
 **Open it:** https://stem-evcc.github.io/Geo-CAD/ (the capitals matter: Pages addresses follow the repo name exactly)
 
+**The bunny:** a bunny pops up in the bottom corner with a tip when a student is stuck (an error with a known fix, a paver slip, a minute with nothing happening) and flops when the plot is clean. Click it to send it away; **BUNNY** in the status bar turns it off.
+
 ## Turning on the site (once)
 
 1. In this repo: **Settings → Pages**.
