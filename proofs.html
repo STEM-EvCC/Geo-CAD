@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TS 82 Proof Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+/* Layout: one column, the packet's order. Figure and Given/Show, then the proof table, then the tile trays below it. */
+:root {
+  --paper: #f6f7f9;
+  --card: #ffffff;
+  --ink: #1d2433;
+  --muted: #5b6475;
+  --teal: #0f766e;
+  --teal-soft: #e6f4f2;
+  --orange: #c2410c;
+  --orange-soft: #fdf0e8;
+  --blue: #1d4ed8;
+  --line: #cbd2dc;
+  --good: #15803d;
+  --good-soft: #e8f6ec;
+  --tile-s: #e9d8b8;
+  --tile-r: #d9c39a;
+  --tile-edge: #a9854f;
+  --tile-ink: #2a2116;
+  --slot: #fbfcfd;
+  --display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #12161d; --card: #1a2029; --ink: #e8ecf2; --muted: #a3acba; --teal: #3fb8ab; --teal-soft: #15302d;
+    --orange: #f08a5d; --orange-soft: #33221a; --blue: #8fb0ff; --line: #354052; --good: #5ccf85; --good-soft: #17301f;
+    --slot: #161b23; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #12161d; --card: #1a2029; --ink: #e8ecf2; --muted: #a3acba; --teal: #3fb8ab; --teal-soft: #15302d;
+  --orange: #f08a5d; --orange-soft: #33221a; --blue: #8fb0ff; --line: #354052; --good: #5ccf85; --good-soft: #17301f;
+  --slot: #161b23; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font: 17px/1.45 var(--body); }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 16px 48px; }
+.topbar { height: 6px; background: var(--teal); }
+header.page { padding: 18px 0 8px; display: grid; gap: 4px; }
+.kicker a { color: inherit; }
+.kicker { font: 700 12.5px/1.2 var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+h1 { font: 800 clamp(28px, 5vw, 40px)/1.05 var(--display); margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); margin: 4px 0 0; max-width: 66ch; }
+
+nav.picker { display: grid; gap: 8px; margin: 14px 0 18px; }
+.picker-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.picker-label { font-size: 13px; font-weight: 700; color: var(--muted); min-width: 92px; }
+.chip { font: 700 14.5px/1 var(--body); padding: 9px 13px; border-radius: 999px; border: 1.5px solid var(--line);
+  background: var(--card); color: var(--ink); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.chip:hover { border-color: var(--teal); }
+.chip[aria-current="page"] { background: var(--teal); border-color: var(--teal); color: #fff; }
+.chip .done { color: var(--good); font-size: 15px; }
+.chip[aria-current="page"] .done { color: #fff; }
+
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+.problem { display: grid; grid-template-columns: minmax(200px, 300px) 1fr; gap: 18px; padding: 14px 18px; align-items: center; }
+.problem svg { width: 100%; height: auto; display: block; }
+.problem h2 { font: 800 23px/1.15 var(--display); margin: 2px 0 6px; text-wrap: balance; }
+.problem .tag { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--teal); }
+.problem p { margin: 4px 0; }
+.howto { color: var(--muted); font-size: 15px; }
+.real { font-size: 15px; border-left: 3px solid var(--orange); padding-left: 10px; }
+.real:empty { display: none; }
+
+/* proof table */
+.proof { margin-top: 16px; overflow: hidden; }
+.proof-head, .row { display: grid; grid-template-columns: 40px 1fr 1fr; }
+.proof-head { background: var(--teal-soft); font-weight: 700; font-size: 14.5px; }
+.proof-head div { padding: 9px 10px; }
+.row { border-top: 1px solid var(--line); }
+.row .num { display: grid; place-items: center; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.row.ok { background: var(--good-soft); }
+.row.ok .num { color: var(--good); }
+.row.bad { background: var(--orange-soft); }
+.row.bad .num { color: var(--orange); }
+.cell { padding: 6px; border-left: 1px solid var(--line); }
+.slot { min-height: 52px; height: 100%; border: 2px dashed var(--line); border-radius: 8px; background: var(--slot);
+  display: flex; align-items: center; padding: 3px; color: var(--muted); font-size: 14px; cursor: pointer; }
+.slot.empty::before { content: attr(data-hint); padding: 0 8px; }
+.slot.target { border-color: var(--teal); border-style: solid; background: var(--teal-soft); }
+.slot.filled { border-style: solid; border-color: transparent; background: transparent; padding: 0; }
+.slot:focus-visible, .chip:focus-visible, .tile:focus-visible, .btn:focus-visible, .tray:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+.note { grid-column: 2 / -1; padding: 0 10px 8px; font-size: 14.5px; color: var(--orange); font-weight: 700; }
+.row.ok .note { display: none; }
+.locked { padding: 10px 12px; font-weight: 700; }
+
+/* tiles: wood, like the laser-cut ones */
+.tile { font: 700 16px/1.3 var(--body); color: var(--tile-ink); background: var(--tile-s); border: 1.5px solid var(--tile-edge);
+  border-radius: 6px; padding: 10px 12px; text-align: left; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
+  box-shadow: 0 2px 0 var(--tile-edge); width: 100%; position: relative;
+  background-image: repeating-linear-gradient(92deg, rgba(120,80,30,.06) 0 2px, transparent 2px 9px); }
+.tile.r { background-color: var(--tile-r); }
+.tile.selected { outline: 3px solid var(--blue); outline-offset: 2px; }
+.tile.lifted { opacity: .35; }
+.tile.ghost { position: fixed; z-index: 50; pointer-events: none; cursor: grabbing; box-shadow: 0 10px 24px rgba(0,0,0,.28);
+  transform: rotate(-1.5deg); width: auto; max-width: 320px; }
+.tray .tile { width: auto; max-width: 100%; }
+.tile.shake { animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+.trays { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+.tray-box { padding: 12px 14px 14px; }
+.tray-box h3 { margin: 0 0 4px; font: 800 18px/1.2 var(--display); }
+.tray-box .sub { margin: 0 0 10px; font-size: 14px; color: var(--muted); }
+.tray { display: flex; flex-wrap: wrap; gap: 10px; min-height: 64px; padding: 8px; border-radius: 8px; border: 2px dashed transparent; align-content: flex-start; }
+.tray.target { border-color: var(--teal); background: var(--teal-soft); }
+.tray .empty-msg { color: var(--muted); font-size: 14px; align-self: center; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; align-items: center; }
+.btn { font: 700 16px/1 var(--body); padding: 12px 18px; border-radius: 8px; border: 1.5px solid var(--teal); background: var(--card); color: var(--teal); cursor: pointer; }
+.btn.primary { background: var(--teal); color: #fff; }
+.btn:hover { filter: brightness(1.06); }
+
+.coach { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: end; margin-top: 16px; }
+.coach img { width: 96px; height: auto; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.18)); transition: transform .25s; }
+.coach img.flop { width: 140px; margin-left: -30px; }
+.bubble { position: relative; background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; min-height: 52px; }
+.bubble::before { content: ""; position: absolute; left: -9px; bottom: 16px; width: 14px; height: 14px; background: var(--card);
+  border-left: 1.5px solid var(--line); border-bottom: 1.5px solid var(--line); transform: rotate(45deg); }
+.bubble.good { border-color: var(--good); }
+.bubble.good::before { border-color: var(--good); }
+.bubble strong { color: var(--teal); }
+.bubble.good strong { color: var(--good); }
+.checklist { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 3px; font-size: 15px; }
+.checklist li::before { content: "☐ "; color: var(--muted); }
+.checklist li.yes::before { content: "☑ "; color: var(--good); }
+.reflect { margin-top: 10px; display: grid; gap: 6px; }
+.reflect label { font-weight: 700; font-size: 15px; }
+.reflect textarea { font: 16px/1.4 var(--body); padding: 8px 10px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--slot); color: var(--ink); min-height: 64px; }
+
+footer.page { margin-top: 26px; color: var(--muted); font-size: 13.5px; }
+footer.page a { color: var(--teal); }
+
+@media (max-width: 700px) {
+  .problem { grid-template-columns: 1fr; }
+  .problem svg { max-width: 300px; }
+  .trays { grid-template-columns: 1fr; }
+  .proof-head { display: none; }
+  .row { grid-template-columns: 34px 1fr; }
+  .row .cell { grid-column: 2; border-left: 0; padding: 4px 6px; }
+  .row .cell.s { padding-top: 8px; }
+  .row .cell.r { padding-bottom: 8px; }
+  .row .num { grid-row: 1 / span 2; }
+  .note { grid-column: 2; }
+  .picker-label { min-width: 0; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .tile.shake { animation: none; } .tile.ghost { transform: none; } }
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+<div class="wrap">
+  <header class="page">
+    <div class="kicker">TS 82 · Exploring STEM through Geometry · Reason tiles · <a href="./">Open TS 82 CAD</a></div>
+    <h1>Proof Builder</h1>
+    <p class="lede">Drag the tiles into the proof, the same way you laid them out on the table. Every statement needs a reason, and each row can only lean on rows above it. Some reason tiles are fakes.</p>
+  </header>
+
+  <nav class="picker" aria-label="Choose a proof">
+    <div class="picker-row"><span class="picker-label">Week 8 packet</span><span id="pick-packet" class="picker-row"></span></div>
+    <div class="picker-row"><span class="picker-label">Angles</span><span id="pick-angles" class="picker-row"></span></div>
+    <div class="picker-row"><span class="picker-label">Triangles</span><span id="pick-tri" class="picker-row"></span></div>
+  </nav>
+
+  <main>
+    <section class="panel problem" aria-labelledby="ptitle">
+      <div id="fig" role="img"></div>
+      <div>
+        <div class="tag" id="ptag"></div>
+        <h2 id="ptitle"></h2>
+        <p id="pgiven"></p>
+        <p id="pshow"></p>
+        <p class="real" id="preal"></p>
+        <p class="howto">Drag a tile into a row, or tap a tile and then tap a row. Drag it back to its tray to take it out.</p>
+      </div>
+    </section>
+
+    <section class="panel proof" aria-label="Your proof">
+      <div class="proof-head"><div></div><div>Statement (what's true)</div><div>Reason (why I'm allowed to say it)</div></div>
+      <div id="rows"></div>
+    </section>
+
+    <div class="actions">
+      <button class="btn primary" id="check" type="button">Check my proof</button>
+      <button class="btn" id="hint" type="button">Give me a hint</button>
+      <button class="btn" id="reset" type="button">Start over</button>
+    </div>
+
+    <div class="coach" aria-live="polite">
+      <img id="bunny" alt="A white bunny loafing, paws tucked" width="96" height="116">
+      <div class="bubble" id="bubble"></div>
+    </div>
+
+    <section class="trays">
+      <div class="panel tray-box">
+        <h3>Statement tiles</h3>
+        <p class="sub">What's true. These go on the left.</p>
+        <div class="tray" id="tray-s" data-kind="s" tabindex="0" aria-label="Statement tile tray"></div>
+      </div>
+      <div class="panel tray-box">
+        <h3>Reason tiles</h3>
+        <p class="sub" id="rsub">Why you're allowed to say it. These go on the right.</p>
+        <div class="tray" id="tray-r" data-kind="r" tabindex="0" aria-label="Reason tile tray"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="page">TS 82 · Everett Community College · fall 2026. Proofs 1 and 2 match the Week 8 packet, pages 2 and 3; Done early is on page 3. Nothing you do here leaves your computer. <a href="./">TS 82 CAD</a></footer>
+</div>
+
+<script>
+"use strict";
+const BUNNY = { loaf: "data:image/webp;base64,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", flop: "data:image/webp;base64,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" };
+const BUNNY_ALT = { loaf: "A white bunny loafing, paws tucked", flop: "A white bunny flopped out flat: a happy bunny" };
+/* ------------------------------------------------------------------ figures (SVG, viewBox 240 x 150) */
+const R = Math.PI / 180;
+const pt = (p, a, r) => [p[0] + r * Math.cos(a * R), p[1] - r * Math.sin(a * R)];
+const dirOf = (p, q) => ((Math.atan2(p[1] - q[1], q[0] - p[0]) / R) + 360) % 360;
+const f1 = n => Math.round(n * 10) / 10;
+function L(p, q, cls) { return `<line x1="${f1(p[0])}" y1="${f1(p[1])}" x2="${f1(q[0])}" y2="${f1(q[1])}" class="${cls || "ln"}"/>`; }
+function T(p, s, cls) { return `<text x="${f1(p[0])}" y="${f1(p[1])}" class="${cls || "num"}">${s}</text>`; }
+function angNum(v, a0, a1, r, s) { if (a1 < a0) a1 += 360; const b = (a0 + a1) / 2; const q = pt(v, b, r); return T([q[0], q[1] + 4.5], s); }
+const STYLE = `<style>.ln{stroke:var(--ink);stroke-width:1.8;stroke-linecap:round}.tr{stroke:var(--orange);stroke-width:1.8;stroke-linecap:round}
+.dash{stroke:var(--orange);stroke-width:1.5;stroke-dasharray:5 4}.num{fill:var(--blue);font:700 14px var(--body);text-anchor:middle}
+.lab{fill:var(--ink);font:700 13px var(--body);text-anchor:middle}.it{fill:var(--ink);font:italic 14px var(--body)}
+.mut{fill:var(--muted);font:12px var(--body);text-anchor:middle}.mk{stroke:var(--ink);stroke-width:1.4;fill:none}</style>`;
+const svg = (inner, label) => `<svg viewBox="0 0 240 150" aria-label="${label}">${STYLE}${inner}</svg>`;
+
+function figCross() {
+  const c = [120, 75]; let s = "";
+  s += L(pt(c, 20, 100), pt(c, 200, 100)) + L(pt(c, 120, 72), pt(c, 300, 72));
+  [[70, "1"], [160, "2"], [250, "3"], [340, "4"]].forEach(([a, n]) => { const q = pt(c, a, 19); s += T([q[0], q[1] + 5], n); });
+  return svg(s, "Two straight lines cross, making angles 1, 2, 3 and 4 in order around the crossing. Angles 1 and 3 are opposite.");
+}
+function figRails(t, which) {
+  const yN = 118, yM = 42, x0 = 18, x1 = 208, P = [x0 + (x1 - x0) * 0.38, yN];
+  const Q = [P[0] + (yN - yM) / Math.tan(t * R), yM];
+  let s = L([x0, yN], [x1, yN]) + L([x0, yM], [x1, yM]) + L(pt(P, t + 180, 24), pt(Q, t, 24), "tr");
+  s += T([x1 + 10, yN + 5], "n", "it") + T([x1 + 10, yM + 5], "m", "it");
+  const bis = [t / 2, (t + 180) / 2, 180 + t / 2, 270 + t / 2];
+  which.forEach(n => { const v = n <= 4 ? P : Q; const q = pt(v, bis[(n - 1) % 4], 15); s += T([q[0], q[1] + 5], n); });
+  return svg(s, `Lines m and n crossed by a transversal. Angles ${which.join(", ")} are marked. Angles 1 to 4 are at line n, 5 to 8 at line m, numbered upper right, upper left, lower left, lower right.`);
+}
+function figBrace() {
+  const A = [42, 122], B = [198, 122], C = [198, 34], D = [42, 34];
+  const poly = (ps, fill) => `<polygon points="${ps.map(p => p.join(",")).join(" ")}" fill="${fill}"/>`;
+  let s = poly([A, B, C], "var(--teal-soft)") + poly([C, D, A], "var(--orange-soft)");
+  const strip = (p, q) => `<line x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke="#a9854f" stroke-width="11" stroke-linecap="round"/><line x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke="#e2cfa8" stroke-width="8" stroke-linecap="round"/>`;
+  s += strip(A, B) + strip(D, C) + strip(A, D) + strip(B, C) + strip(A, C);
+  [A, B, C, D].forEach(p => { s += `<circle cx="${p[0]}" cy="${p[1]}" r="4.5" fill="#b8860b" stroke="#7a5a08"/>`; });
+  s += T([A[0] - 13, A[1] + 5], "A", "lab") + T([B[0] + 13, B[1] + 5], "B", "lab") + T([C[0] + 13, C[1] + 5], "C", "lab") + T([D[0] - 13, D[1] + 5], "D", "lab");
+  s += T([120, 142], "8 spans", "mut") + T([120, 26], "8 spans", "mut") + T([222, 82], "6", "mut") + T([20, 82], "6", "mut") + T([108, 72], "10", "lab");
+  return svg(s, "A rectangle ABCD made of strips, 8 spans long and 6 spans tall, with a 10-span brace from A to C splitting it into triangles ABC and CDA.");
+}
+function figTriangle() {
+  const A = [30, 128], B = [215, 128], C = [82, 42];
+  let s = L([8, C[1]], [232, C[1]], "dash") + T([232, C[1] - 6], "k", "it");
+  s += L(A, B) + L(A, C) + L(B, C);
+  const aAB = 0, aAC = dirOf(A, C), aBC = dirOf(B, C), aCA = dirOf(C, A), aCB = dirOf(C, B);
+  s += angNum(A, aAB, aAC, 22, "1") + angNum(B, aBC, 180, 24, "2") + angNum(C, aCA, aCB, 18, "3");
+  s += angNum(C, 180, aCA, 26, "4") + angNum(C, aCB, 360, 27, "5");
+  s += T([A[0] - 10, A[1] + 14], "A", "lab") + T([B[0] + 8, B[1] + 14], "B", "lab") + T([C[0], C[1] - 9], "C", "lab");
+  return svg(s, "Triangle ABC with angles 1 at A, 2 at B and 3 at C. A dashed helper line k runs through C parallel to AB. Angle 4 is between k and CA, angle 5 between CB and k.");
+}
+function figTruss() {
+  const A = [22, 122], B = [218, 122], M = [120, 122], C = [120, 44];
+  const poly = (ps, fill) => `<polygon points="${ps.map(p => p.join(",")).join(" ")}" fill="${fill}"/>`;
+  let s = poly([A, M, C], "var(--teal-soft)") + poly([B, M, C], "var(--orange-soft)");
+  s += L(A, B) + L(A, C) + L(B, C) + L(M, C, "tr");
+  s += L([71, 116], [71, 128], "mk") + L([169, 116], [169, 128], "mk");
+  s += `<path d="M ${M[0] - 9} ${M[1]} V ${M[1] - 9} H ${M[0]} M ${M[0] + 9} ${M[1]} V ${M[1] - 9} H ${M[0]}" class="mk"/>`;
+  s += T([M[0] - 18, M[1] - 3], "1") + T([M[0] + 18, M[1] - 3], "2");
+  s += T([A[0] - 10, A[1] + 5], "A", "lab") + T([B[0] + 10, B[1] + 5], "B", "lab") + T([C[0], C[1] - 8], "C", "lab") + T([M[0], M[1] + 17], "M", "lab");
+  s += T([58, 74], "rafter", "mut") + T([182, 74], "rafter", "mut") + T([71, 142], "chord", "mut");
+  return svg(s, "A king post truss: chord AB with middle M, peak C, rafters AC and BC, and the king post CM square to the chord. Tick marks show AM equals MB; small squares show angles 1 and 2 are 90 degrees.");
+}
+
+
+function angAt(v, p, q, r, label, marks) {   // label the smaller angle at v between rays vp and vq
+  let a0 = dirOf(v, p), a1 = dirOf(v, q);
+  if (((a1 - a0 + 360) % 360) > 180) [a0, a1] = [a1, a0];
+  let out = "";
+  if (marks) for (let k = 0; k < marks; k++) {
+    const rr = 9 + k * 3.5, e = a1 < a0 ? a1 + 360 : a1, s0 = pt(v, a0, rr), s1 = pt(v, e, rr);
+    out += `<path d="M ${f1(s0[0])} ${f1(s0[1])} A ${rr} ${rr} 0 0 0 ${f1(s1[0])} ${f1(s1[1])}" class="mk"/>`;
+  }
+  return out + (label ? angNum(v, a0, a1 < a0 ? a1 + 360 : a1, r, label) : "");
+}
+function tickMark(p, q, n) {
+  const m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], a = Math.atan2(q[1] - p[1], q[0] - p[0]);
+  let o = ""; for (let k = 0; k < n; k++) { const sh = (k - (n - 1) / 2) * 4, c = [m[0] + sh * Math.cos(a), m[1] + sh * Math.sin(a)];
+    o += L([c[0] - 6 * Math.sin(a), c[1] + 6 * Math.cos(a)], [c[0] + 6 * Math.sin(a), c[1] - 6 * Math.cos(a)], "mk"); }
+  return o;
+}
+function sqMark(v, p, q, s = 9) {
+  const u = [p[0] - v[0], p[1] - v[1]], w = [q[0] - v[0], q[1] - v[1]], lu = Math.hypot(...u), lw = Math.hypot(...w);
+  const a = [v[0] + u[0] / lu * s, v[1] + u[1] / lu * s], b = [v[0] + w[0] / lw * s, v[1] + w[1] / lw * s];
+  return `<path d="M ${f1(a[0])} ${f1(a[1])} L ${f1(a[0] + b[0] - v[0])} ${f1(a[1] + b[1] - v[1])} L ${f1(b[0])} ${f1(b[1])}" class="mk"/>`;
+}
+function figExterior() {
+  const A = [95, 34], B = [25, 122], C = [160, 122], D = [228, 122];
+  let s = L(B, C) + L(C, D, "tr") + L(A, B) + L(A, C);
+  s += angAt(A, B, C, 20, "1") + angAt(B, C, A, 22, "2") + angAt(C, A, B, 18, "3") + angAt(C, D, A, 18, "4");
+  s += T([A[0], A[1] - 8], "A", "lab") + T([B[0] - 9, B[1] + 14], "B", "lab") + T([C[0], C[1] + 16], "C", "lab") + T([D[0] - 4, D[1] + 16], "D", "lab");
+  return svg(s, "Triangle ABC with side BC extended past C to D. Angle 1 at A, angle 2 at B, angle 3 inside the triangle at C, and angle 4 outside it at C, between CD and CA.");
+}
+function figQuad() {
+  const A = [28, 112], B = [150, 128], C = [214, 44], D = [72, 28];
+  let s = `<polygon points="${[A, B, C, D].map(p => p.join(",")).join(" ")}" fill="var(--teal-soft)"/>`;
+  s += L(A, B) + L(B, C) + L(C, D) + L(D, A) + L(A, C, "tr");
+  s += angAt(A, B, C, 36, "1") + angAt(B, C, A, 18, "2") + angAt(C, A, B, 40, "3") + angAt(C, D, A, 40, "4") + angAt(D, A, C, 18, "5") + angAt(A, C, D, 34, "6");
+  s += T([A[0] - 11, A[1] + 6], "A", "lab") + T([B[0] + 3, B[1] + 15], "B", "lab") + T([C[0] + 11, C[1] + 2], "C", "lab") + T([D[0] - 4, D[1] - 7], "D", "lab");
+  return svg(s, "Four-sided frame ABCD with a diagonal from A to C. Triangle ABC has angles 1 at A, 2 at B and 3 at C. Triangle ACD has angles 4 at C, 5 at D and 6 at A.");
+}
+function figSquareCheck() {
+  const A = [45, 122], B = [195, 122], C = [195, 38], D = [45, 38];
+  let s = `<polygon points="${[D, A, B].map(p => p.join(",")).join(" ")}" fill="var(--teal-soft)"/>`;
+  s += L(A, B) + L(B, C) + L(C, D) + L(D, A) + L(A, C, "tr") + L(B, D, "tr");
+  s += sqMark(A, B, D) + sqMark(B, A, C) + tickMark(D, A, 1) + tickMark(B, C, 1);
+  s += T([A[0] - 11, A[1] + 6], "A", "lab") + T([B[0] + 11, B[1] + 6], "B", "lab") + T([C[0] + 11, C[1] + 4], "C", "lab") + T([D[0] - 11, D[1] + 4], "D", "lab");
+  return svg(s, "Rectangle ABCD with both diagonals, AC and BD. Small squares mark 90 degree corners at A and B, and tick marks show DA equals CB. Triangle DAB is shaded.");
+}
+function figKite() {
+  const B = [120, 22], D = [120, 132], A = [52, 66], C = [188, 66];
+  let s = `<polygon points="${[A, B, D].map(p => p.join(",")).join(" ")}" fill="var(--teal-soft)"/><polygon points="${[C, B, D].map(p => p.join(",")).join(" ")}" fill="var(--orange-soft)"/>`;
+  s += L(A, B) + L(B, C) + L(C, D) + L(D, A) + L(B, D, "tr");
+  s += angAt(B, A, D, 26, "1", 1) + angAt(B, D, C, 26, "2", 1) + angAt(D, A, B, 30, "3", 2) + angAt(D, B, C, 30, "4", 2);
+  s += T([A[0] - 11, A[1] + 5], "A", "lab") + T([B[0], B[1] - 7], "B", "lab") + T([C[0] + 11, C[1] + 5], "C", "lab") + T([D[0], D[1] + 16], "D", "lab");
+  return svg(s, "A kite frame ABCD with a spar from B to D. At B, angles 1 and 2 each have one arc, so they are equal. At D, angles 3 and 4 each have two arcs, so they are equal.");
+}
+
+/* ------------------------------------------------------------------ the proofs
+   statements: id, text, reasons (keys that fit), needs (statement ids that must be above), hint
+   reasons: key, text, fake (why it can't be a reason) or extra (true rule, just not needed here) */
+const FAKE_LOOKS = { key: "looks", text: "They look the same size.", fake: "Looks aren't reasons. Rail B was 2° off and most eyes said parallel." };
+const FAKE_MEASURE = { key: "measured", text: "I measured them with a protractor.", fake: "A protractor checks one drawing, give or take a degree. A proof has to work for every drawing." };
+const FAKE_SSA = { key: "ssa", text: "SSA: two sides and an angle not between them", fake: "SSA can make two different triangles (page 7), so it can't prove two triangles match." };
+
+const PROOFS = [
+  { id: "proof-1", group: "packet", chip: "Proof 1", tag: "Packet page 2 · vertical angles", title: "Vertical angles are equal",
+    given: "Two straight lines cross.", show: "∠1 = ∠3", fig: figCross,
+    statements: [
+      { id: "a", text: "∠1 and ∠2 make a straight line.", reasons: ["fig"], needs: [], hint: "This row is about how the figure is built. Which tile says that?" },
+      { id: "b", text: "∠1 + ∠2 = 180°", reasons: ["line"], needs: ["a"], hint: "Two angles that make a straight line add up to something. Which rule says what?" },
+      { id: "c", text: "∠2 and ∠3 make a straight line.", reasons: ["fig"], needs: [], hint: "This row is about how the figure is built. Which tile says that?" },
+      { id: "d", text: "∠2 + ∠3 = 180°", reasons: ["line"], needs: ["c"], hint: "Two angles that make a straight line add up to something. Which rule says what?" },
+      { id: "e", text: "∠1 + ∠2 = ∠2 + ∠3", reasons: ["both"], needs: ["b", "d"], hint: "Each side of this equation is equal to the same number. Which two rows above say so?" },
+      { id: "f", text: "∠1 = ∠3", reasons: ["take2"], needs: ["e"], hint: "Look at the row above. What's on both sides of it? Take that away." }],
+    goal: "f",
+    reasons: [{ key: "fig", text: "Shown in the figure" }, { key: "fig", text: "Shown in the figure" },
+      { key: "line", text: "Angles on a straight line add to 180° (linear pair)" }, { key: "line", text: "Angles on a straight line add to 180° (linear pair)" },
+      { key: "both", text: "Both equal 180°" }, { key: "take2", text: "Take ∠2 away from both sides" }, FAKE_LOOKS, FAKE_MEASURE],
+    rsub: "Two of these are fakes. Leave them out.", reflect: true },
+
+  { id: "proof-2", group: "packet", chip: "Proof 2", tag: "Packet page 3 · alternate interior angles", title: "Alternate interior angles",
+    given: "line m ∥ line n (∥ means parallel)", show: "∠1 = ∠7", fig: () => figRails(62, [1, 5, 7]),
+    prefill: { id: "g", text: "Line m ∥ line n", reason: "Given" },
+    statements: [
+      { id: "g", text: "Line m ∥ line n", reasons: ["given"], needs: [], hint: "" },
+      { id: "a", text: "∠1 = ∠5", reasons: ["corr"], needs: ["g"], hint: "∠1 and ∠5 sit in the same spot at each crossing. Which rule is about that, and what has to be true first?" },
+      { id: "b", text: "∠5 = ∠7", reasons: ["vert"], needs: [], hint: "∠5 and ∠7 are across from each other at one crossing. You proved this in Proof 1." },
+      { id: "c", text: "∠1 = ∠7", reasons: ["both5"], needs: ["a", "b"], hint: "∠1 and ∠7 are each equal to the same angle. Which one?" }],
+    goal: "c",
+    reasons: [{ key: "corr", text: "Corresponding angles on parallel lines are equal" }, { key: "vert", text: "Vertical angles are equal (Proof 1)" },
+      { key: "both5", text: "Both equal ∠5" }, { key: "line", text: "Angles on a straight line add to 180°", extra: true }],
+    rsub: "One of these isn't needed.", reflect: false },
+
+  { id: "done-early", group: "packet", chip: "Done early", tag: "Packet page 3 · Done early", title: "Prove that ∠2 = ∠8",
+    given: "line m ∥ line n", show: "∠2 = ∠8", fig: () => figRails(62, [1, 2, 5, 7, 8]),
+    statements: [
+      { id: "g", text: "Line m ∥ line n", reasons: ["given"], needs: [], hint: "Start with what you were told." },
+      { id: "a", text: "∠1 = ∠7", reasons: ["alt"], needs: ["g"], hint: "You proved this exact fact in Proof 2. What does it need first?" },
+      { id: "b", text: "∠1 + ∠2 = 180°", reasons: ["line"], needs: [], hint: "∠1 and ∠2 sit side by side on line n. Which rule?" },
+      { id: "c", text: "∠7 + ∠8 = 180°", reasons: ["line"], needs: [], hint: "∠7 and ∠8 sit side by side on line m. Which rule?" },
+      { id: "d", text: "∠1 + ∠2 = ∠7 + ∠8", reasons: ["both"], needs: ["b", "c"], hint: "Each side equals the same number. Which rows say so?" },
+      { id: "e", text: "∠2 = ∠8", reasons: ["takeEq"], needs: ["d", "a"], hint: "From the row before it, take away two angles you already know are equal." }],
+    goal: "e",
+    reasons: [{ key: "given", text: "Given" }, { key: "alt", text: "Alternate interior angles on parallel lines are equal (Proof 2)" },
+      { key: "line", text: "Angles on a straight line add to 180°" }, { key: "line", text: "Angles on a straight line add to 180°" },
+      { key: "both", text: "Both equal 180°" }, { key: "takeEq", text: "Take ∠1 from one side and ∠7 from the other (they're equal)" }, FAKE_LOOKS, FAKE_MEASURE],
+    rsub: "Two of these are fakes.", reflect: true },
+
+  { id: "example-1", group: "angles", chip: "Find ∠2", tag: "Board example 1 · page 1 as a proof", title: "Page 1, written as a proof",
+    given: "∠1 = 65°", show: "∠2 = 115°", fig: () => figRails(65, [1, 2, 3, 5]),
+    statements: [
+      { id: "a", text: "∠1 and ∠2 make a straight line.", reasons: ["fig"], needs: [], hint: "This row is about how the figure is built." },
+      { id: "b", text: "∠1 + ∠2 = 180°", reasons: ["line"], needs: ["a"], hint: "Angles that make a straight line add to what?" },
+      { id: "c", text: "∠1 = 65°", reasons: ["given"], needs: [], hint: "Where did 65° come from?" },
+      { id: "d", text: "65° + ∠2 = 180°", reasons: ["sub"], needs: ["b", "c"], hint: "You swapped ∠1 for a number. Which two rows let you?" },
+      { id: "e", text: "∠2 = 115°", reasons: ["take65"], needs: ["d"], hint: "Undo the 65° from the row above." }],
+    goal: "e",
+    reasons: [{ key: "fig", text: "Shown in the figure" }, { key: "line", text: "Angles on a straight line add to 180°" }, { key: "given", text: "Given" },
+      { key: "sub", text: "Put 65° in for ∠1" }, { key: "take65", text: "Take 65° away from both sides" }, FAKE_MEASURE],
+    rsub: "One of these is a fake.", reflect: true },
+
+  { id: "example-2", group: "angles", chip: "Same-side angles", tag: "Board example 2 · inside job", title: "Same-side angles add to 180°",
+    given: "line m ∥ line n", show: "∠1 + ∠8 = 180°", fig: () => figRails(62, [1, 4, 8]),
+    statements: [
+      { id: "g", text: "Line m ∥ line n", reasons: ["given"], needs: [], hint: "Start with what you were told." },
+      { id: "a", text: "∠4 = ∠8", reasons: ["corr"], needs: ["g"], hint: "∠4 and ∠8 sit in the same spot at each crossing. What has to be true first?" },
+      { id: "b", text: "∠1 and ∠4 make a straight line.", reasons: ["fig"], needs: [], hint: "This row is about how the figure is built." },
+      { id: "c", text: "∠1 + ∠4 = 180°", reasons: ["line"], needs: ["b"], hint: "Angles that make a straight line add to what?" },
+      { id: "d", text: "∠1 + ∠8 = 180°", reasons: ["sub"], needs: ["a", "c"], hint: "You swapped ∠4 for ∠8. Which two rows let you?" }],
+    goal: "d",
+    reasons: [{ key: "given", text: "Given" }, { key: "corr", text: "Corresponding angles on parallel lines are equal" }, { key: "fig", text: "Shown in the figure" },
+      { key: "line", text: "Angles on a straight line add to 180°" }, { key: "sub", text: "Put ∠8 in for ∠4" },
+      { key: "vert", text: "Vertical angles are equal (Proof 1)", extra: true }, FAKE_LOOKS],
+    rsub: "One isn't needed, and one is a fake.", reflect: true },
+
+  { id: "alt-exterior", group: "angles", chip: "Alternate exterior", tag: "Angles practice · outside the rails", title: "Alternate exterior angles",
+    given: "line m ∥ line n", show: "∠3 = ∠5", fig: () => figRails(62, [1, 3, 5]),
+    statements: [
+      { id: "g", text: "Line m ∥ line n", reasons: ["given"], needs: [], hint: "Start with what you were told." },
+      { id: "a", text: "∠1 = ∠5", reasons: ["corr"], needs: ["g"], hint: "∠1 and ∠5 sit in the same spot at each crossing. What has to be true first?" },
+      { id: "b", text: "∠1 = ∠3", reasons: ["vert"], needs: [], hint: "∠1 and ∠3 are across from each other at one crossing. You proved this in Proof 1." },
+      { id: "c", text: "∠3 = ∠5", reasons: ["both1"], needs: ["a", "b"], hint: "∠3 and ∠5 are each equal to the same angle. Which one?" }],
+    goal: "c",
+    reasons: [{ key: "given", text: "Given" }, { key: "corr", text: "Corresponding angles on parallel lines are equal" },
+      { key: "vert", text: "Vertical angles are equal (Proof 1)" }, { key: "both1", text: "Both equal ∠1" },
+      { key: "line", text: "Angles on a straight line add to 180°", extra: true }, FAKE_LOOKS],
+    rsub: "One isn't needed, and one is a fake.", reflect: true },
+
+  { id: "example-4", group: "angles", chip: "Triangle angle sum", tag: "Board example 4 · page 6", title: "A triangle's angles add to 180°",
+    given: "helper line k through C, drawn parallel to AB", show: "∠1 + ∠2 + ∠3 = 180°", fig: figTriangle,
+    statements: [
+      { id: "g", text: "Line k ∥ AB", reasons: ["drew"], needs: [], hint: "Why is k parallel to AB? Who put it there?" },
+      { id: "a", text: "∠4 = ∠1", reasons: ["alt"], needs: ["g"], hint: "∠4 and ∠1 are alternate interior angles. What has to be true first?" },
+      { id: "b", text: "∠5 = ∠2", reasons: ["alt"], needs: ["g"], hint: "∠5 and ∠2 are alternate interior angles. What has to be true first?" },
+      { id: "c", text: "∠4 + ∠3 + ∠5 = 180°", reasons: ["line"], needs: [], hint: "∠4, ∠3 and ∠5 line up along k. Which rule?" },
+      { id: "d", text: "∠1 + ∠3 + ∠2 = 180°", reasons: ["sub2"], needs: ["a", "b", "c"], hint: "You swapped two angles for two others. Which rows let you?" }],
+    goal: "d",
+    reasons: [{ key: "drew", text: "Given: we drew it that way" },
+      { key: "alt", text: "Alternate interior angles on parallel lines are equal (Proof 2)" }, { key: "alt", text: "Alternate interior angles on parallel lines are equal (Proof 2)" },
+      { key: "line", text: "Angles on a straight line add to 180°" }, { key: "sub2", text: "Put ∠1 in for ∠4 and ∠2 in for ∠5" },
+      { key: "measured", text: "I measured all three with a protractor.", fake: FAKE_MEASURE.fake }],
+    rsub: "One of these is a fake.", reflect: true },
+
+  { id: "exterior-angle", group: "angles", chip: "Outside angle", tag: "Angles practice · uses the triangle angle sum", title: "An outside angle equals the two far inside angles",
+    given: "triangle ABC, with side BC extended to D", show: "∠4 = ∠1 + ∠2", fig: figExterior,
+    statements: [
+      { id: "a", text: "∠1 + ∠2 + ∠3 = 180°", reasons: ["tri"], needs: [], hint: "These are the three angles inside one triangle. What do they add to, and which practice proof showed it?" },
+      { id: "b", text: "∠3 and ∠4 make a straight line.", reasons: ["fig"], needs: [], hint: "This row is about how the figure is built." },
+      { id: "c", text: "∠3 + ∠4 = 180°", reasons: ["line"], needs: ["b"], hint: "Angles that make a straight line add to what?" },
+      { id: "d", text: "∠1 + ∠2 + ∠3 = ∠3 + ∠4", reasons: ["both"], needs: ["a", "c"], hint: "Each side equals the same number. Which rows say so?" },
+      { id: "e", text: "∠4 = ∠1 + ∠2", reasons: ["take3"], needs: ["d"], hint: "What angle shows up on both sides of the row above? Take it away." }],
+    goal: "e",
+    reasons: [{ key: "tri", text: "A triangle's angles add to 180° (Triangle angle sum)" }, { key: "fig", text: "Shown in the figure" },
+      { key: "line", text: "Angles on a straight line add to 180°" }, { key: "both", text: "Both equal 180°" },
+      { key: "take3", text: "Take ∠3 away from both sides" },
+      { key: "corr", text: "Corresponding angles on parallel lines are equal", extra: true }, FAKE_MEASURE],
+    rsub: "One isn't needed, and one is a fake.", reflect: true },
+
+  { id: "four-sides", group: "angles", chip: "Four-sided frame", tag: "Angles practice · two triangles make a frame", title: "A four-sided frame's angles add to 360°",
+    given: "frame ABCD, with a diagonal from A to C", show: "∠A + ∠B + ∠C + ∠D = 360°", fig: figQuad,
+    real: "<b>Where you'd see it:</b> any four-sided frame, square or not. Split a five-sided frame the same way and you get three triangles: 540°.",
+    statements: [
+      { id: "a", text: "∠1 + ∠2 + ∠3 = 180°", reasons: ["tri"], needs: [], hint: "∠1, ∠2 and ∠3 are the angles of triangle ABC." },
+      { id: "b", text: "∠4 + ∠5 + ∠6 = 180°", reasons: ["tri"], needs: [], hint: "∠4, ∠5 and ∠6 are the angles of triangle ACD." },
+      { id: "c", text: "∠1 + ∠2 + ∠3 + ∠4 + ∠5 + ∠6 = 360°", reasons: ["add"], needs: ["a", "b"], hint: "Put the two triangles together. Which two rows?" },
+      { id: "d", text: "∠A + ∠B + ∠C + ∠D = 360°", reasons: ["regroup"], needs: ["c"], hint: "Each corner of the frame is made of one or two of the small angles. Look at A and C." }],
+    goal: "d",
+    reasons: [{ key: "tri", text: "A triangle's angles add to 180°" }, { key: "tri", text: "A triangle's angles add to 180°" },
+      { key: "add", text: "Add the two rows: 180° + 180° = 360°" },
+      { key: "regroup", text: "∠1 + ∠6 is ∠A, ∠2 is ∠B, ∠3 + ∠4 is ∠C, ∠5 is ∠D" },
+      { key: "square", text: "A square's corners add to 360°.", fake: "One example (a square) doesn't cover every four-sided frame. That's checking one drawing, not a proof." }, FAKE_LOOKS],
+    rsub: "Two of these are fakes.", reflect: true },
+  { id: "example-3", group: "tri", chip: "Braced rectangle", tag: "Board example 3 · page 5 strips", title: "The brace makes two congruent triangles",
+    given: "AB and CD are 8-span strips; BC and DA are 6-span strips.", show: "triangle ABC ≅ triangle CDA, so ∠B = ∠D", fig: figBrace,
+    statements: [
+      { id: "a", text: "AB = CD", reasons: ["g8"], needs: [], hint: "How long are those two strips?" },
+      { id: "b", text: "BC = DA", reasons: ["g6"], needs: [], hint: "How long are those two strips?" },
+      { id: "c", text: "AC = AC", reasons: ["same"], needs: [], hint: "Both triangles use this side. Why is it equal to itself?" },
+      { id: "d", text: "Triangle ABC ≅ triangle CDA", reasons: ["sss"], needs: ["a", "b", "c"], hint: "You have three matching sides above. Which rule from page 5 is that?" },
+      { id: "e", text: "∠B = ∠D", reasons: ["cpct"], needs: ["d"], hint: "Once two triangles are congruent, what do you know about their matching parts?" }],
+    goal: "e",
+    reasons: [{ key: "g8", text: "Given: both strips are 8 spans" }, { key: "g6", text: "Given: both strips are 6 spans" },
+      { key: "same", text: "Same strip: both triangles share it" }, { key: "sss", text: "SSS: all three sides match" },
+      { key: "cpct", text: "Matching parts of congruent triangles are equal" }, FAKE_SSA, FAKE_LOOKS],
+    rsub: "Two of these are fakes.", reflect: true },
+
+  { id: "example-5", group: "tri", chip: "Truss rafters", tag: "Board example 5 · the Week 9 truss", title: "Both rafters come out equal",
+    real: "<b>Where you'd see it:</b> a framer cuts one rafter, checks its fit, then uses it as the pattern for the rest. This proof is why that works.",
+    given: "M is the middle of chord AB, and king post CM is square to the chord.", show: "AC = BC", fig: figTruss,
+    statements: [
+      { id: "a", text: "AM = MB", reasons: ["gmid"], needs: [], hint: "What do the tick marks, and the word middle, tell you?" },
+      { id: "b", text: "∠1 = ∠2 (both 90°)", reasons: ["gsq"], needs: [], hint: "What do the little squares tell you?" },
+      { id: "c", text: "CM = CM", reasons: ["same"], needs: [], hint: "Both triangles use the king post. Why is it equal to itself?" },
+      { id: "d", text: "Triangle AMC ≅ triangle BMC", reasons: ["sas"], needs: ["a", "b", "c"], hint: "Two sides and the angle between them match. Which rule from page 6?" },
+      { id: "e", text: "AC = BC", reasons: ["cpct"], needs: ["d"], hint: "Once two triangles are congruent, what do you know about their matching parts?" }],
+    goal: "e",
+    reasons: [{ key: "gmid", text: "Given: M is the middle of the chord" }, { key: "gsq", text: "Given: the king post is square to the chord" },
+      { key: "same", text: "Same piece: both triangles share the king post" }, { key: "sas", text: "SAS: two sides and the angle between them" },
+      { key: "cpct", text: "Matching parts of congruent triangles are equal" }, FAKE_SSA, FAKE_LOOKS],
+    rsub: "Two of these are fakes.", reflect: true },
+
+  { id: "square-check", group: "tri", chip: "Square check", tag: "Triangles practice · SAS", title: "A rectangle's diagonals match",
+    given: "ABCD is a rectangle: DA = CB, and the corners at A and B are 90°.", show: "BD = AC (the diagonals match)", fig: figSquareCheck,
+    real: "<b>Where you'd see it:</b> framers check a wall, deck or cabinet by measuring both diagonals. If they don't match, the frame isn't square: the same logic as last week's near miss. (Woodsmith, Jig for Square Assemblies; InspectApedia, Deck Square Up.)",
+    statements: [
+      { id: "a", text: "DA = CB", reasons: ["gside"], needs: [], hint: "What do the tick marks tell you about those two sides?" },
+      { id: "b", text: "∠DAB = ∠CBA (both 90°)", reasons: ["gsq"], needs: [], hint: "What do the little squares tell you?" },
+      { id: "c", text: "AB = BA", reasons: ["same"], needs: [], hint: "Both triangles use the bottom side. Why is it equal to itself?" },
+      { id: "d", text: "Triangle DAB ≅ triangle CBA", reasons: ["sas"], needs: ["a", "b", "c"], hint: "Two sides and the angle between them match. Which rule from page 6?" },
+      { id: "e", text: "BD = AC", reasons: ["cpct"], needs: ["d"], hint: "Once two triangles are congruent, what do you know about their matching parts?" }],
+    goal: "e",
+    reasons: [{ key: "gside", text: "Given: opposite sides of a rectangle" }, { key: "gsq", text: "Given: a rectangle's corners are square" },
+      { key: "same", text: "Same side: both triangles share it" }, { key: "sas", text: "SAS: two sides and the angle between them" },
+      { key: "cpct", text: "Matching parts of congruent triangles are equal" }, FAKE_SSA,
+      { key: "tape", text: "I measured both diagonals with a tape.", fake: "A tape checks one frame, with error. The proof covers every rectangle, which is why the tape check works at all." }],
+    rsub: "Two of these are fakes.", reflect: true },
+
+  { id: "kite-frame", group: "tri", chip: "Kite frame", tag: "Triangles practice · ASA", title: "A kite's sides match",
+    given: "the marks show ∠1 = ∠2 and ∠3 = ∠4. BD is the spar.", show: "AB = CB", fig: figKite,
+    statements: [
+      { id: "a", text: "∠1 = ∠2", reasons: ["gmark"], needs: [], hint: "What do the single arcs at B tell you?" },
+      { id: "b", text: "BD = BD", reasons: ["same"], needs: [], hint: "Both triangles use the spar. Why is it equal to itself?" },
+      { id: "c", text: "∠3 = ∠4", reasons: ["gmark"], needs: [], hint: "What do the double arcs at D tell you?" },
+      { id: "d", text: "Triangle ABD ≅ triangle CBD", reasons: ["asa"], needs: ["a", "b", "c"], hint: "Two angles and the side between them match. Which rule from page 6?" },
+      { id: "e", text: "AB = CB", reasons: ["cpct"], needs: ["d"], hint: "Once two triangles are congruent, what do you know about their matching parts?" }],
+    goal: "e",
+    reasons: [{ key: "gmark", text: "Given: the arcs show they're equal" }, { key: "gmark", text: "Given: the arcs show they're equal" },
+      { key: "same", text: "Same spar: both triangles share it" }, { key: "asa", text: "ASA: two angles and the side between them" },
+      { key: "cpct", text: "Matching parts of congruent triangles are equal" },
+      { key: "aaa", text: "AAA: all three angles match", fake: "Matching angles can come in different sizes, like a photo and its enlargement. AAA can't prove two triangles are the same size." }, FAKE_SSA],
+    rsub: "Two of these are fakes.", reflect: true }
+];
+
+/* ------------------------------------------------------------------ state */
+let P = null;           // current proof
+let cards = {};         // id -> card
+let order = { s: [], r: [] };   // tray order
+let place = {};         // slotId ("s3", "r3") -> card id
+let marks = null;       // result of the last check, or null
+let selected = null;    // card id picked with a tap
+const $ = id => document.getElementById(id);
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage off: fine */ } }
+};
+let done = store.get("ts82-proof-builder-done") || [];
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const nRows = () => P.statements.length;
+const firstRow = () => (P.prefill ? 2 : 1);
+
+function load(id, keepHash) {
+  P = PROOFS.find(p => p.id === id) || PROOFS[0];
+  cards = {}; place = {}; marks = null; selected = null;
+  const s = [], r = [];
+  P.statements.forEach(st => { if (P.prefill && st.id === P.prefill.id) return; const cid = "S" + st.id; cards[cid] = { id: cid, kind: "s", text: st.text, sid: st.id }; s.push(cid); });
+  P.reasons.forEach((rs, i) => { const cid = "R" + i; cards[cid] = { id: cid, kind: "r", text: rs.text, key: rs.key, fake: rs.fake, extra: rs.extra }; r.push(cid); });
+  order = { s: shuffle(s), r: shuffle(r) };
+  if (!keepHash && location.hash !== "#" + P.id) { try { history.replaceState(null, "", "#" + P.id); } catch (e) { location.hash = P.id; } }
+  renderProblem(); renderPicker(); render();
+  say(`<strong>${P.chip}.</strong> Drag a statement tile into row ${firstRow()}. Look for one that needs nothing above it: something given or shown in the figure.`);
+}
+
+/* ------------------------------------------------------------------ rendering */
+function renderPicker() {
+  [["packet", "pick-packet"], ["angles", "pick-angles"], ["tri", "pick-tri"]].forEach(([g, el]) => {
+    $(el).innerHTML = "";
+    PROOFS.filter(p => p.group === g).forEach(p => {
+      const b = document.createElement("button");
+      b.className = "chip"; b.type = "button";
+      b.innerHTML = (done.includes(p.id) ? '<span class="done" aria-label="done">✓</span>' : "") + p.chip;
+      if (p.id === P.id) b.setAttribute("aria-current", "page");
+      b.onclick = () => load(p.id);
+      $(el).appendChild(b);
+    });
+  });
+}
+function renderProblem() {
+  $("fig").innerHTML = P.fig();
+  $("ptag").textContent = P.tag;
+  $("ptitle").textContent = P.title;
+  $("pgiven").innerHTML = "<b>Given:</b> " + P.given;
+  $("pshow").innerHTML = "<b>Show that</b> " + P.show + ".";
+  $("preal").innerHTML = P.real || "";
+  $("rsub").textContent = "Why you're allowed to say it. " + P.rsub;
+}
+function tileEl(card) {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "tile " + card.kind + (selected === card.id ? " selected" : "");
+  b.textContent = card.text; b.dataset.card = card.id;
+  b.setAttribute("aria-pressed", selected === card.id ? "true" : "false");
+  return b;
+}
+function render() {
+  const rows = $("rows"); rows.innerHTML = "";
+  for (let i = 1; i <= nRows(); i++) {
+    const row = document.createElement("div");
+    const m = marks && marks.rows[i];
+    row.className = "row" + (m ? " " + m.status : "");
+    const num = document.createElement("div"); num.className = "num"; num.textContent = i; row.appendChild(num);
+    if (P.prefill && i === 1) {
+      row.insertAdjacentHTML("beforeend", `<div class="cell s"><div class="locked">${P.prefill.text}</div></div><div class="cell r"><div class="locked">${P.prefill.reason}</div></div>`);
+      rows.appendChild(row); continue;
+    }
+    ["s", "r"].forEach(k => {
+      const cell = document.createElement("div"); cell.className = "cell " + k;
+      const slot = document.createElement("div");
+      const cid = place[k + i];
+      slot.className = "slot " + (cid ? "filled" : "empty");
+      slot.dataset.slot = k + i; slot.dataset.kind = k; slot.tabIndex = 0;
+      slot.setAttribute("role", "button");
+      slot.setAttribute("aria-label", `Row ${i} ${k === "s" ? "statement" : "reason"}${cid ? ": " + cards[cid].text : ", empty"}`);
+      slot.dataset.hint = k === "s" ? "Drop a statement" : "Drop a reason";
+      if (cid) slot.appendChild(tileEl(cards[cid]));
+      cell.appendChild(slot); row.appendChild(cell);
+    });
+    if (m && m.note) { const n = document.createElement("div"); n.className = "note"; n.textContent = m.note; row.appendChild(n); }
+    rows.appendChild(row);
+  }
+  ["s", "r"].forEach(k => {
+    const tray = $("tray-" + k); tray.innerHTML = "";
+    const placed = new Set(Object.values(place));
+    const left = order[k].filter(c => !placed.has(c));
+    left.forEach(c => tray.appendChild(tileEl(cards[c])));
+    if (!left.length) tray.innerHTML = `<span class="empty-msg">${k === "s" ? "Every statement is in the proof." : "Every reason tile is in use."}</span>`;
+  });
+}
+function say(html, good) {
+  const b = $("bubble"); b.innerHTML = html; b.classList.toggle("good", !!good);
+  const img = $("bunny"), pose = good ? "flop" : "loaf";
+  if (img.dataset.pose !== pose) { img.src = BUNNY[pose]; img.alt = BUNNY_ALT[pose]; img.dataset.pose = pose; img.classList.toggle("flop", !!good); }
+}
+
+/* ------------------------------------------------------------------ moving tiles */
+function slotOf(cid) { return Object.keys(place).find(s => place[s] === cid) || null; }
+function moveTo(cid, target) {          // target: slot id, or "tray"
+  const from = slotOf(cid);
+  if (target === "tray") { if (from) delete place[from]; }
+  else {
+    if (target[0] !== cards[cid].kind) return false;
+    const occupant = place[target];
+    if (from) delete place[from];
+    if (occupant && occupant !== cid) { if (from) place[from] = occupant; else delete place[target]; }
+    place[target] = cid;
+  }
+  marks = null; selected = null; render();
+  return true;
+}
+function bump(el) { if (!el) return; el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); }
+function wrongKind(kind) { say(kind === "s" ? "That's a statement tile. Statements go in the left column." : "That's a reason tile. Reasons go in the right column."); }
+
+let drag = null;
+document.addEventListener("pointerdown", e => {
+  const t = e.target.closest(".tile"); if (!t || !t.dataset.card || e.button > 0) return;
+  drag = { cid: t.dataset.card, el: t, x: e.clientX, y: e.clientY, moved: false, ghost: null, over: null, id: e.pointerId };
+});
+document.addEventListener("pointermove", e => {
+  if (!drag || e.pointerId !== drag.id) return;
+  if (!drag.moved) {
+    if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 6) return;
+    drag.moved = true;
+    const r = drag.el.getBoundingClientRect();
+    drag.dx = e.clientX - r.left; drag.dy = e.clientY - r.top;
+    const g = drag.el.cloneNode(true); g.classList.add("ghost"); g.classList.remove("selected");
+    g.style.width = Math.min(r.width, 320) + "px"; document.body.appendChild(g); drag.ghost = g;
+    drag.el.classList.add("lifted");
+    drag.scroll = setInterval(() => {
+      if (!drag) return;
+      if (drag.cy < 70) window.scrollBy(0, -14); else if (drag.cy > innerHeight - 70) window.scrollBy(0, 14);
+    }, 30);
+  }
+  e.preventDefault();
+  drag.cy = e.clientY;
+  drag.ghost.style.left = (e.clientX - drag.dx) + "px"; drag.ghost.style.top = (e.clientY - drag.dy) + "px";
+  const under = document.elementFromPoint(e.clientX, e.clientY);
+  const tgt = under && (under.closest(".slot") || under.closest(".tray"));
+  if (drag.over && drag.over !== tgt) drag.over.classList.remove("target");
+  drag.over = tgt && tgt.dataset.kind === cards[drag.cid].kind ? tgt : null;
+  if (drag.over) drag.over.classList.add("target");
+}, { passive: false });
+function endDrag(e) {
+  if (!drag || e.pointerId !== drag.id) return;
+  const d = drag; drag = null; clearInterval(d.scroll);
+  if (d.ghost) d.ghost.remove();
+  if (d.over) d.over.classList.remove("target");
+  if (!d.moved) { tapTile(d.cid); return; }
+  const under = document.elementFromPoint(e.clientX, e.clientY);
+  const tgt = under && (under.closest(".slot") || under.closest(".tray"));
+  d.el.classList.remove("lifted");
+  if (!tgt) return;
+  if (tgt.dataset.kind !== cards[d.cid].kind) { wrongKind(cards[d.cid].kind); bump(d.el); return; }
+  moveTo(d.cid, tgt.classList.contains("tray") ? "tray" : tgt.dataset.slot);
+}
+document.addEventListener("pointerup", endDrag);
+document.addEventListener("pointercancel", e => { if (drag && e.pointerId === drag.id) { clearInterval(drag.scroll); if (drag.ghost) drag.ghost.remove(); if (drag.over) drag.over.classList.remove("target"); drag.el.classList.remove("lifted"); drag = null; } });
+
+/* tap and keyboard: pick a tile, then a row (or its tray) */
+function tapTile(cid) {
+  if (selected && selected !== cid) {
+    const s = slotOf(cid);           // tapping a placed tile of the same kind while holding one: swap into its row
+    if (s && cards[selected].kind === cards[cid].kind) { moveTo(selected, s); return; }
+  }
+  selected = selected === cid ? null : cid; render();
+  if (selected) say("Now tap the row where it goes. Tap its tray to put it back.");
+}
+function tapTarget(el) {
+  if (!selected) return;
+  if (el.dataset.kind !== cards[selected].kind) { wrongKind(cards[selected].kind); return; }
+  moveTo(selected, el.classList.contains("tray") ? "tray" : el.dataset.slot);
+}
+document.addEventListener("click", e => {
+  if (e.target.closest(".tile")) { if (e.detail === 0) tapTile(e.target.closest(".tile").dataset.card); return; }  // keyboard Enter or Space
+  const el = e.target.closest(".slot") || e.target.closest(".tray"); if (el) tapTarget(el);
+});
+document.addEventListener("keydown", e => {
+  const el = e.target.closest && (e.target.closest(".slot") || e.target.closest(".tray"));
+  if (el && !e.target.closest(".tile") && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); tapTarget(el); }
+  if (e.key === "Escape" && selected) { selected = null; render(); }
+});
+
+/* ------------------------------------------------------------------ checking */
+function evaluate() {
+  const st = Object.fromEntries(P.statements.map(s => [s.id, s]));
+  const rowOf = {};
+  if (P.prefill) rowOf[P.prefill.id] = 1;
+  for (let i = firstRow(); i <= nRows(); i++) { const c = place["s" + i]; if (c) rowOf[cards[c].sid] = i; }
+  const rows = {}; let first = null;
+  for (let i = firstRow(); i <= nRows(); i++) {
+    const sc = place["s" + i] && cards[place["s" + i]], rc = place["r" + i] && cards[place["r" + i]];
+    let status = "ok", note = "", kind = "", hint = "";
+    if (!sc && !rc) { status = "empty"; kind = "empty"; }
+    else if (!sc) { status = "bad"; note = "This row needs a statement."; kind = "nostatement"; }
+    else {
+      const s = st[sc.sid];
+      const missing = s.needs.filter(n => !(rowOf[n] && rowOf[n] < i));
+      if (!rc) { status = "bad"; note = "This statement needs a reason."; kind = "noreason"; hint = s.hint; }
+      else if (rc.fake) { status = "bad"; note = "That reason is a fake. Could someone check it without trusting your eyes?"; kind = "fake"; hint = rc.fake; }
+      else if (!s.reasons.includes(rc.key)) { status = "bad"; note = rc.extra ? "That rule is true, but it doesn't say this. Which rule does?" : "That reason doesn't fit this statement. Which rule lets you say it?"; kind = "wrong"; hint = s.hint; }
+      else if (missing.length) { status = "bad"; note = "This row leans on something that isn't above it yet."; kind = "order"; hint = "It needs: " + missing.map(n => "“" + st[n].text + "”").join(" and ") + " in a row above it."; }
+      else if (i === nRows() && s.id !== P.goal) { status = "bad"; note = "The last line should be what you were asked to show."; kind = "goal"; }
+    }
+    rows[i] = { status, note, kind, hint };
+    if (status !== "ok" && first === null) first = i;
+  }
+  const filled = Object.values(rows).every(r => r.status !== "empty" && r.kind !== "nostatement" && r.kind !== "noreason");
+  const noFakes = !Object.values(rows).some(r => r.kind === "fake");
+  const above = !Object.values(rows).some(r => r.kind === "order" || r.kind === "wrong");
+  const lastSid = nRows() >= firstRow() && place["s" + nRows()] ? cards[place["s" + nRows()]].sid : (P.prefill && nRows() === 1 ? P.prefill.id : null);
+  const lastOk = lastSid === P.goal;
+  return { rows, first, ok: first === null, list: [filled, noFakes, above, lastOk] };
+}
+function checklist(list) {
+  const items = ["Every row has a statement and a reason.", "No fake reasons: no looks, no protractor.", "Each step uses only the given or steps above it.", "The last line is what you were asked to show."];
+  return '<ul class="checklist">' + items.map((t, i) => `<li class="${list[i] ? "yes" : ""}">${t}</li>`).join("") + "</ul>";
+}
+$("check").onclick = () => {
+  const r = evaluate();
+  marks = { rows: {} };
+  Object.entries(r.rows).forEach(([i, m]) => { marks.rows[i] = m.status === "empty" ? { status: "bad", note: "This row is empty." } : m; });
+  render();
+  if (r.ok) {
+    if (!done.includes(P.id)) { done.push(P.id); store.set("ts82-proof-builder-done", done); renderPicker(); }
+    let html = `<strong>It holds!</strong> Every row has a reason, and each one leans only on rows above it. Copy it onto your packet page.` + checklist(r.list);
+    if (P.reflect) html += `<div class="reflect"><label for="why-fake">Pick one fake tile. In one sentence: why can't it be a reason?</label><textarea id="why-fake" placeholder="It can't be a reason because..."></textarea></div>`;
+    say(html, true);
+  } else {
+    const bad = Object.values(marks.rows).filter(m => m.status === "bad").length;
+    say(`<strong>${bad} ${bad === 1 ? "row needs" : "rows need"} another look.</strong> The orange rows have a note. Stuck? Tap <b>Give me a hint</b>.` + checklist(r.list));
+  }
+};
+$("hint").onclick = () => {
+  const r = evaluate();
+  if (r.ok) { say("Nothing to fix. Tap <b>Check my proof</b> to see it hold.", true); return; }
+  const i = r.first, m = r.rows[i];
+  if (m.kind === "empty") {
+    const anyPlaced = Object.keys(place).length > 0;
+    say(anyPlaced ? `<strong>Row ${i} is empty.</strong> Which statement can you say next, using only the rows above it?`
+                  : `<strong>Row ${i} is empty.</strong> Start with a statement that needs nothing above it: something given, or something you can see in how the figure is built.`);
+  } else if (m.kind === "nostatement") say(`<strong>Row ${i}</strong> has a reason but no statement. Which statement does that reason prove?`);
+  else if (m.kind === "fake") say(`<strong>Row ${i}:</strong> ${m.hint}`);
+  else if (m.kind === "goal") say(`<strong>Row ${i}:</strong> the last row should be <b>${P.show}</b>, the thing you were asked to show.`);
+  else say(`<strong>Row ${i}:</strong> ${m.hint}`);
+};
+$("reset").onclick = () => load(P.id, true);
+
+window.addEventListener("hashchange", () => { const id = location.hash.slice(1); if (id && id !== P.id && PROOFS.some(p => p.id === id)) load(id, true); });
+load(location.hash.slice(1) || "proof-1", true);
+
+/* Example: start with the first two tiles placed so the page opens in a working state. */
+(function seed() {
+  if (P.id !== "proof-1") return;
+  place.s1 = "Sa"; place.r1 = "R0"; render();
+  say("<strong>Proof 1.</strong> Row 1 is done for you as an example. Drag the next statement into row 2, then find its reason. Tap a tile, then a row, if dragging is hard.");
+})();
+</script>
+</body>
+</html>

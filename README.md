@@ -4,6 +4,8 @@ A small AutoCAD-style drawing tool for TS 82, Exploring STEM through Geometry, a
 
 **Open it:** https://stem-evcc.github.io/Geo-CAD/ (the capitals matter: Pages addresses follow the repo name exactly)
 
+**Proof Builder:** https://stem-evcc.github.io/Geo-CAD/proofs.html. Students drag reason tiles into two-column proofs, like the laser-cut tiles from Weeks 7 and 8. It has the Week 8 packet proofs (Proof 1, Proof 2, Done early) plus angle and triangle practice: 13 proofs in all. **Check my proof** marks each row and ticks the proof checker's list; **Give me a hint** points at the first row to fix. A link can open one proof directly, for example `proofs.html#square-check`. The white bunny loafs while they work and flops when a proof holds. Like the CAD, it is one file (`proofs.html`) and nothing leaves the student's computer.
+
 **The bunny:** a bunny pops up in the bottom corner with a tip when a student is stuck (an error with a known fix, a paver slip, a minute with nothing happening) and flops when the plot is clean. Click it to send it away; **BUNNY** in the status bar turns it off.
 
 ## Turning on the site (once)
