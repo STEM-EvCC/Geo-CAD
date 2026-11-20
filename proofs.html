@@ -161,6 +161,19 @@ nav.picker { display: grid; gap: 8px; margin: 14px 0 18px; }
 .reflect label { font-weight: 700; font-size: 15px; }
 .reflect textarea { font: 16px/1.4 var(--body); padding: 8px 10px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--slot); color: var(--ink); min-height: 64px; }
 
+.turnin { margin-top: 16px; padding: 14px 18px 16px; display: grid; gap: 10px; border-color: var(--teal); }
+.turnin h3 { margin: 0; font: 800 20px/1.2 var(--display); }
+.turnin p { margin: 0; }
+.turnin .row2 { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.turnin label { font-weight: 700; font-size: 15px; display: grid; gap: 4px; }
+.turnin input { font: 16px var(--body); padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--slot); color: var(--ink); min-width: 240px; }
+.finished { display: flex; flex-wrap: wrap; gap: 6px; }
+.finished span { font-size: 14px; font-weight: 700; padding: 5px 10px; border-radius: 999px; background: var(--good-soft); color: var(--good); }
+.finished .none { background: transparent; color: var(--muted); font-weight: 400; padding-left: 0; }
+.turnin .msg { font-size: 14.5px; color: var(--muted); }
+.turnin .msg.err { color: var(--orange); font-weight: 700; }
+.linkbtn { background: none; border: 0; padding: 0; font: inherit; color: var(--teal); text-decoration: underline; cursor: pointer; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
 footer.page { margin-top: 26px; color: var(--muted); font-size: 13.5px; }
 footer.page a { color: var(--teal); }
 
@@ -237,9 +250,20 @@ footer.page a { color: var(--teal); }
         <div class="tray" id="tray-r" data-kind="r" tabindex="0" aria-label="Reason tile tray"></div>
       </div>
     </section>
+    <section class="panel turnin" id="turnin" aria-labelledby="turnin-h">
+      <h3 id="turnin-h">Turn it in on Canvas</h3>
+      <p>Every proof you finish (the checker says <b>It holds!</b>) is saved here in this browser. When you're done, download them as one PDF and upload that file to the Canvas assignment.</p>
+      <div class="row2">
+        <label for="sname">Your name<input id="sname" type="text" autocomplete="name" placeholder="First and last name"></label>
+        <button class="btn primary" id="download" type="button">Download my proofs (PDF)</button>
+      </div>
+      <div><b style="font-size:15px">Finished so far:</b> <span class="finished" id="finished"></span></div>
+      <p class="msg" id="dlmsg">Only finished proofs go in the PDF, one page each, with your reasons, how many checks and hints you used, and your sentence about the fake tile.</p>
+      <p class="msg">Using a shared computer? <button class="linkbtn" id="clearwork" type="button">Clear my saved proofs</button> after you upload.</p>
+    </section>
   </main>
 
-  <footer class="page">TS 82 · Everett Community College · fall 2026. Proofs 1 and 2 match the Week 8 packet, pages 2 and 3; Done early is on page 3. Nothing you do here leaves your computer. <a href="./">TS 82 CAD</a></footer>
+  <footer class="page">TS 82 · Everett Community College · fall 2026. Proofs 1 and 2 match the Week 8 packet, pages 2 and 3; Done early is on page 3. Nothing you do here leaves your computer until you upload your PDF. <a href="./">TS 82 CAD</a></footer>
 </div>
 
 <script>
@@ -610,6 +634,14 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage off: fine */ } }
 };
 let done = store.get("ts82-proof-builder-done") || [];
+let work = store.get("ts82-proof-builder-work") || { name: "", proofs: {} };   // finished proofs, for the PDF
+let stats = { checks: 0, hints: 0 };
+function saveWork() { store.set("ts82-proof-builder-work", work); renderFinished(); }
+function renderFinished() {
+  const el = $("finished"); if (!el) return;
+  const ids = PROOFS.map(p => p.id).filter(id => work.proofs[id]);
+  el.innerHTML = ids.length ? ids.map(id => `<span>✓ ${PROOFS.find(p => p.id === id).chip}</span>`).join("") : '<span class="none">none yet</span>';
+}
 
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 const nRows = () => P.statements.length;
@@ -617,7 +649,7 @@ const firstRow = () => (P.prefill ? 2 : 1);
 
 function load(id, keepHash) {
   P = PROOFS.find(p => p.id === id) || PROOFS[0];
-  cards = {}; place = {}; marks = null; selected = null;
+  cards = {}; place = {}; marks = null; selected = null; stats = { checks: 0, hints: 0 };
   const s = [], r = [];
   P.statements.forEach(st => { if (P.prefill && st.id === P.prefill.id) return; const cid = "S" + st.id; cards[cid] = { id: cid, kind: "s", text: st.text, sid: st.id }; s.push(cid); });
   P.reasons.forEach((rs, i) => { const cid = "R" + i; cards[cid] = { id: cid, kind: "r", text: rs.text, key: rs.key, fake: rs.fake, extra: rs.extra }; r.push(cid); });
@@ -847,6 +879,132 @@ document.addEventListener("pointerover", e => {
 document.addEventListener("pointerout", e => { if (!drag && e.target.closest(".slot .tile") && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(".slot .tile"))) showActive(); });
 document.addEventListener("focusin", e => { const t = e.target.closest && e.target.closest(".tile"); if (t && cards[t.dataset.card] && cards[t.dataset.card].kind === "s") lightUp(t.dataset.card, rowOfCard(t.dataset.card)); });
 
+
+/* ------------------------------------------------------------------ turning in: one letter page per finished proof */
+const PRINT = { "--ink": "#1d2433", "--muted": "#5b6475", "--blue": "#1d4ed8", "--orange": "#c2410c", "--teal-soft": "#e6f4f2",
+  "--orange-soft": "#fdf0e8", "--body": "Atkinson Hyperlegible, Arial, sans-serif" };
+function printableSvg(svgText) {
+  let t = svgText.replace(/<(path|line|polygon) class="hl[^>]*\/>/g, "");
+  t = t.replace(/var\((--[a-z-]+)\)/g, (m, k) => PRINT[k] || "#1d2433");
+  return t.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" width="720" height="450" ');
+}
+function loadImg(src) { return new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(im); im.onerror = no; im.src = src; }); }
+function wrapText(ctx, text, maxW) {
+  const words = String(text).split(/\s+/), lines = []; let cur = "";
+  words.forEach(w => { const t = cur ? cur + " " + w : w; if (ctx.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; });
+  if (cur) lines.push(cur); return lines.length ? lines : [""];
+}
+const FONT = "'Atkinson Hyperlegible', Arial, sans-serif";
+async function renderPage(pr, rec, name) {
+  const Wp = 1275, Hp = 1650, Mx = 90, c = document.createElement("canvas"); c.width = Wp; c.height = Hp;
+  const x = c.getContext("2d");
+  x.fillStyle = "#fff"; x.fillRect(0, 0, Wp, Hp);
+  x.fillStyle = "#0f766e"; x.fillRect(0, 0, Wp, 14);
+  x.textBaseline = "alphabetic";
+  x.font = `700 22px ${FONT}`; x.fillText("TS 82 · EXPLORING STEM THROUGH GEOMETRY · PROOF BUILDER", Mx, 70);
+  x.fillStyle = "#1d2433"; x.font = `700 50px ${FONT}`; x.fillText(pr.title, Mx, 130);
+  const when = new Date(rec.at).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+  x.font = `400 28px ${FONT}`; x.fillStyle = "#1d2433";
+  x.fillText("Name: ", Mx, 182); x.font = `700 28px ${FONT}`; x.fillText(name, Mx + x.measureText("Name: ").width + 4, 182);
+  x.font = `400 26px ${FONT}`; x.fillStyle = "#5b6475"; x.fillText(`Finished ${when}  ·  ${pr.tag}`, Mx, 222);
+  // figure, then given/show and the result box beside it
+  const im = await loadImg("data:image/svg+xml;charset=utf-8," + encodeURIComponent(printableSvg(pr.fig())));
+  x.drawImage(im, Mx - 10, 250, 560, 350);
+  let ty = 300; const tx = Mx + 580, tw = Wp - Mx - tx;
+  x.fillStyle = "#1d2433"; x.font = `700 27px ${FONT}`;
+  wrapText(x, "Given: " + pr.given, tw).forEach(l => { x.fillText(l, tx, ty); ty += 36; }); ty += 6;
+  wrapText(x, "Show that " + pr.show + ".", tw).forEach(l => { x.fillText(l, tx, ty); ty += 36; }); ty += 20;
+  x.fillStyle = "#e8f6ec"; x.strokeStyle = "#15803d"; x.lineWidth = 3;
+  x.beginPath(); x.roundRect(tx, ty, tw, 150, 14); x.fill(); x.stroke();
+  x.fillStyle = "#15803d"; x.font = `700 30px ${FONT}`; x.fillText("✓ The proof holds", tx + 22, ty + 46);
+  x.fillStyle = "#1d2433"; x.font = `400 24px ${FONT}`;
+  x.fillText("Checked by the Proof Builder.", tx + 22, ty + 84);
+  x.fillText(`Checks: ${rec.checks}   ·   Hints used: ${rec.hints}`, tx + 22, ty + 120);
+  // the proof table
+  let y = 640; const cw = [60, 520, Wp - 2 * Mx - 580], lh = 33, pad = 14;
+  x.fillStyle = "#e6f4f2"; x.fillRect(Mx, y, Wp - 2 * Mx, 56);
+  x.fillStyle = "#1d2433"; x.font = `700 25px ${FONT}`;
+  x.fillText("Statement (what's true)", Mx + cw[0] + pad, y + 37); x.fillText("Reason (why I'm allowed to say it)", Mx + cw[0] + cw[1] + pad, y + 37);
+  y += 56; x.font = `400 26px ${FONT}`;
+  rec.rows.forEach(([st, rs], i) => {
+    const a = wrapText(x, st, cw[1] - 2 * pad), b = wrapText(x, rs, cw[2] - 2 * pad), h = Math.max(a.length, b.length) * lh + 2 * pad;
+    x.strokeStyle = "#cbd2dc"; x.lineWidth = 2; x.strokeRect(Mx, y, Wp - 2 * Mx, h);
+    x.beginPath(); x.moveTo(Mx + cw[0], y); x.lineTo(Mx + cw[0], y + h); x.moveTo(Mx + cw[0] + cw[1], y); x.lineTo(Mx + cw[0] + cw[1], y + h); x.stroke();
+    x.fillStyle = "#5b6475"; x.font = `700 26px ${FONT}`; x.fillText(String(i + 1), Mx + 22, y + pad + 25);
+    x.fillStyle = "#1d2433"; x.font = `400 26px ${FONT}`;
+    a.forEach((l, k) => x.fillText(l, Mx + cw[0] + pad, y + pad + 25 + k * lh));
+    b.forEach((l, k) => x.fillText(l, Mx + cw[0] + cw[1] + pad, y + pad + 25 + k * lh));
+    y += h;
+  });
+  // the sentence about a fake tile
+  if (pr.reflect) {
+    y += 46; x.fillStyle = "#1d2433"; x.font = `700 26px ${FONT}`; x.fillText("Pick one fake tile. Why can't it be a reason?", Mx, y);
+    y += 40; x.font = `400 26px ${FONT}`;
+    const why = (rec.why || "").trim();
+    if (why) wrapText(x, why, Wp - 2 * Mx).slice(0, 6).forEach(l => { x.fillText(l, Mx, y); y += 36; });
+    else { x.fillStyle = "#c2410c"; x.fillText("(left blank)", Mx, y); }
+  }
+  x.fillStyle = "#5b6475"; x.font = `400 20px ${FONT}`;
+  x.fillText("stem-evcc.github.io/Geo-CAD/proofs.html  ·  made in the browser; nothing was uploaded by the page", Mx, Hp - 50);
+  return c;
+}
+function pdfFromJpegs(pages) {         // pages: [{bytes: Uint8Array, w, h}], one letter page each
+  const enc = new TextEncoder(), chunks = [], offs = []; let len = 0;
+  const put = d => { const b = typeof d === "string" ? enc.encode(d) : d; chunks.push(b); len += b.length; };
+  const obj = (id, ...body) => { offs[id] = len; put(id + " 0 obj\n"); body.forEach(put); put("\nendobj\n"); };
+  put("%PDF-1.4\n%âãÏÓ\n");
+  const n = pages.length, kids = pages.map((_, i) => (3 + 3 * i) + " 0 R").join(" ");
+  obj(1, "<< /Type /Catalog /Pages 2 0 R >>");
+  obj(2, `<< /Type /Pages /Kids [${kids}] /Count ${n} >>`);
+  pages.forEach((pg, i) => {
+    const pid = 3 + 3 * i, cid = pid + 1, iid = pid + 2, draw = "q 612 0 0 792 0 0 cm /Im0 Do Q";
+    obj(pid, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /XObject << /Im0 ${iid} 0 R >> >> /Contents ${cid} 0 R >>`);
+    obj(cid, `<< /Length ${draw.length} >>\nstream\n${draw}\nendstream`);
+    obj(iid, `<< /Type /XObject /Subtype /Image /Width ${pg.w} /Height ${pg.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${pg.bytes.length} >>\nstream\n`, pg.bytes, "\nendstream");
+  });
+  const xref = len, total = 3 + 3 * n;
+  put(`xref\n0 ${total}\n0000000000 65535 f \n`);
+  for (let i = 1; i < total; i++) put(String(offs[i]).padStart(10, "0") + " 00000 n \n");
+  put(`trailer\n<< /Size ${total} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
+  return new Blob(chunks, { type: "application/pdf" });
+}
+async function buildPdf(name) {
+  try { await document.fonts.ready; } catch (e) { /* fonts not ready: Arial is fine */ }
+  const pages = [];
+  for (const pr of PROOFS) {
+    const rec = work.proofs[pr.id]; if (!rec) continue;
+    const c = await renderPage(pr, rec, name);
+    const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.9));
+    pages.push({ bytes: new Uint8Array(await blob.arrayBuffer()), w: c.width, h: c.height });
+  }
+  return pdfFromJpegs(pages);
+}
+function dlMsg(t, err) { const m = $("dlmsg"); m.textContent = t; m.classList.toggle("err", !!err); }
+$("sname").value = work.name || "";
+$("sname").addEventListener("input", e => { work.name = e.target.value; store.set("ts82-proof-builder-work", work); });
+$("download").onclick = async () => {
+  const name = $("sname").value.trim();
+  if (!Object.keys(work.proofs).length) { dlMsg("Finish a proof first: the checker has to say It holds! before it can go in the PDF.", true); return; }
+  if (!name) { dlMsg("Type your name first, so your instructor knows whose proofs these are.", true); $("sname").focus(); return; }
+  const btn = $("download"); btn.disabled = true; dlMsg("Making your PDF...");
+  try {
+    const blob = await buildPdf(name), n = Object.keys(work.proofs).length;
+    const file = `TS82-proofs-${name.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${new Date().toISOString().slice(0, 10)}.pdf`;
+    const url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = file; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    dlMsg(`Downloaded ${file} (${n} ${n === 1 ? "proof" : "proofs"}). In Canvas, open the assignment, choose Upload File, and pick this file from your Downloads.`);
+  } catch (e) {
+    dlMsg("The PDF didn't download. Try again, or try another browser (Chrome or Edge work best).", true);
+  } finally { btn.disabled = false; }
+};
+$("clearwork").onclick = () => {
+  if (!window.confirm("Clear all your saved proofs from this computer? Download your PDF first if you still need it.")) return;
+  work = { name: "", proofs: {} }; done = []; store.set("ts82-proof-builder-done", done); $("sname").value = ""; saveWork(); renderPicker();
+  dlMsg("Cleared. Nothing of yours is saved on this computer now.");
+};
+renderFinished();
+
 /* ------------------------------------------------------------------ checking */
 function evaluate() {
   const st = Object.fromEntries(P.statements.map(s => [s.id, s]));
@@ -883,21 +1041,30 @@ function checklist(list) {
   return '<ul class="checklist">' + items.map((t, i) => `<li class="${list[i] ? "yes" : ""}">${t}</li>`).join("") + "</ul>";
 }
 $("check").onclick = () => {
+  stats.checks++;
   const r = evaluate();
   marks = { rows: {} };
   Object.entries(r.rows).forEach(([i, m]) => { marks.rows[i] = m.status === "empty" ? { status: "bad", note: "This row is empty." } : m; });
   render();
   if (r.ok) {
     if (!done.includes(P.id)) { done.push(P.id); store.set("ts82-proof-builder-done", done); renderPicker(); }
-    let html = `<strong>It holds!</strong> Every row has a reason, and each one leans only on rows above it. Copy it onto your packet page.` + checklist(r.list);
+    const rows = [];
+    for (let i = 1; i <= nRows(); i++) rows.push(P.prefill && i === 1 ? [P.prefill.text, P.prefill.reason] : [cards[place["s" + i]].text, cards[place["r" + i]].text]);
+    const prev = work.proofs[P.id];
+    work.proofs[P.id] = { rows, at: new Date().toISOString(), checks: stats.checks, hints: stats.hints, why: prev ? prev.why || "" : "" };
+    saveWork();
+    let html = `<strong>It holds!</strong> Every row has a reason, and each one leans only on rows above it. It's saved for turning in: <button class="linkbtn" type="button" onclick="document.getElementById('turnin').scrollIntoView({behavior:'smooth'})">download it at the bottom</button>.` + checklist(r.list);
     if (P.reflect) html += `<div class="reflect"><label for="why-fake">Pick one fake tile. In one sentence: why can't it be a reason?</label><textarea id="why-fake" placeholder="It can't be a reason because..."></textarea></div>`;
     say(html, true);
+    const why = $("why-fake");
+    if (why) { why.value = work.proofs[P.id].why || ""; why.addEventListener("input", () => { work.proofs[P.id].why = why.value; store.set("ts82-proof-builder-work", work); }); }
   } else {
     const bad = Object.values(marks.rows).filter(m => m.status === "bad").length;
     say(`<strong>${bad} ${bad === 1 ? "row needs" : "rows need"} another look.</strong> The orange rows have a note. Stuck? Tap <b>Give me a hint</b>.` + checklist(r.list));
   }
 };
 $("hint").onclick = () => {
+  stats.hints++;
   const r = evaluate();
   if (r.ok) { say("Nothing to fix. Tap <b>Check my proof</b> to see it hold.", true); return; }
   const i = r.first, m = r.rows[i];
