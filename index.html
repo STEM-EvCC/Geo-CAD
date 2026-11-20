@@ -200,6 +200,8 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
 .link3d .go { color:#7fb7f0; font-size:12.5px; font-weight:600; }
 #m3D h4 { margin:14px 0 4px; color:#e9a98f; font-size:13px; }
 #m3D ol { margin:4px 0; padding-left:1.3em; font-size:12.5px; line-height:1.45; } #m3D li { margin:4px 0; }
+/* linetype list on the Build tab */
+.ltwrap select { width:128px; padding:2px 4px; background:#2b3239; color:var(--text); border:1px solid var(--line); font:12px "Segoe UI",system-ui,sans-serif; border-radius:3px; }
 /* the tool guide */
 #mGuide .dlg { width:min(1120px, calc(100% - 20px)); height:calc(100% - 26px); display:flex; flex-direction:column; }
 #mGuide h3 { display:flex; align-items:center; gap:10px; }
@@ -277,6 +279,16 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
     <symbol id="i-sheet" viewBox="0 0 20 20"><rect x="2" y="4" width="11" height="11"/><rect x="14.5" y="4" width="4" height="4" stroke-dasharray="1.4 1.1"/><path d="M4.5 12.5l2.5-4 2.5 4z" stroke-width="1.2"/></symbol>
     <symbol id="i-area" viewBox="0 0 20 20"><path d="M3 16l1.8-10 9.2-2.5 3 9-6 5z"/><path d="M5.5 13.5l6-6M8 15.5l6.5-6.5M5 9.5l3.5-3.5" opacity=".6"/></symbol>
     <symbol id="i-guide" viewBox="0 0 20 20"><rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/><rect x="2.5" y="11.5" width="6" height="6" rx="1"/><path d="M11.5 13h6M11.5 16h4"/></symbol>
+    <symbol id="i-pline" viewBox="0 0 20 20"><path d="M2.5 16l4.5-9 5 5.5"/><path d="M12 12.5a4.5 4.5 0 0 0 5.5-5.5"/><circle cx="2.5" cy="16" r="1" fill="currentColor"/></symbol>
+    <symbol id="i-xline" viewBox="0 0 20 20"><path d="M1.5 17L18.5 3" stroke-dasharray="2.2 1.4"/><circle cx="7" cy="12.5" r="1.4" fill="currentColor"/><circle cx="13" cy="7.5" r="1.4" fill="currentColor"/></symbol>
+    <symbol id="i-ray" viewBox="0 0 20 20"><path d="M3.5 16.5L18 4.5" stroke-dasharray="2.2 1.4"/><circle cx="3.5" cy="16.5" r="1.6" fill="currentColor"/><path d="M13.5 4h4.5v4.5"/></symbol>
+    <symbol id="i-join" viewBox="0 0 20 20"><path d="M3 16V6.5M17 16V6.5"/><path d="M3 4.5h14" stroke-dasharray="1.6 1.4"/><circle cx="3" cy="4.5" r="1.2" fill="currentColor"/><circle cx="17" cy="4.5" r="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-extend" viewBox="0 0 20 20"><path d="M16.5 2.5v15"/><path d="M2.5 10h7"/><path d="M10 10h5.5" stroke-dasharray="1.6 1.4"/><path d="M12.5 7.5l3 2.5-3 2.5"/></symbol>
+    <symbol id="i-dimlin" viewBox="0 0 20 20"><path d="M3.5 4v12.5M16.5 4v12.5M3.5 8h13"/><path d="M6.5 6.4L3.5 8l3 1.6M13.5 6.4L16.5 8l-3 1.6"/><rect x="5.5" y="12" width="9" height="4.5" opacity=".55"/></symbol>
+    <symbol id="i-dimali" viewBox="0 0 20 20"><path d="M7 17.5L17.5 7" opacity=".5"/><path d="M3 13.5L13.5 3"/><path d="M3 13.5l1-2.8M3 13.5l2.8-1M13.5 3l-1 2.8M13.5 3l-2.8 1"/><path d="M4.5 15l2.5 2.5M15 4.5l2.5 2.5" opacity=".8"/></symbol>
+    <symbol id="i-dimang" viewBox="0 0 20 20"><path d="M2.5 17h15M2.5 17L13 4"/><path d="M12 17a9.5 9.5 0 0 0-3-6.9"/><path d="M10.6 14.8L12 17l1.3-2.2"/></symbol>
+    <symbol id="i-dimrad" viewBox="0 0 20 20"><circle cx="8.5" cy="11.5" r="6.5"/><path d="M8.5 11.5l4.6-4.6L17 3"/><path d="M13.1 6.9l-2.6.5M13.1 6.9l-.5 2.6"/></symbol>
+    <symbol id="i-dimdia" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M5 15L15 5"/><path d="M15 5l-2.7.6M15 5l-.6 2.7M5 15l2.7-.6M5 15l.6-2.7"/></symbol>
     <symbol id="i-explode" viewBox="0 0 20 20"><path d="M6.5 5.5h7M14.5 6.5v7M13.5 14.5h-7M5.5 13.5v-7"/><path d="M2.5 2.5l2 2M17.5 2.5l-2 2M2.5 17.5l2-2M17.5 17.5l-2-2" opacity=".7"/></symbol>
     <symbol id="i-help" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M7.8 7.6a2.3 2.3 0 1 1 3.2 2.1c-.7.3-1 .8-1 1.6v.4"/><circle cx="10" cy="14.4" r=".8" fill="currentColor"/></symbol>
   </defs>
@@ -301,7 +313,7 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
   <div class="panel"><div class="tools">
     <button class="big" data-c="LINE" title="LINE (L)"><svg class="ic"><use href="#i-line"/></svg>Line</button>
     <button class="big" data-c="CIRCLE" title="CIRCLE (C)"><svg class="ic"><use href="#i-circle"/></svg>Circle</button>
-    <div class="stack"><button class="small" data-c="RECTANG" title="RECTANG (REC)"><svg class="ic"><use href="#i-rect"/></svg>Rectangle</button></div>
+    <div class="stack"><button class="small" data-c="PLINE" title="PLINE (PL)"><svg class="ic"><use href="#i-pline"/></svg>Polyline</button><button class="small" data-c="RECTANG" title="RECTANG (REC)"><svg class="ic"><use href="#i-rect"/></svg>Rectangle</button></div>
   </div><div class="ptitle">Draw</div></div>
   <div class="panel"><div class="tools">
     <div class="stack">
@@ -314,6 +326,7 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
       <button class="small" data-c="OFFSET" title="OFFSET (O)"><svg class="ic"><use href="#i-offset"/></svg>Offset</button></div>
     <div class="stack">
       <button class="small" data-c="ERASE" title="ERASE (E)"><svg class="ic"><use href="#i-erase"/></svg>Erase</button>
+      <button class="small" data-c="EXTEND" title="EXTEND (EX)"><svg class="ic"><use href="#i-extend"/></svg>Extend</button>
       <button class="small" data-c="EXPLODE" title="EXPLODE (X)"><svg class="ic"><use href="#i-explode"/></svg>Explode</button></div>
   </div><div class="ptitle">Modify</div></div>
   <div class="panel"><div class="tools"><div id="layerCtl">
@@ -337,12 +350,29 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
     <button class="big" data-c="PROJECT"><svg class="ic"><use href="#i-sheet"/></svg><span class="two">Project<br>sheet</span></button>
   </div><div class="ptitle">Start</div></div>
   <div class="panel"><div class="tools">
+    <button class="big" data-c="PLINE"><svg class="ic"><use href="#i-pline"/></svg>Polyline</button>
+    <div class="stack">
+      <button class="small" data-c="LINE"><svg class="ic"><use href="#i-line"/></svg>Line</button>
+      <button class="small" data-c="XLINE"><svg class="ic"><use href="#i-xline"/></svg>Construction</button>
+      <button class="small" data-c="RAY"><svg class="ic"><use href="#i-ray"/></svg>Ray</button></div>
+  </div><div class="ptitle">Lines</div></div>
+  <div class="panel"><div class="tools">
     <button class="big" data-c="POLYGON"><svg class="ic"><use href="#i-polygon"/></svg>Polygon</button>
     <div class="stack">
       <button class="small" data-c="ARC"><svg class="ic"><use href="#i-arc"/></svg>Arc</button>
-      <button class="small" data-c="FILLET"><svg class="ic"><use href="#i-fillet"/></svg>Fillet</button>
-      <button class="small" data-c="EXPLODE"><svg class="ic"><use href="#i-explode"/></svg>Explode</button></div>
+      <button class="small" data-c="CIRCLE"><svg class="ic"><use href="#i-circle"/></svg>Circle</button>
+      <button class="small" data-c="RECTANG"><svg class="ic"><use href="#i-rect"/></svg>Rectangle</button></div>
   </div><div class="ptitle">Shapes</div></div>
+  <div class="panel"><div class="tools">
+    <div class="stack">
+      <button class="small" data-c="TRIM"><svg class="ic"><use href="#i-trim"/></svg>Trim</button>
+      <button class="small" data-c="EXTEND"><svg class="ic"><use href="#i-extend"/></svg>Extend</button>
+      <button class="small" data-c="FILLET"><svg class="ic"><use href="#i-fillet"/></svg>Fillet</button></div>
+    <div class="stack">
+      <button class="small" data-c="JOIN"><svg class="ic"><use href="#i-join"/></svg>Join</button>
+      <button class="small" data-c="EXPLODE"><svg class="ic"><use href="#i-explode"/></svg>Explode</button>
+      <label class="ltwrap"><select id="ltSel" aria-label="Linetype"><option value="">━━━ Continuous</option><option value="DASHED">━ ━ ━ Dashed</option><option value="HIDDEN">╍╍╍ Hidden</option><option value="CENTER">━ · ━ Center</option></select></label></div>
+  </div><div class="ptitle">Edit</div></div>
   <div class="panel"><div class="tools"><div class="stack">
       <button class="small" data-c="ARRAYRECT"><svg class="ic"><use href="#i-array"/></svg>Grid array</button>
       <button class="small" data-c="ARRAYPOLAR"><svg class="ic"><use href="#i-polar"/></svg>Polar array</button>
@@ -351,11 +381,16 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
   <div class="panel"><div class="tools">
     <button class="big" data-c="TEXT"><svg class="ic"><use href="#i-text"/></svg>Text</button>
   </div><div class="ptitle">Text</div></div>
-  <div class="panel"><div class="tools"><div class="stack">
-      <button class="small" data-c="AREA"><svg class="ic"><use href="#i-area"/></svg>Area</button>
-      <button class="small" data-c="DIST"><svg class="ic"><use href="#i-measure"/></svg>Distance</button>
-      <button class="small" data-c="MEASUREGEOM A"><svg class="ic"><use href="#i-angle"/></svg>Angle</button></div>
-  </div><div class="ptitle">Measure</div></div>
+  <div class="panel"><div class="tools">
+    <button class="big" data-c="DIMLINEAR"><svg class="ic"><use href="#i-dimlin"/></svg>Linear</button>
+    <div class="stack">
+      <button class="small" data-c="DIMALIGNED"><svg class="ic"><use href="#i-dimali"/></svg>Aligned</button>
+      <button class="small" data-c="DIMANGULAR"><svg class="ic"><use href="#i-dimang"/></svg>Angular</button>
+      <button class="small" data-c="DIMRADIUS"><svg class="ic"><use href="#i-dimrad"/></svg>Radius</button></div>
+    <div class="stack">
+      <button class="small" data-c="DIMDIAMETER"><svg class="ic"><use href="#i-dimdia"/></svg>Diameter</button>
+      <button class="small" data-c="AREA"><svg class="ic"><use href="#i-area"/></svg>Area</button></div>
+  </div><div class="ptitle">Dimension</div></div>
   <div class="panel"><div class="tools">
     <button class="big" data-c="3D"><svg class="ic"><use href="#i-cube"/></svg><span class="two">Model<br>in 3D</span></button>
   </div><div class="ptitle">3D</div></div>
@@ -479,6 +514,8 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
     <li>Round corners: <code>F</code> Enter, <code>R</code> Enter, <code>3</code> Enter, click the shape, Enter.</li>
     <li>Words: click <b>Text</b>. Type them, pick a font and a height, pick Score, Engrave or Cut out, then <b>Place text</b> and click where they start. Enter.</li>
     <li>Your router or waterjet part goes inside the dashed 4 x 4 in box. For the router, round every inside corner with <code>FILLET</code> (the bit's radius: ask the lab tech).</li>
+    <li>Show your numbers: <code>DLI</code> (across or up), <code>DAL</code> (along a slant), <code>DAN</code> (an angle), <code>DRA</code> and <code>DDI</code> (circles). Dimensions go on DIMS (cyan) and never cut.</li>
+    <li>Shapes from lines: <code>PL</code> draws one connected shape (<code>A</code> for curves, <code>C</code> to close). Drew it with <code>L</code>? Pick the lines, <code>J</code> Enter joins them. <code>TR</code> trims, <code>EX</code> extends a line to the next edge.</li>
     <li>Repeats: pick a shape, then <b>Grid array</b> (rows and columns) or <b>Polar array</b> (around a center). <b>Scale</b> makes it bigger or smaller.</li>
     <li>Ctrl+S. <b>Plot</b>, pick <b>The 12 x 12 in sheet</b>: the laser file. <b>Plot</b> again, pick <b>The 4 x 4 in box</b>: the router or waterjet file.</li>
   </ol>
@@ -552,6 +589,11 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
     <tr><td><code>ERASE</code> <code>E</code> or Delete</td><td>delete selected objects</td></tr>
     <tr><td><code>DIST</code> <code>DI</code>, <code>ZOOM</code> <code>Z</code>, <code>U</code>, <code>REDO</code></td><td>measure; <code>Z</code> then <code>E</code> shows everything; undo; redo</td></tr>
     <tr><td><code>POLYGON</code> <code>POL</code> &nbsp;<code>ARC</code> <code>A</code></td><td>polygon: sides, center, Enter, radius (<code>E</code> builds it on an edge). Arc: start, a point on the way, end (<code>C</code> starts from the center)</td></tr>
+    <tr><td><code>PLINE</code> <code>PL</code></td><td>one connected shape: click corners; <code>A</code> curves, <code>L</code> back to straight, <code>C</code> closes</td></tr>
+    <tr><td><code>XLINE</code> <code>XL</code> &nbsp;<code>RAY</code></td><td>gray guide lines that never cut: through two points; <code>H</code>, <code>V</code>, <code>A</code>ngle, <code>B</code>isect, <code>O</code>ffset</td></tr>
+    <tr><td><code>EXTEND</code> <code>EX</code> &nbsp;<code>JOIN</code> <code>J</code></td><td>click near an end to grow it to the next edge; join touching lines and arcs into one polyline</td></tr>
+    <tr><td><code>LINETYPE</code> <code>LT</code></td><td>continuous, dashed, hidden or center lines (the list on the Build tab)</td></tr>
+    <tr><td><code>DLI</code> <code>DAL</code> <code>DAN</code> <code>DRA</code> <code>DDI</code></td><td>dimensions: linear, aligned, angular, radius, diameter, on DIMS. <code>DIMSCALE</code> makes new ones bigger</td></tr>
     <tr><td><code>FILLET</code> <code>F</code></td><td>round corners: click a rectangle or polygon, then Enter for every corner; or click two lines. <code>R</code> sets the radius</td></tr>
     <tr><td><code>ARRAYRECT</code> <code>ARRAYPOLAR</code> <code>AR</code></td><td>copies in rows and columns, or around a center. Select first</td></tr>
     <tr><td><code>SCALE</code> <code>SC</code></td><td>select, base point, scale factor. <code>R</code> (Reference): make one length the size you choose</td></tr>
@@ -647,6 +689,8 @@ function fmt(v) { return (Math.abs(v) < 5e-5 ? 0 : v).toFixed(4).replace(/\.?0+$
 function fmt2(v) { return (Math.abs(v) < 5e-3 ? 0 : v).toFixed(2); }
 
 function prims(e) {
+  if (e.type === "xline") { const [a, b] = xlSeg(e); return [{ k:"s", a, b }]; }
+  if (e.type === "dim") return [];
   if (e.type === "line") return [{ k:"s", a:[e.x1, e.y1], b:[e.x2, e.y2] }];
   if (e.type === "circle") return [{ k:"c", c:[e.cx, e.cy], r:e.r, full:true }];
   if (e.type === "arc") return [{ k:"c", c:[e.cx, e.cy], r:e.r, a0:e.a0, a1:e.a1 }];
@@ -697,6 +741,7 @@ function segDist(p, a, b) {
   return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy);
 }
 function entDist(e, p) {
+  if (e.type === "dim") return dimDist(e, p);
   if (e.type === "text") { const b = textBox(e), dx = Math.max(b[0] - p[0], 0, p[0] - b[2]), dy = Math.max(b[1] - p[1], 0, p[1] - b[3]); return Math.hypot(dx, dy); }
   let best = Infinity;
   for (const q of prims(e)) {
@@ -707,6 +752,8 @@ function entDist(e, p) {
   return best;
 }
 function entPts(e) {   // points that describe an entity, for windows and extents
+  if (e.type === "xline") return [[e.x, e.y]];
+  if (e.type === "dim") return dimPts(e);
   if (e.type === "text") { const b = textBox(e); return [[b[0], b[1]], [b[2], b[3]]]; }
   if (e.type === "line") return [[e.x1, e.y1], [e.x2, e.y2]];
   if (e.type === "poly") return hasBulge(e) ? polyDense(e) : e.pts;
@@ -780,7 +827,7 @@ function offsetPolyArcs(e, d, side) {   // OFFSET for a closed polyline with arc
   if (inward && (Math.sign(signedArea(dn)) !== Math.sign(signedArea(dense)) || Math.abs(signedArea(dn)) >= Math.abs(signedArea(dense)))) return null;
   return m;
 }
-function entBox(e) { const P = entPts(e); let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+function entBox(e) { if (e.type === "xline") return [-Infinity, -Infinity, Infinity, Infinity]; const P = entPts(e); let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const q of P) { x0 = Math.min(x0, q[0]); y0 = Math.min(y0, q[1]); x1 = Math.max(x1, q[0]); y1 = Math.max(y1, q[1]); }
   if (e.type === "circle" || e.type === "arc") { x0 = Math.min(x0, e.cx - e.r); y0 = Math.min(y0, e.cy - e.r); x1 = Math.max(x1, e.cx + e.r); y1 = Math.max(y1, e.cy + e.r); }
   return [x0, y0, x1, y1]; }
@@ -790,6 +837,8 @@ const boxesMeet = (a, b) => a[0] <= b[2] + 1e-6 && b[0] <= a[2] + 1e-6 && a[1] <
 const clone = e => JSON.parse(JSON.stringify(e));
 
 function offsetEnt(e, d, side) {
+  if (e.type === "xline") { const [ux, uy] = xlDir(e); let nx = -uy, ny = ux; if ((side[0] - e.x) * nx + (side[1] - e.y) * ny < 0) { nx = -nx; ny = -ny; }
+    const m = clone(e); m.x += nx * d; m.y += ny * d; return m; }
   if (e.type === "circle" || e.type === "arc") {
     const r = dist([e.cx, e.cy], side) < e.r ? e.r - d : e.r + d; if (r <= 1e-9) return null;
     const n = clone(e); n.r = r; return n;
@@ -818,6 +867,8 @@ function offsetEnt(e, d, side) {
 }
 function mirrorEnt(e, a, b) {
   const m = clone(e), th = Math.atan2(b[1] - a[1], b[0] - a[0]) / DEG;
+  if (e.type === "dim") { m.pts = e.pts.map(p => reflect(p, a, b)); if (e.dk === "ang") [m.pts[1], m.pts[2]] = [m.pts[2], m.pts[1]]; if (e.dk === "lin") m.rot = n360(2 * th - (e.rot || 0)); return m; }
+  if (e.type === "xline") { const p = reflect([e.x, e.y], a, b), q = reflect([e.x + e.dx, e.y + e.dy], a, b); m.x = p[0]; m.y = p[1]; m.dx = q[0] - p[0]; m.dy = q[1] - p[1]; return m; }
   if (e.type === "line") { [m.x1, m.y1] = reflect([e.x1, e.y1], a, b); [m.x2, m.y2] = reflect([e.x2, e.y2], a, b); }
   else if (e.type === "circle") { [m.cx, m.cy] = reflect([e.cx, e.cy], a, b); }
   else if (e.type === "arc") { [m.cx, m.cy] = reflect([e.cx, e.cy], a, b); m.a0 = n360(2 * th - e.a1); m.a1 = n360(2 * th - e.a0); }
@@ -828,6 +879,8 @@ function mirrorEnt(e, a, b) {
 }
 function moveEnt(e, dx, dy) {
   const m = clone(e);
+  if (e.type === "dim") { m.pts = e.pts.map(p => [p[0] + dx, p[1] + dy]); return m; }
+  if (e.type === "xline") { m.x += dx; m.y += dy; return m; }
   if (e.type === "line") { m.x1 += dx; m.y1 += dy; m.x2 += dx; m.y2 += dy; }
   else if (e.type === "poly") m.pts = e.pts.map(p => [p[0] + dx, p[1] + dy]);
   else if (e.type === "text") { m.x += dx; m.y += dy; }
@@ -843,6 +896,8 @@ function rotPt(p, c, a) { const [ca, sa] = cosSin(a), x = p[0] - c[0], y = p[1] 
   return [tidy(c[0] + x * ca - y * sa), tidy(c[1] + x * sa + y * ca)]; }
 function rotateEnt(e, c, a) {
   const m = clone(e);
+  if (e.type === "dim") { m.pts = e.pts.map(p => rotPt(p, c, a)); if (e.dk === "lin") m.rot = n360((e.rot || 0) + a); return m; }
+  if (e.type === "xline") { [m.x, m.y] = rotPt([e.x, e.y], c, a); [m.dx, m.dy] = rotPt([e.dx, e.dy], [0, 0], a); return m; }
   if (e.type === "line") { [m.x1, m.y1] = rotPt([e.x1, e.y1], c, a); [m.x2, m.y2] = rotPt([e.x2, e.y2], c, a); }
   else if (e.type === "poly") m.pts = e.pts.map(p => rotPt(p, c, a));
   else if (e.type === "text") { const q = textMid(e), r = rotPt(q, c, a); m.x = e.x + r[0] - q[0]; m.y = e.y + r[1] - q[1]; }
@@ -859,8 +914,8 @@ function trimAt(E, pt) {
     let lo = 0, hi = 1; for (const t of ts) { if (t < tc) lo = Math.max(lo, t); else hi = Math.min(hi, t); }
     remove(E);
     const P = t => [a[0] + t * dx, a[1] + t * dy];
-    if (lo > 1e-7) { const [x2, y2] = P(lo); add({ type:"line", layer:E.layer, x1:a[0], y1:a[1], x2, y2 }); }
-    if (hi < 1 - 1e-7) { const [x1, y1] = P(hi); add({ type:"line", layer:E.layer, x1, y1, x2:b[0], y2:b[1] }); }
+    if (lo > 1e-7) { const [x2, y2] = P(lo); add({ type:"line", layer:E.layer, lt:E.lt, x1:a[0], y1:a[1], x2, y2 }); }
+    if (hi < 1 - 1e-7) { const [x1, y1] = P(hi); add({ type:"line", layer:E.layer, lt:E.lt, x1, y1, x2:b[0], y2:b[1] }); }
     return true;
   }
   if (E.type === "circle") {
@@ -870,7 +925,7 @@ function trimAt(E, pt) {
     const ac = angOf(c, pt); let i = angs.length - 1;
     for (let k = 0; k < angs.length; k++) { const a0 = angs[k], a1 = angs[(k + 1) % angs.length]; if (inArc(ac, a0, a1, 0)) { i = k; break; } }
     const cutFrom = angs[i], cutTo = angs[(i + 1) % angs.length];
-    add({ type:"arc", layer:E.layer, cx:c[0], cy:c[1], r:E.r, a0:cutTo, a1:cutFrom });
+    add({ type:"arc", layer:E.layer, lt:E.lt, cx:c[0], cy:c[1], r:E.r, a0:cutTo, a1:cutFrom });
     return true;
   }
   if (E.type === "arc") {
@@ -879,10 +934,11 @@ function trimAt(E, pt) {
     let dc = posOf(angOf(c, pt)); if (dc > s) dc = (dc - s < 360 - dc) ? s : 0;
     let lo = 0, hi = s; for (const d of ds) { if (d < dc) lo = Math.max(lo, d); else hi = Math.min(hi, d); }
     remove(E);
-    if (lo > 1e-6) add({ type:"arc", layer:E.layer, cx:c[0], cy:c[1], r:E.r, a0:E.a0, a1:n360(E.a0 + lo) });
-    if (hi < s - 1e-6) add({ type:"arc", layer:E.layer, cx:c[0], cy:c[1], r:E.r, a0:n360(E.a0 + hi), a1:E.a1 });
+    if (lo > 1e-6) add({ type:"arc", layer:E.layer, lt:E.lt, cx:c[0], cy:c[1], r:E.r, a0:E.a0, a1:n360(E.a0 + lo) });
+    if (hi < s - 1e-6) add({ type:"arc", layer:E.layer, lt:E.lt, cx:c[0], cy:c[1], r:E.r, a0:n360(E.a0 + hi), a1:E.a1 });
     return true;
   }
+  if (E.type === "poly" && !E.grp) return trimPoly(E, pt);
   return false;
 }
 function uniq(v) { v = v.slice().sort((a, b) => a - b); const out = []; for (const x of v) if (!out.length || Math.abs(x - out[out.length - 1]) > 1e-6) out.push(x); return out; }
@@ -974,6 +1030,8 @@ function zoomExtents() { const e = extents(); if (e) fitBox(e[0], e[1], e[2], e[
 // ═══════════════════════════ drawing ═══════════════════════════
 function el(tag, attrs) { const n = document.createElementNS(svgNS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; }
 function entPathD(e) {
+  if (e.type === "xline") { const [a, b] = xlSeg(e, 1e5); return `M${a[0]} ${a[1]}L${b[0]} ${b[1]}`; }
+  if (e.type === "dim") return dimPathD(e);
   if (e.type === "line") return `M${e.x1} ${e.y1}L${e.x2} ${e.y2}`;
   if (e.type === "poly" && hasBulge(e)) { const p = e.pts, n = p.length; let d = `M${p[0][0]} ${p[0][1]}`;
     for (let i = 0; i < (e.closed ? n : n - 1); i++) { const b = p[(i + 1) % n], bu = bulgeOf(e, i), A = Math.abs(bu) > 1e-12 ? bulgeArc(p[i], b, bu) : null;
@@ -988,6 +1046,7 @@ function entPathD(e) {
 }
 function drawEnt(g, e, opts = {}) {
   const L = LAYERS[e.layer] || LAYERS.DRAWN, col = L.color, op = L.lock ? 0.5 : 1;
+  if (e.type === "dim") return dimDraw(g, e, opts);
   if (e.type === "text") {
     const t = el("text", { transform:`matrix(1,0,0,-1,${e.x},${e.y})`, "font-size":e.h * TEXT_EM, fill:col, opacity:op,
       "font-family":"Arial, Helvetica, sans-serif", "text-anchor":e.anchor === "middle" ? "middle" : "start" });
@@ -999,7 +1058,7 @@ function drawEnt(g, e, opts = {}) {
   const d = entPathD(e);
   if (opts.sel) g.appendChild(el("path", { d, fill:"none", stroke:"rgba(90,169,255,.45)", "stroke-width":6, "vector-effect":"non-scaling-stroke", "stroke-linejoin":"round" }));
   g.appendChild(el("path", Object.assign({ d, fill:"none", stroke:col, opacity:op, "stroke-width":opts.sel ? 2 : (opts.hov ? 2.6 : 1),
-    "vector-effect":"non-scaling-stroke", "stroke-linejoin":"round" }, e.dash ? { "stroke-dasharray":"6 4" } : {})));
+    "vector-effect":"non-scaling-stroke", "stroke-linejoin":"round" }, e.dash ? { "stroke-dasharray":"6 4" } : e.lt && LTYPES[e.lt] && LTYPES[e.lt].px ? { "stroke-dasharray":LTYPES[e.lt].px } : {})));
 }
 function render() {
   const M = `matrix(${view.s},0,0,${-view.s},${view.tx},${view.ty})`;
@@ -1034,7 +1093,7 @@ function overlay() {
     let gh = []; try { gh = req.opts.preview(pt) || []; } catch (e) { gh = []; }
     const g = el("g", { transform:`matrix(${view.s},0,0,${-view.s},${view.tx},${view.ty})`, opacity:.8 });
     for (const e of gh) { const L = LAYERS[e.layer] || LAYERS.DRAWN;
-      if (e.type === "text") continue;
+      if (e.type === "text" || e.type === "dim") { drawEnt(g, e); continue; }
       g.appendChild(el("path", { d:entPathD(e), fill:"none", stroke:L.color === "#0000FF" ? "#5a7dff" : L.color, "stroke-width":1.2,
         "stroke-dasharray":"6 4", "vector-effect":"non-scaling-stroke" })); }
     gOv.appendChild(g);
@@ -1242,7 +1301,7 @@ const TOOLTIP = {
 function tipsHover() {     // the hover cards: what each tool does, with a picture of how it works
   const pop = $("tipPop"); let t = null;
   const hide = () => { clearTimeout(t); pop.style.display = "none"; pop.innerHTML = ""; };
-  document.querySelectorAll("[data-c], #layerBtn, .tg, #tabs .tab").forEach(b => {
+  document.querySelectorAll("[data-c], #layerBtn, .tg, #tabs .tab, #ltSel").forEach(b => {
     const key = TOOLTIP[b.dataset.c] ? b.dataset.c : b.id, html = TOOLTIP[key]; if (!html) return;
     b.setAttribute("aria-label", html.replace(/<[^>]+>/g, "").replace(/&middot;/g, ":")); b.removeAttribute("title");
     b.addEventListener("mouseenter", () => { clearTimeout(t); t = setTimeout(() => {
@@ -1354,12 +1413,12 @@ async function run(text) {
   if (name === "project") { showModal("mProject"); return; }
   if (["new", "open", "qsave", "saveas", "plot"].includes(name)) { log("Command: " + NAMES[name]); FILES[name](); return; }
   if (!PICKFIRST.has(name)) { selection.clear(); render(); }
-  busy = true; lastCmd = NAMES[name]; tipCmd = name; log("Command: " + NAMES[name]);
+  busy = true; drawingCmd = DRAWCMDS.has(name); lastCmd = NAMES[name]; tipCmd = name; log("Command: " + NAMES[name]);
   const before = JSON.stringify(ents);
   try { await CMDS[name](parts.slice(1)); }
   catch (e) { if (e === CANCEL) log("*Cancel*"); else { log("Something went wrong: " + e.message, "err"); console.error(e); } }
   if (JSON.stringify(ents) !== before) { undoStack.push(before); redoStack = []; if (undoStack.length > 150) undoStack.shift(); }
-  busy = false; req = null; selection.clear(); hover = null; setPrompt(""); render(); tipCmd = null; tipsShow();
+  busy = false; drawingCmd = false; req = null; selection.clear(); hover = null; setPrompt(""); render(); tipCmd = null; tipsShow();
 }
 function pushUndo() { undoStack.push(JSON.stringify(ents)); redoStack = []; }
 function restoreEnts(json) { ents = []; nextId = 1; for (const e of JSON.parse(json)) ents.push(Object.assign(e, { id:nextId++ })); selection.clear(); changed(); render(); }
@@ -1389,7 +1448,7 @@ function typedWindow(p, q, crossing) {
     if (hit && !selection.has(e)) n += selAdd(e); }
   return n;
 }
-function add(e) { e.id = nextId++; ents.push(e); changed(); return e; }
+function add(e) { if (drawingCmd && curLt && !("lt" in e) && e.type !== "dim" && e.type !== "text") e.lt = curLt; e.id = nextId++; ents.push(e); changed(); return e; }
 function remove(e) { ents = ents.filter(x => x !== e); selection.delete(e); changed(); }
 function changed() { snapCache = null; save(); }
 
@@ -1431,7 +1490,7 @@ const CMDS = {
       if (r === null) break;
       if (r.kw === "Undo") { if (tu.length) { const s = JSON.parse(tu.pop()); ents = []; nextId = 1; for (const e of s) ents.push(Object.assign(e, { id:nextId++ })); changed(); render(); } continue; }
       tu.push(JSON.stringify(ents));
-      if (!trimAt(r.ent, r.pt)) { tu.pop(); log("That object can't be trimmed. TRIM works on lines, circles and arcs.", "err"); }
+      if (!trimAt(r.ent, r.pt)) { tu.pop(); log("That object can't be trimmed. TRIM works on lines, circles, arcs and polylines (not words or dimensions).", "err"); }
       render();
     }
   },
@@ -1574,6 +1633,7 @@ async function measRadius() {
   const m = `Radius = ${fmt2(e.r)}   Diameter = ${fmt2(2 * e.r)}`; log(m, "ok"); toast(m);
 }
 function segAt(e, p) {          // the straight piece of an object nearest the click
+  if (e.type === "xline") { const [ux, uy] = xlDir(e); return [[e.x, e.y], [e.x + ux, e.y + uy]]; }
   if (e.type === "line") return [[e.x1, e.y1], [e.x2, e.y2]];
   if (e.type !== "poly") return null;
   const n = e.pts.length; let best = null, bd = Infinity;
@@ -1641,7 +1701,7 @@ function dxfText(list, B = BED) {
   const g = (c, v) => L.push(String(c).padStart(3, " "), String(v));
   for (const e of list) {
     const hx = (h++).toString(16).toUpperCase();
-    const base = (t, sub) => { g(0, t); g(5, hx); g(330, CAD.dxf.ms); g(100, "AcDbEntity"); g(8, e.layer); g(100, sub); };
+    const base = (t, sub) => { g(0, t); g(5, hx); g(330, CAD.dxf.ms); g(100, "AcDbEntity"); g(8, e.layer); if (e.lt) g(6, e.lt); g(100, sub); };
     if (e.type === "line") { base("LINE", "AcDbLine"); g(10, N(e.x1)); g(20, N(e.y1)); g(30, N(0)); g(11, N(e.x2)); g(21, N(e.y2)); g(31, N(0)); }
     else if (e.type === "circle") { base("CIRCLE", "AcDbCircle"); g(10, N(e.cx)); g(20, N(e.cy)); g(30, N(0)); g(40, N(e.r)); }
     else if (e.type === "arc") { base("ARC", "AcDbCircle"); g(10, N(e.cx)); g(20, N(e.cy)); g(30, N(0)); g(40, N(e.r));
@@ -1650,6 +1710,9 @@ function dxfText(list, B = BED) {
       e.pts.forEach((p, i) => { g(10, N(p[0])); g(20, N(p[1])); const bu = bulgeOf(e, i); if (Math.abs(bu) > 1e-12) g(42, N(bu)); }); }
     else if (e.type === "text") { base("TEXT", "AcDbText"); g(10, N(e.x)); g(20, N(e.y)); g(30, N(0)); g(40, N(e.h)); g(1, e.t.replace(/[\r\n]+/g, " "));
       g(7, "TS82"); if (e.anchor === "middle") { g(72, 1); g(11, N(e.x)); g(21, N(e.y)); g(31, N(0)); } g(100, "AcDbText"); }
+    else if (e.type === "xline") { base(e.ray ? "RAY" : "XLINE", e.ray ? "AcDbRay" : "AcDbXline"); const [ux, uy] = xlDir(e);
+      g(10, N(e.x)); g(20, N(e.y)); g(30, N(0)); g(11, N(ux)); g(21, N(uy)); g(31, N(0)); }
+    else if (e.type === "dim") dimDXF(e, g, hx, () => (h++).toString(16).toUpperCase());
   }
   const head = CAD.dxf.head.replace(`$HANDSEED\n  5\n${CAD.dxf.seed}\n`, `$HANDSEED\n  5\n${h.toString(16).toUpperCase()}\n`)
     .replace("$CLAYER\n  8\nSCORE\n", `$CLAYER\n  8\n${cur}\n`);
@@ -1661,7 +1724,7 @@ function dxfText(list, B = BED) {
   return head2 + (L.length ? L.join("\n") + "\n" : "") + tail2;
 }
 function laserList() {
-  const all = fixed.concat(ents).filter(e => LASER.has(e.layer) && e.type !== "text"), R = plotRegions();
+  const all = fixed.concat(ents).filter(e => LASER.has(e.layer) && e.type !== "text" && e.type !== "dim" && e.type !== "xline"), R = plotRegions();
   if (!R) return all;
   return plotWhat === "box" ? all.filter(e => inRegion(e, R.box)) : all.filter(e => !inRegion(e, R.box));   // the sheet gets everything but the box's part
 }
@@ -1674,6 +1737,7 @@ function laserChecks(list) {
     msgs.push(R ? "Some red or blue lines hang off the 12 x 12 sheet. MOVE them inside the square, or SCALE them smaller." : "Some red or blue lines are outside the plot area. MOVE them back near your plate."); break; } }
   if (box) { const n = sharpInside(list);
     if (n) msgs.push(`${n} sharp inside corner${n === 1 ? "" : "s"} in the box. A round router bit leaves ${n === 1 ? "it" : "them"} rounded anyway, so parts may not fit: FILLET with the bit's radius. (The waterjet can cut sharp corners.)`); }
+  if (list.some(e => e.lt)) msgs.push("Some red or blue lines are dashed: they plot as dashes, like a tear line for paper. For a fold, a solid blue SCORE line is usual.");
   if (tpl === "paver") { const isOutline = e => e.type === "poly" && e.pts.every(p => Math.abs(Math.abs(p[0]) - 30) < 1e-6 && Math.abs(Math.abs(p[1]) - 30) < 1e-6);
     const holes = list.filter(e => e.layer === "CUT" && !isOutline(e));
     if (holes.length % 4) msgs.push(`Your paver has ${holes.length} red hole${holes.length === 1 ? "" : "s"}. They come in fours: check turn 1 and turn 2.`); }
@@ -1688,7 +1752,7 @@ function laserSVG(list = laserList(), B = BED) {
   const fills = new Map();      // engraved words: each word's letters filled in, one path, holes left open
   for (const e of list) if (e.layer === "ENGRAVE" && e.type === "poly" && e.closed && e.grp) { if (!fills.has(e.grp)) fills.set(e.grp, []); fills.get(e.grp).push(pathOf(e)); }
   for (const ds of fills.values()) out.push(`<path d="${ds.join(" ")}" fill="#000000" fill-rule="evenodd" stroke="none"/>`);
-  for (const e of list) { const st = `fill="none" stroke="${col[e.layer]}" stroke-width="0.025"`;
+  for (const e of list) { const st = `fill="none" stroke="${col[e.layer]}" stroke-width="0.025"` + (e.lt && LTYPES[e.lt] && LTYPES[e.lt].mm ? ` stroke-dasharray="${LTYPES[e.lt].mm.map(Math.abs).join(" ")}"` : "");
     if (e.layer === "ENGRAVE" && e.type === "poly" && e.closed && e.grp) continue;
     if (e.type === "poly" && hasBulge(e)) out.push(`<path d="${pathOf(e)}" ${st}/>`);
     else if (e.type === "line") out.push(`<path d="M ${N(X(e.x1))} ${N(Y(e.y1))} L ${N(X(e.x2))} ${N(Y(e.y2))}" ${st}/>`);
@@ -1768,6 +1832,11 @@ function parseDXF(text) {
     while (i < pairs.length && pairs[i][0] !== 0) { grp.push(pairs[i]); i++; }
     const get = (code, def = 0) => { const p = grp.find(q => q[0] === code); return p ? parseFloat(p[1]) : def; };
     const lay = known((grp.find(q => q[0] === 8) || [8, "0"])[1]); const ez = get(230, 1);
+    const xi = grp.findIndex(q => q[0] === 1001 && q[1] === "TS82");      // TS 82 CAD dimensions: rebuilt from their definition
+    if (xi >= 0) { const xs = []; for (let k = xi + 1; k < grp.length && grp[k][0] !== 1001; k++) if (grp[k][0] === 1000) xs.push(grp[k][1]);
+      const s = xs.join(""); if (s === "p") continue;
+      try { const d = JSON.parse(s); if (d && d.dim && Array.isArray(d.dim.pts)) { out.push(Object.assign({ type:"dim", layer:"DIMS" }, d.dim)); continue; } } catch (er) {} }
+    const n0 = out.length, lt6 = String((grp.find(q => q[0] === 6) || [6, ""])[1]).toUpperCase();
     if (type === "LINE" && lay) out.push({ type:"line", layer:lay, x1:get(10), y1:get(20), x2:get(11), y2:get(21) });
     else if (type === "CIRCLE" && lay) out.push({ type:"circle", layer:lay, cx:get(10) * (ez < 0 ? -1 : 1), cy:get(20), r:get(40) });
     else if (type === "ARC" && lay) { let a0 = get(50), a1 = get(51), cx = get(10);
@@ -1783,8 +1852,10 @@ function parseDXF(text) {
           while (i < pairs.length && pairs[i][0] !== 0) { if (pairs[i][0] === 10) x = parseFloat(pairs[i][1]); if (pairs[i][0] === 20) y = parseFloat(pairs[i][1]); if (pairs[i][0] === 42) bu = parseFloat(pairs[i][1]); i++; }
           pts.push([x, y]); bul.push(bu); } else i++; }
       if (lay && pts.length >= 2) { const o = { type:"poly", layer:lay, closed, pts }; if (bul.some(b => Math.abs(b) > 1e-12)) o.bulge = bul; out.push(o); } }
-    else if (type === "TEXT" && lay === "NOTES") { const t = (grp.find(q => q[0] === 1) || [1, ""])[1], j = get(72, 0);
-      out.push({ type:"text", layer:"NOTES", t, x:j ? get(11) : get(10), y:j ? get(21) : get(20), h:get(40, 3), anchor:j === 1 ? "middle" : "left" }); }
+    else if (type === "TEXT" && (lay === "NOTES" || lay === "DIMS")) { const t = String((grp.find(q => q[0] === 1) || [1, ""])[1]).replace(/%%c/gi, "Ø").replace(/%%d/gi, "°"), j = get(72, 0);
+      out.push({ type:"text", layer:lay, t, x:j ? get(11) : get(10), y:j ? get(21) : get(20), h:get(40, 3), anchor:j === 1 ? "middle" : "left" }); }
+    else if ((type === "XLINE" || type === "RAY") && lay) out.push(Object.assign(mkX([get(10), get(20)], [get(11), get(21)], type === "RAY"), { layer:LASER.has(lay) ? "DRAWN" : lay }));
+    if (out.length > n0 && lt6 && LTYPES[lt6] && out[out.length - 1].type !== "text") out[out.length - 1].lt = lt6;
   }
   return out;
 }
@@ -1982,6 +2053,8 @@ const liveNum = () => { const v = parseFloat(cmdIn.value); return isFinite(v) ? 
 // ── SCALE: a dilation about a base point ──
 function scaleEnt(e, c, k) {
   const m = clone(e), S = p => [c[0] + (p[0] - c[0]) * k, c[1] + (p[1] - c[1]) * k];
+  if (e.type === "dim") { m.pts = e.pts.map(S); m.h = e.h * k; m.as = e.as * k; return m; }
+  if (e.type === "xline") { [m.x, m.y] = S([e.x, e.y]); return m; }
   if (e.type === "line") { [m.x1, m.y1] = S([e.x1, e.y1]); [m.x2, m.y2] = S([e.x2, e.y2]); }
   else if (e.type === "poly") m.pts = e.pts.map(S);
   else if (e.type === "text") { [m.x, m.y] = S([e.x, e.y]); m.h = e.h * k; }
@@ -2074,7 +2147,7 @@ function filletLines(L1, p1, L2, p2) {
   Object.assign(L2, { x1:T2[0], y1:T2[1], x2:s2.far[0], y2:s2.far[1] });
   if (r > 0) { const bx = s1.u[0] + s2.u[0], by = s1.u[1] + s2.u[1], bl = Math.hypot(bx, by), h = r / Math.sin(phi / 2);
     const C = [I[0] + bx / bl * h, I[1] + by / bl * h], A1 = angOf(C, T1), A2 = angOf(C, T2), minor = span(A1, A2) <= 180;
-    add({ type:"arc", layer:L1.layer, cx:C[0], cy:C[1], r, a0:minor ? A1 : A2, a1:minor ? A2 : A1 }); }
+    add({ type:"arc", layer:L1.layer, lt:L1.lt, cx:C[0], cy:C[1], r, a0:minor ? A1 : A2, a1:minor ? A2 : A1 }); }
   changed(); log(r > 0 ? `Corner rounded, radius ${fmt(r)}.` : "Corner made sharp: the lines meet.", "ok"); return true;
 }
 // ── AREA ──
@@ -2250,8 +2323,8 @@ Object.assign(CMDS, {
       if (e.type !== "poly" || groups.size) continue;
       const p = e.pts, n = p.length; remove(e);
       for (let i = 0; i < (e.closed ? n : n - 1); i++) { const a = p[i], b = p[(i + 1) % n], bu = bulgeOf(e, i);
-        if (Math.abs(bu) > 1e-12) { const A = bulgeArc(a, b, bu); add({ type:"arc", layer:e.layer, cx:A.c[0], cy:A.c[1], r:A.r, a0:A.a0, a1:A.a1 }); }
-        else add({ type:"line", layer:e.layer, x1:a[0], y1:a[1], x2:b[0], y2:b[1] }); }
+        if (Math.abs(bu) > 1e-12) { const A = bulgeArc(a, b, bu); add({ type:"arc", layer:e.layer, lt:e.lt, cx:A.c[0], cy:A.c[1], r:A.r, a0:A.a0, a1:A.a1 }); }
+        else add({ type:"line", layer:e.layer, lt:e.lt, x1:a[0], y1:a[1], x2:b[0], y2:b[1] }); }
       broke++;
     }
     changed();
@@ -2594,6 +2667,505 @@ TIPS.array = { name:"ARRAY", n:0, tip:"Grid (Rectangular) repeats by slides; Pol
   .concat(TIPS.arrayrect.steps, TIPS.arraypolar.steps.slice(1)) };
 TIPS.measuregeom.steps.push(...TIPS.area.steps);
 
+// ═══════════════════════════ lines: polyline, construction lines, join, linetypes ═══════════════════════════
+const LTYPES = { "":{ name:"Continuous", px:null, mm:null }, DASHED:{ name:"Dashed", px:"9 5", mm:[6, -3] },
+  HIDDEN:{ name:"Hidden", px:"4 3", mm:[3, -1.5] }, CENTER:{ name:"Center", px:"16 4 4 4", mm:[12, -3, 2, -3] } };
+const DRAWCMDS = new Set(["line", "circle", "rectang", "polygon", "arc", "pline", "xline", "ray"]);
+let curLt = "", drawingCmd = false;
+const xlDir = e => { const L = Math.hypot(e.dx, e.dy) || 1; return [e.dx / L, e.dy / L]; };
+function xlSeg(e, reach = 1e4) { const [ux, uy] = xlDir(e);
+  return e.ray ? [[e.x, e.y], [e.x + ux * reach, e.y + uy * reach]] : [[e.x - ux * reach, e.y - uy * reach], [e.x + ux * reach, e.y + uy * reach]]; }
+const mkX = (p, d, ray) => Object.assign({ type:"xline", layer:"DRAWN", x:p[0], y:p[1], dx:d[0], dy:d[1] }, ray ? { ray:true } : {});
+const unitV = (a, b) => { const L = dist(a, b) || 1; return [(b[0] - a[0]) / L, (b[1] - a[1]) / L]; };
+let xlSaid = false;
+function xlNote() { if (!xlSaid) { log("Construction lines go on DRAWN (gray): they never cut. ERASE them when you're done."); xlSaid = true; } }
+
+// PLINE helpers: a tangent arc from P, heading t, to E; the heading where a piece ends; an arc through three points
+function tangentBulge(P, t, E) { const c = [E[0] - P[0], E[1] - P[1]], phi = Math.atan2(t[0] * c[1] - t[1] * c[0], t[0] * c[0] + t[1] * c[1]);
+  return Math.abs(phi) > Math.PI - 1e-6 ? null : Math.tan(phi / 2); }
+function endHeading(P, E, bu) { const a = Math.atan2(E[1] - P[1], E[0] - P[0]) + 2 * Math.atan(bu); return [Math.cos(a), Math.sin(a)]; }
+function bulge3(P, S, E) { const A = arc3(P, S, E); if (!A) return null;
+  const C = [A.cx, A.cy], a = angOf(C, P), b = angOf(C, E), ccw = (S[0] - P[0]) * (E[1] - P[1]) - (S[1] - P[1]) * (E[0] - P[0]) > 0;
+  return (ccw ? 1 : -1) * Math.tan((ccw ? span(a, b) : span(b, a)) * DEG / 4); }
+
+// ═══════════════════════════ dimensions ═══════════════════════════
+// On the DIMS layer (cyan), which never plots. Stored as their defining points, so MOVE, ROTATE, MIRROR and SCALE
+// keep them right; saved to DXF as lines, filled arrowheads and text that AutoCAD shows as they are, with the
+// definition kept in TS82 extended data so TS 82 CAD reopens them as dimensions.
+const DIM = { h:3.5, as:3 }; let dimScale = 1;
+const dimFmt = v => String(Math.round(v * 100) / 100);
+function readableAng(a) { a = n360(a); return a > 90 + 1e-9 && a <= 270 + 1e-9 ? n360(a + 180) : a; }
+function dimNew(dk, pts, extra) { return Object.assign({ type:"dim", layer:"DIMS", dk, pts:pts.map(p => [p[0], p[1]]), h:R4(DIM.h * dimScale), as:R4(DIM.as * dimScale) }, extra || {}); }
+function dimParts(e) {     // { lines, arcs, arrows:[[tip, dir]], text:{ p, ang, t } } in drawing units
+  const P = e.pts, as = e.as, h = e.h, g = h * 0.35, off = as * 0.35, ex = as * 0.55, lines = [], arcs = [], arrows = [];
+  const pairArrows = (a, b) => { const L = dist(a, b); if (L < 1e-9) return; const u = [(b[0] - a[0]) / L, (b[1] - a[1]) / L];
+    if (L >= 2.4 * as) { lines.push([a, b]); arrows.push([a, [-u[0], -u[1]]], [b, u]); }
+    else { lines.push([[a[0] - u[0] * as * 2, a[1] - u[1] * as * 2], [b[0] + u[0] * as * 2, b[1] + u[1] * as * 2]]); arrows.push([a, u], [b, [-u[0], -u[1]]]); } };
+  const above = (mid, ang) => { const r = ang * DEG; return [mid[0] - Math.sin(r) * g, mid[1] + Math.cos(r) * g]; };
+  const landing = (from, loc, t, c) => {          // a leader out to loc, a short shelf, and the words on it
+    lines.push([from, loc]); const tw = textWidth({ t, h }), side = loc[0] >= c[0] ? 1 : -1, end = [loc[0] + side * tw, loc[1]];
+    lines.push([loc, end]); return { p:[(loc[0] + end[0]) / 2, loc[1] + g], ang:0, t }; };
+  let text;
+  if (e.dk === "lin" || e.dk === "ali") {
+    const [p1, p2, loc] = P; let u;
+    if (e.dk === "lin") { const r = (e.rot || 0) * DEG; u = [Math.cos(r), Math.sin(r)]; } else u = unitV(p1, p2);
+    const proj = p => { const t = (p[0] - loc[0]) * u[0] + (p[1] - loc[1]) * u[1]; return [loc[0] + u[0] * t, loc[1] + u[1] * t]; };
+    const a = proj(p1), b = proj(p2);
+    for (const [p, q] of [[p1, a], [p2, b]]) { const L = dist(p, q); if (L > off + 1e-9) { const v = [(q[0] - p[0]) / L, (q[1] - p[1]) / L];
+      lines.push([[p[0] + v[0] * off, p[1] + v[1] * off], [q[0] + v[0] * ex, q[1] + v[1] * ex]]); } }
+    pairArrows(a, b);
+    const ang = readableAng(Math.atan2(u[1], u[0]) / DEG);
+    text = { p:above([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], ang), ang, t:dimFmt(dist(a, b)) };
+  } else if (e.dk === "rad" || e.dk === "dia") {
+    const [c, q, loc] = P, r = dist(c, q), u = unitV(c, q), t = (e.dk === "rad" ? "R" : "Ø") + dimFmt(e.dk === "rad" ? r : 2 * r);
+    const outside = dist(c, loc) > r + 1e-9;
+    if (e.dk === "dia") { const q2 = [2 * c[0] - q[0], 2 * c[1] - q[1]]; lines.push([q2, q]); arrows.push([q, u], [q2, [-u[0], -u[1]]]); }
+    if (outside) { if (e.dk === "rad") arrows.push([q, [-u[0], -u[1]]]); text = landing(q, loc, t, c); }
+    else { if (e.dk === "rad") { lines.push([c, q]); arrows.push([q, u]); }
+      const m = e.dk === "rad" ? [(c[0] + q[0]) / 2, (c[1] + q[1]) / 2] : c, ang = readableAng(Math.atan2(u[1], u[0]) / DEG); text = { p:above(m, ang), ang, t }; }
+  } else if (e.dk === "ang") {
+    const [V, A, B, loc] = P, R = Math.max(dist(V, loc), as * 2), a0 = angOf(V, A), a1 = angOf(V, B), sw = span(a0, a1);
+    arcs.push({ c:V, r:R, a0, a1 });
+    const r0 = a0 * DEG, r1 = a1 * DEG;
+    arrows.push([onCirc(V, R, a0), [Math.sin(r0), -Math.cos(r0)]], [onCirc(V, R, a1), [-Math.sin(r1), Math.cos(r1)]]);
+    for (const [Q, a] of [[A, a0], [B, a1]]) { const L = dist(V, Q); if (R > L + off) lines.push([onCirc(V, L + off, a), onCirc(V, R + ex, a)]); }
+    const m = a0 + sw / 2, tp = onCirc(V, R + g + h * 0.15, m);
+    if (Math.sin(m * DEG) < -0.2) tp[1] -= h; else if (Math.abs(Math.sin(m * DEG)) <= 0.2) tp[1] -= h / 2;
+    text = { p:tp, ang:0, t:dimFmt(sw) + "°" };
+  }
+  return { lines, arcs, arrows, text };
+}
+const arrowPts = (T, d, as) => { const w = as / 6, bx = T[0] - d[0] * as, by = T[1] - d[1] * as; return [T, [bx - d[1] * w, by + d[0] * w], [bx + d[1] * w, by - d[0] * w]]; };
+const dimArcD = A => { const p = onCirc(A.c, A.r, A.a0), q = onCirc(A.c, A.r, A.a1); return `M${p[0]} ${p[1]}A${A.r} ${A.r} 0 ${span(A.a0, A.a1) > 180 ? 1 : 0} 1 ${q[0]} ${q[1]}`; };
+function dimPathD(e) { const D = dimParts(e);
+  return D.lines.map(([a, b]) => `M${a[0]} ${a[1]}L${b[0]} ${b[1]}`).join("") + D.arcs.map(dimArcD).join("") +
+    D.arrows.map(([T, d]) => { const q = arrowPts(T, d, e.as); return `M${q[0][0]} ${q[0][1]}L${q[1][0]} ${q[1][1]}L${q[2][0]} ${q[2][1]}Z`; }).join(""); }
+function dimTextCenter(e, T) { const r = T.ang * DEG; return [T.p[0] - Math.sin(r) * e.h / 2, T.p[1] + Math.cos(r) * e.h / 2]; }
+function dimPts(e) { const D = dimParts(e), out = [];
+  for (const [a, b] of D.lines) out.push(a, b);
+  for (const A of D.arcs) for (let i = 0; i <= 12; i++) out.push(onCirc(A.c, A.r, A.a0 + span(A.a0, A.a1) * i / 12));
+  const c = dimTextCenter(e, D.text), w = textWidth({ t:D.text.t, h:e.h }) / 2, r = D.text.ang * DEG, ux = Math.cos(r), uy = Math.sin(r);
+  for (const [s, t] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) out.push([c[0] + ux * w * s - uy * e.h / 2 * t, c[1] + uy * w * s + ux * e.h / 2 * t]);
+  return out; }
+function dimDist(e, p) { const D = dimParts(e); let best = Infinity;
+  for (const [a, b] of D.lines) best = Math.min(best, segDist(p, a, b));
+  for (const A of D.arcs) if (inArc(angOf(A.c, p), A.a0, A.a1)) best = Math.min(best, Math.abs(dist(A.c, p) - A.r));
+  const c = dimTextCenter(e, D.text); best = Math.min(best, Math.max(0, dist(p, c) - Math.max(textWidth({ t:D.text.t, h:e.h }) / 2, e.h / 2) * 0.8));
+  return best; }
+function dimDraw(g, e, opts) {
+  const D = dimParts(e), col = (LAYERS[e.layer] || LAYERS.DIMS).color, d = dimPathD(e);
+  if (opts.sel) g.appendChild(el("path", { d, fill:"none", stroke:"rgba(90,169,255,.45)", "stroke-width":6, "vector-effect":"non-scaling-stroke" }));
+  const lines = D.lines.map(([a, b]) => `M${a[0]} ${a[1]}L${b[0]} ${b[1]}`).join("") + D.arcs.map(dimArcD).join("");
+  g.appendChild(el("path", { d:lines, fill:"none", stroke:col, "stroke-width":opts.sel ? 2 : (opts.hov ? 2.2 : 1), "vector-effect":"non-scaling-stroke" }));
+  for (const [T, dd] of D.arrows) { const q = arrowPts(T, dd, e.as); g.appendChild(el("path", { d:`M${q[0][0]} ${q[0][1]}L${q[1][0]} ${q[1][1]}L${q[2][0]} ${q[2][1]}Z`, fill:col, stroke:"none" })); }
+  const r = D.text.ang * DEG, c = Math.cos(r), s = Math.sin(r);
+  const t = el("text", { transform:`matrix(${c},${s},${s},${-c},${D.text.p[0]},${D.text.p[1]})`, "font-size":e.h * TEXT_EM, fill:col,
+    "font-family":"Arial, Helvetica, sans-serif", "text-anchor":"middle" });
+  t.textContent = D.text.t; g.appendChild(t);
+}
+const dxfStr = t => String(t).replace(/Ø/g, "%%c").replace(/°/g, "%%d");
+function dimDXF(e, g, first, nh) {      // the pieces, each with TS82 extended data; the text carries the definition
+  const D = dimParts(e); let hx = first;
+  const head = (t, sub) => { g(0, t); g(5, hx || nh()); g(330, CAD.dxf.ms); g(100, "AcDbEntity"); g(8, e.layer); g(100, sub); hx = null; };
+  const xd = s => { g(1001, "TS82"); for (let i = 0; i < s.length; i += 240) g(1000, s.slice(i, i + 240)); };
+  const def = { dk:e.dk, pts:e.pts.map(p => [+N(p[0]), +N(p[1])]), h:e.h, as:e.as }; if (e.dk === "lin") def.rot = e.rot || 0;
+  head("TEXT", "AcDbText"); g(10, N(D.text.p[0])); g(20, N(D.text.p[1])); g(30, N(0)); g(40, N(e.h)); g(1, dxfStr(D.text.t)); g(50, N(D.text.ang));
+  g(7, "TS82"); g(72, 1); g(11, N(D.text.p[0])); g(21, N(D.text.p[1])); g(31, N(0)); g(100, "AcDbText"); xd(JSON.stringify({ dim:def }));
+  for (const [a, b] of D.lines) { head("LINE", "AcDbLine"); g(10, N(a[0])); g(20, N(a[1])); g(30, N(0)); g(11, N(b[0])); g(21, N(b[1])); g(31, N(0)); xd("p"); }
+  for (const A of D.arcs) { head("ARC", "AcDbCircle"); g(10, N(A.c[0])); g(20, N(A.c[1])); g(30, N(0)); g(40, N(A.r)); g(100, "AcDbArc"); g(50, N(n360(A.a0))); g(51, N(n360(A.a1))); xd("p"); }
+  for (const [T, d] of D.arrows) { const q = arrowPts(T, d, e.as); head("SOLID", "AcDbTrace");
+    [[10, 20, 30, q[0]], [11, 21, 31, q[1]], [12, 22, 32, q[2]], [13, 23, 33, q[2]]].forEach(([cx, cy, cz, p]) => { g(cx, N(p[0])); g(cy, N(p[1])); g(cz, N(0)); }); xd("p"); }
+}
+// the DIMS layer, the linetypes and the TS82 name go into the DXF tables (new handles, and the handle seed moves on)
+(function dxfTables() {
+  let head = CAD.dxf.head, seed = parseInt(CAD.dxf.seed, 16);
+  const nh = () => (seed++).toString(16).toUpperCase();
+  const addTo = (table, rec) => {
+    const start = head.indexOf(`  0\nTABLE\n  2\n${table}\n`); if (start < 0) return;
+    const end = head.indexOf("  0\nENDTAB\n", start); if (end < 0) return;
+    let sect = head.slice(start, end); const th = (sect.match(/^  0\nTABLE\n  2\n\w+\n  5\n([0-9A-Fa-f]+)\n/) || [])[1] || "0";
+    sect = sect.replace(/(100\nAcDbSymbolTable\n 70\n)(\d+)\n/, (m, a, n) => `${a}${+n + 1}\n`);
+    head = head.slice(0, start) + sect + rec(nh(), th) + head.slice(end);
+  };
+  addTo("LAYER", (h, t) => `  0\nLAYER\n  5\n${h}\n330\n${t}\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\nDIMS\n 70\n0\n 62\n4\n  6\nContinuous\n290\n0\n370\n-3\n390\n13\n`);
+  for (const [k, v] of Object.entries(LTYPES)) if (k) addTo("LTYPE", (h, t) => `  0\nLTYPE\n  5\n${h}\n330\n${t}\n100\nAcDbSymbolTableRecord\n100\nAcDbLinetypeTableRecord\n  2\n${k}\n 70\n0\n  3\n${v.name}\n 72\n65\n 73\n${v.mm.length}\n 40\n${v.mm.reduce((s, x) => s + Math.abs(x), 0).toFixed(1)}\n` +
+    v.mm.map(x => ` 49\n${x.toFixed(1)}\n 74\n0\n`).join(""));
+  addTo("APPID", (h, t) => `  0\nAPPID\n  5\n${h}\n330\n${t}\n100\nAcDbSymbolTableRecord\n100\nAcDbRegAppTableRecord\n  2\nTS82\n 70\n0\n`);
+  const now = seed.toString(16).toUpperCase();
+  head = head.replace(`$HANDSEED\n  5\n${CAD.dxf.seed}\n`, `$HANDSEED\n  5\n${now}\n`);
+  CAD.dxf.head = head; CAD.dxf.seed = now;
+})();
+{ const b = LAYERS.BED, t = LAYERS.TITLE; delete LAYERS.BED; delete LAYERS.TITLE;
+  LAYERS.DIMS = { color:"#00FFFF", aci:4, plot:false, lock:false, note:"dimensions: never plots" }; LAYERS.BED = b; LAYERS.TITLE = t; DRAW_LAYERS.push("DIMS"); }
+
+// ═══════════════════════════ TRIM for polylines, and EXTEND ═══════════════════════════
+// A polyline's place is a number s: segment i, and how far along it (0 to 1; along an arc, by angle).
+function polySegs(E) { const n = E.pts.length, out = [];
+  for (let i = 0; i < (E.closed ? n : n - 1); i++) { const a = E.pts[i], b = E.pts[(i + 1) % n], bu = bulgeOf(E, i), A = Math.abs(bu) > 1e-12 ? bulgeArc(a, b, bu) : null;
+    out.push({ a, b, bu, A, th:A ? 4 * Math.atan(bu) : 0, prim:A ? { k:"c", c:A.c, r:A.r, a0:A.a0, a1:A.a1 } : { k:"s", a, b } }); }
+  return out; }
+function segPoint(S, t) { if (!S.A) return [S.a[0] + (S.b[0] - S.a[0]) * t, S.a[1] + (S.b[1] - S.a[1]) * t];
+  return rotPt(S.a, S.A.c, S.th / DEG * t); }
+function segParam(S, p) {
+  if (!S.A) { const dx = S.b[0] - S.a[0], dy = S.b[1] - S.a[1], L2 = dx * dx + dy * dy || 1; return Math.max(0, Math.min(1, ((p[0] - S.a[0]) * dx + (p[1] - S.a[1]) * dy) / L2)); }
+  const a0 = angOf(S.A.c, S.a), a = angOf(S.A.c, p), sw = Math.abs(S.th) / DEG, d = S.th > 0 ? n360(a - a0) : n360(a0 - a);   // degrees along the way it travels
+  if (d <= sw + 1e-9) return Math.min(1, d / sw);
+  return d - sw < 360 - d ? 1 : 0;       // past the arc: whichever end is nearer
+}
+function subPoly(E, segs, s0, s1) {      // the piece of the polyline from place s0 to s1 (s1 may wrap past the end)
+  const m = segs.length, pts = [], bul = []; let i = Math.floor(s0 + 1e-12), t0 = s0 - i;
+  if (t0 > 1 - 1e-9) { i++; t0 = 0; }
+  for (let guard = 0; guard < 2 * m + 2; guard++) {
+    const S = segs[i % m], tEnd = Math.min(i + 1, s1) - i;
+    pts.push(segPoint(S, t0)); bul.push(S.A ? Math.tan(S.th * (tEnd - t0) / 4) : 0);
+    if (s1 <= i + 1 + 1e-9) { pts.push(segPoint(S, tEnd)); bul.push(0); break; }
+    i++; t0 = 0;
+  }
+  const o = { type:"poly", layer:E.layer, closed:false, pts:pts.map(R4pt) }; if (E.lt) o.lt = E.lt; if (bul.some(b => Math.abs(b) > 1e-12)) o.bulge = bul;
+  let len = 0; for (let k = 0; k + 1 < o.pts.length; k++) len += dist(o.pts[k], o.pts[k + 1]);
+  return len > 1e-7 ? o : null;
+}
+function trimPoly(E, pt) {
+  const segs = polySegs(E), m = segs.length, cuts = [];
+  for (const o of ents) { if (o === E || o.type === "text" || o.type === "dim") continue; const ps = prims(o);
+    for (let i = 0; i < m; i++) for (const q of ps) for (const X of xPrim(segs[i].prim, q)) cuts.push(i + segParam(segs[i], X)); }
+  let si = 0, bd = Infinity;     // where the click is, along the polyline
+  segs.forEach((S, i) => { const d = S.A ? (inArc(angOf(S.A.c, pt), S.A.a0, S.A.a1) ? Math.abs(dist(S.A.c, pt) - S.A.r) : Math.min(dist(pt, S.a), dist(pt, S.b))) : segDist(pt, S.a, S.b);
+    if (d < bd) { bd = d; si = i + segParam(S, pt); } });
+  remove(E);
+  if (!E.closed) {
+    const cs = uniq(cuts.filter(s => s > 1e-7 && s < m - 1e-7));
+    let lo = 0, hi = m; for (const s of cs) { if (s < si) lo = Math.max(lo, s); else if (s > si) hi = Math.min(hi, s); }
+    for (const piece of [lo > 1e-7 ? subPoly(E, segs, 0, lo) : null, hi < m - 1e-7 ? subPoly(E, segs, hi, m) : null]) if (piece) add(piece);
+    return true;
+  }
+  const cc = uniq(cuts.map(s => { const v = ((s % m) + m) % m; return v > m - 1e-7 ? 0 : v; }));
+  if (cc.length < 2) return true;          // nothing holds it: Quick mode deletes it, as with a circle
+  let lo = null, hi = null; for (const s of cc) { if (s < si && (lo === null || s > lo)) lo = s; if (s > si && (hi === null || s < hi)) hi = s; }
+  if (lo === null) lo = cc[cc.length - 1] - m; if (hi === null) hi = cc[0] + m;
+  const piece = subPoly(E, segs, hi, lo + m); if (piece) add(piece);
+  return true;
+}
+const EXT_FAR = 1e5;
+function rayHit(E, P, u) {      // the nearest place the ray from P along u meets another object
+  const ray = { k:"s", a:[P[0] + u[0] * 1e-7, P[1] + u[1] * 1e-7], b:[P[0] + u[0] * EXT_FAR, P[1] + u[1] * EXT_FAR] }; let best = null, bd = Infinity;
+  for (const o of ents) { if (o === E || o.type === "text" || o.type === "dim") continue;
+    for (const q of prims(o)) for (const X of xPrim(ray, q)) { const d = dist(P, X); if (d > 1e-6 && d < bd) { bd = d; best = X; } } }
+  return best; }
+function circleHit(E, c, r, from, ccw, room) {   // how many degrees round the circle, from 'from', to the next object
+  const circ = { k:"c", c, r, full:true }; let best = null;
+  for (const o of ents) { if (o === E || o.type === "text" || o.type === "dim") continue;
+    for (const q of prims(o)) for (const X of xPrim(circ, q)) { const a = angOf(c, X), d = ccw ? n360(a - from) : n360(from - a);
+      if (d > 1e-6 && d < room - 1e-6 && (best === null || d < best)) best = d; } }
+  return best; }
+const NO_EDGE = "Object does not intersect an edge. EXTEND needs something in that direction to grow into.";
+function extendAt(E, pt) {
+  if (E.type === "line") {
+    const A = [E.x1, E.y1], B = [E.x2, E.y2], atB = dist(pt, B) <= dist(pt, A), P = atB ? B : A, u = atB ? unitV(A, B) : unitV(B, A), X = rayHit(E, P, u);
+    if (!X) return NO_EDGE; if (atB) { E.x2 = X[0]; E.y2 = X[1]; } else { E.x1 = X[0]; E.y1 = X[1]; } changed(); return true;
+  }
+  if (E.type === "arc") {
+    const c = [E.cx, E.cy], room = 360 - span(E.a0, E.a1), atEnd = dist(pt, onCirc(c, E.r, E.a1)) <= dist(pt, onCirc(c, E.r, E.a0));
+    const d = circleHit(E, c, E.r, atEnd ? E.a1 : E.a0, atEnd, room); if (d === null) return NO_EDGE;
+    if (atEnd) E.a1 = n360(E.a1 + d); else E.a0 = n360(E.a0 - d); changed(); return true;
+  }
+  if (E.type === "poly" && !E.closed && E.pts.length >= 2) {
+    const n = E.pts.length, atEnd = dist(pt, E.pts[n - 1]) <= dist(pt, E.pts[0]), k = atEnd ? n - 2 : 0, bu = bulgeOf(E, k);
+    const a = E.pts[k], b = E.pts[k + 1];
+    if (Math.abs(bu) < 1e-12) { const P = atEnd ? b : a, X = rayHit(E, P, atEnd ? unitV(a, b) : unitV(b, a)); if (!X) return NO_EDGE;
+      E.pts[atEnd ? n - 1 : 0] = X; changed(); return true; }
+    const A = bulgeArc(a, b, bu), th = 4 * Math.atan(bu), room = 360 - Math.abs(th) / DEG, from = angOf(A.c, atEnd ? b : a);
+    const ccw = atEnd ? bu > 0 : bu < 0, d = circleHit(E, A.c, A.r, from, ccw, room); if (d === null) return NO_EDGE;
+    E.pts[atEnd ? n - 1 : 0] = onCirc(A.c, A.r, ccw ? from + d : from - d);
+    if (!E.bulge) E.bulge = E.pts.map(() => 0); E.bulge[k] = Math.tan(Math.sign(bu) * (Math.abs(th) + d * DEG) / 4); changed(); return true;
+  }
+  if (E.type === "circle" || (E.type === "poly" && E.closed)) return "That shape is closed, so it has no end to extend.";
+  return "EXTEND works on lines, arcs and open polylines.";
+}
+
+// ═══════════════════════════ the commands ═══════════════════════════
+async function dimLin(aligned) {
+  const name = aligned ? "DIMALIGNED" : "DIMLINEAR";
+  let p1 = await getPoint(`${name} Specify first extension line origin or <select object>:`, { allowEnter:true }), p2;
+  if (p1 === null) { const r = await ask("pick", "Select object to dimension:", { withPoint:true }); const s = dimSeg(r.ent, r.pt);
+    if (!s) { log("Pick a line, a side of a rectangle or polygon, or a circle.", "err"); return; } [p1, p2] = s; }
+  else { if (!Array.isArray(p1)) return; p2 = await getPoint("Specify second extension line origin:", { base:p1 }); if (!Array.isArray(p2)) return; }
+  if (dist(p1, p2) < 1e-9) { log("The two points must be different.", "err"); return; }
+  let fixedRot = null;
+  const rotFor = loc => { if (fixedRot !== null) return fixedRot; const x0 = Math.min(p1[0], p2[0]), x1 = Math.max(p1[0], p2[0]), y0 = Math.min(p1[1], p2[1]), y1 = Math.max(p1[1], p2[1]);
+    if (loc[0] > x0 && loc[0] < x1) return 0; if (loc[1] > y0 && loc[1] < y1) return 90;
+    return Math.max(loc[1] - y1, y0 - loc[1]) >= Math.max(loc[0] - x1, x0 - loc[0]) ? 0 : 90; };
+  const mk = loc => aligned ? dimNew("ali", [p1, p2, loc]) : dimNew("lin", [p1, p2, loc], { rot:rotFor(loc) });
+  while (true) {
+    const r = await getPoint(aligned ? "Specify dimension line location:" : "Specify dimension line location or [Horizontal/Vertical]:",
+      { keywords:aligned ? null : ["Horizontal", "Vertical"], allowNumber:true, noSnap:true, preview:q => [mk(q)] });
+    if (r.kw) { fixedRot = r.kw === "Horizontal" ? 0 : 90; continue; }
+    let loc = r;
+    if (!Array.isArray(r)) {           // a typed number: that far out, on the mouse's side
+      const m = mouse || lastMouse, side = m ? m.w : [(p1[0] + p2[0]) / 2, Math.max(p1[1], p2[1]) + 1], d = Math.abs(r.num);
+      if (aligned) { const u = unitV(p1, p2), n = [-u[1], u[0]], s = ((side[0] - p1[0]) * n[0] + (side[1] - p1[1]) * n[1]) >= 0 ? 1 : -1; loc = [(p1[0] + p2[0]) / 2 + n[0] * d * s, (p1[1] + p2[1]) / 2 + n[1] * d * s]; }
+      else { const rot = rotFor(side); fixedRot = rot;
+        loc = rot === 0 ? [(p1[0] + p2[0]) / 2, side[1] >= Math.max(p1[1], p2[1]) ? Math.max(p1[1], p2[1]) + d : Math.min(p1[1], p2[1]) - d]
+          : [side[0] >= Math.max(p1[0], p2[0]) ? Math.max(p1[0], p2[0]) + d : Math.min(p1[0], p2[0]) - d, (p1[1] + p2[1]) / 2]; } }
+    const e = add(mk(loc)); log(`Dimension text = ${dimParts(e).text.t}`, "ok"); return;
+  }
+}
+function dimSeg(e, pt) {
+  if (!e) return null;
+  if (e.type === "line") return [[e.x1, e.y1], [e.x2, e.y2]];
+  if (e.type === "poly") { const i = segIndexAt(e, pt); return i < 0 ? null : [e.pts[i], e.pts[(i + 1) % e.pts.length]]; }
+  if (e.type === "circle") return [[e.cx - e.r, e.cy], [e.cx + e.r, e.cy]];
+  if (e.type === "arc") return [onCirc([e.cx, e.cy], e.r, e.a0), onCirc([e.cx, e.cy], e.r, e.a1)];
+  return null;
+}
+function dimCircle(e, pt) {
+  if (!e) return null;
+  if (e.type === "circle" || e.type === "arc") return { c:[e.cx, e.cy], r:e.r };
+  if (e.type === "poly") { let best = null, bd = Infinity; for (const S of polySegs(e)) if (S.A) { const d = Math.abs(dist(S.A.c, pt) - S.A.r); if (d < bd) { bd = d; best = { c:S.A.c, r:S.A.r }; } } return best; }
+  return null;
+}
+async function dimRad(dia) {
+  const r = await ask("pick", `${dia ? "DIMDIAMETER" : "DIMRADIUS"} Select arc or circle:`, { withPoint:true }), C = dimCircle(r.ent, r.pt);
+  if (!C) { log("Pick a circle, an arc, or a rounded corner.", "err"); return; }
+  const mk = loc => { const u = dist(C.c, loc) > 1e-9 ? unitV(C.c, loc) : [1, 0]; return dimNew(dia ? "dia" : "rad", [C.c, [C.c[0] + u[0] * C.r, C.c[1] + u[1] * C.r], loc]); };
+  const loc = await getPoint("Specify dimension line location:", { noSnap:true, preview:q => [mk(q)] }); if (!Array.isArray(loc)) return;
+  add(mk(loc)); log(`Dimension text = ${dia ? "Ø" + dimFmt(2 * C.r) : "R" + dimFmt(C.r)}`, "ok");
+}
+function farOnSide(s, I, pick) {      // the end of a picked side farthest out from the corner, on the side that was clicked
+  const u0 = unitV(s[0], s[1]), sg = (pick[0] - I[0]) * u0[0] + (pick[1] - I[1]) * u0[1] >= 0 ? 1 : -1, u = [u0[0] * sg, u0[1] * sg];
+  const pr = p => (p[0] - I[0]) * u[0] + (p[1] - I[1]) * u[1], far = pr(s[0]) > pr(s[1]) ? s[0] : s[1];
+  return pr(far) > 1e-9 ? far : [I[0] + u[0] * dist(s[0], s[1]), I[1] + u[1] * dist(s[0], s[1])];
+}
+Object.assign(CMDS, {
+  async pline() {
+    const p0 = await getPoint("PLINE Specify start point:"); if (!Array.isArray(p0)) return;
+    log("Current line-width is 0.0000");
+    const pts = [p0], bul = []; let arc = false, dir = [1, 0];
+    const ghost = (q, bu) => [{ type:"poly", layer:cur, closed:false, pts:pts.concat([q]), bulge:bul.concat([bu, 0]) }];
+    const back = () => { pts.pop(); bul.pop(); dir = bul.length ? endHeading(pts[pts.length - 2], pts[pts.length - 1], bul[bul.length - 1]) : [1, 0]; };
+    const done = closed => { const o = { type:"poly", layer:cur, closed, pts:pts.map(R4pt) }, B = closed ? bul : bul.concat([0]);
+      if (B.some(b => Math.abs(b) > 1e-12)) o.bulge = B; add(o); };
+    while (true) {
+      const last = pts[pts.length - 1], n = bul.length;
+      if (!arc) {
+        const kws = n >= 2 ? ["Arc", "Close", "Undo"] : ["Arc", "Undo"];
+        const r = await getPoint(`Specify next point or [${kws.join("/")}]:`, { allowEnter:true, keywords:kws, base:last, preview:q => dist(q, last) > 1e-9 ? ghost(q, 0) : [] });
+        if (r === null) break;
+        if (r.kw === "Arc") { arc = true; continue; }
+        if (r.kw === "Undo") { if (n) back(); else log("All segments have already been undone.", "err"); continue; }
+        if (r.kw === "Close") { bul.push(0); done(true); return; }
+        if (dist(r, last) < 1e-9) continue;
+        bul.push(0); pts.push(r); dir = unitV(last, r); render();
+      } else {
+        const kws = n >= 1 ? ["Line", "Second pt", "Close", "Undo"] : ["Line", "Second pt", "Undo"];
+        const r = await getPoint(`Specify endpoint of arc or [${kws.join("/")}]:`, { allowEnter:true, keywords:kws, base:last,
+          preview:q => { const bu = dist(q, last) > 1e-9 ? tangentBulge(last, dir, q) : null; return bu === null ? [] : ghost(q, bu); } });
+        if (r === null) break;
+        if (r.kw === "Line") { arc = false; continue; }
+        if (r.kw === "Undo") { if (n) back(); else log("All segments have already been undone.", "err"); continue; }
+        if (r.kw === "Close") { const bu = tangentBulge(last, dir, p0); bul.push(bu === null ? 0 : bu); done(true); return; }
+        let E = r, bu;
+        if (r.kw === "Second pt") { const s = await getPoint("Specify second point on arc:", { base:last }); if (!Array.isArray(s)) continue;
+          E = await getPoint("Specify end point of arc:", { preview:q => { const b = bulge3(last, s, q); return b === null ? [] : ghost(q, b); } }); if (!Array.isArray(E)) continue;
+          bu = bulge3(last, s, E); }
+        else bu = tangentBulge(last, dir, E);
+        if (bu === null || dist(E, last) < 1e-9) { log("That arc can't be drawn: pick an end point that isn't straight back.", "err"); continue; }
+        bul.push(bu); pts.push(E); dir = endHeading(last, E, bu); render();
+      }
+    }
+    if (bul.length) done(false);
+  },
+  async xline() {
+    const r = await getPoint("XLINE Specify a point or [Hor/Ver/Ang/Bisect/Offset]:", { keywords:["Hor", "Ver", "Ang", "Bisect", "Offset"] });
+    xlNote();
+    const through = async (p, d) => { while (true) {   // p fixed: lines through p; d fixed: lines in direction d
+      const q = await getPoint("Specify through point:", { allowEnter:true, base:p || undefined, preview:t => p ? (dist(p, t) > 1e-9 ? [mkX(p, unitV(p, t))] : []) : [mkX(t, d)] });
+      if (q === null) return; if (p && dist(p, q) < 1e-9) continue; add(p ? mkX(p, unitV(p, q)) : mkX(q, d)); render(); } };
+    if (Array.isArray(r)) return through(r, null);
+    if (r.kw === "Hor") return through(null, [1, 0]);
+    if (r.kw === "Ver") return through(null, [0, 1]);
+    if (r.kw === "Ang") { const a = await ask("number", "Enter angle of xline (0):"); return through(null, [Math.cos(a.num * DEG), Math.sin(a.num * DEG)]); }
+    if (r.kw === "Bisect") {
+      const v = await getPoint("Specify angle vertex point:"); if (!Array.isArray(v)) return;
+      const a = await getPoint("Specify angle start point:", { base:v }); if (!Array.isArray(a)) return;
+      const bis = q => { const u = unitV(v, a), w = unitV(v, q), s = [u[0] + w[0], u[1] + w[1]], L = Math.hypot(s[0], s[1]); return L < 1e-9 ? [-u[1], u[0]] : [s[0] / L, s[1] / L]; };
+      while (true) { const b = await getPoint("Specify angle end point:", { allowEnter:true, base:v, preview:q => dist(v, q) > 1e-9 ? [mkX(v, bis(q))] : [] });
+        if (b === null) return; if (dist(v, b) < 1e-9) continue; add(mkX(v, bis(b))); log(`That line cuts the angle in half: ${fmt2(angleAt(v, a, b) / 2)}° on each side.`, "ok"); render(); }
+    }
+    if (r.kw === "Offset") {
+      const dd = await ask("number", "Specify offset distance:"); const d = Math.abs(dd.num);
+      while (true) { const p = await ask("pick", "Select a line object:", { allowEnter:true, withPoint:true }); if (p === null) return;
+        const s = segAt(p.ent, p.pt); if (!s) { log("Pick a line, a construction line, or a side of a rectangle.", "err"); continue; }
+        const side = await getPoint("Specify side to offset:", { noSnap:true }); if (!Array.isArray(side)) return;
+        const u = unitV(s[0], s[1]), n = [-u[1], u[0]], sg = ((side[0] - s[0][0]) * n[0] + (side[1] - s[0][1]) * n[1]) >= 0 ? 1 : -1;
+        add(mkX([s[0][0] + n[0] * d * sg, s[0][1] + n[1] * d * sg], u)); render(); }
+    }
+  },
+  async ray() {
+    const p = await getPoint("RAY Specify start point:"); if (!Array.isArray(p)) return; xlNote();
+    while (true) { const q = await getPoint("Specify through point:", { allowEnter:true, base:p, preview:t => dist(p, t) > 1e-9 ? [mkX(p, unitV(p, t), true)] : [] });
+      if (q === null) return; if (dist(p, q) < 1e-9) continue; add(mkX(p, unitV(p, q), true)); render(); }
+  },
+  async join() {
+    const sel = (await getSelection()).filter(e => e.type === "line" || e.type === "arc" || (e.type === "poly" && !e.closed && !e.grp));
+    if (sel.length < 2) { log("JOIN needs two or more lines, arcs or open polylines that meet end to end.", "err"); return; }
+    const tol = 1e-4;
+    const segsOf = e => e.type === "line" ? [{ a:[e.x1, e.y1], b:[e.x2, e.y2], bu:0 }]
+      : e.type === "arc" ? [{ a:onCirc([e.cx, e.cy], e.r, e.a0), b:onCirc([e.cx, e.cy], e.r, e.a1), bu:Math.tan(span(e.a0, e.a1) * DEG / 4) }]
+      : e.pts.slice(0, -1).map((p, i) => ({ a:p, b:e.pts[i + 1], bu:bulgeOf(e, i) }));
+    const rev = s => s.slice().reverse().map(q => ({ a:q.b, b:q.a, bu:-q.bu }));
+    const pieces = sel.map(e => ({ e, s:segsOf(e) })), chains = [];
+    while (pieces.length) {
+      const first = pieces.shift(); let s = first.s.slice(); const used = [first.e]; let grew = true;
+      while (grew) { grew = false;
+        for (let k = 0; k < pieces.length; k++) { const P = pieces[k], h = s[0].a, t = s[s.length - 1].b, pa = P.s[0].a, pb = P.s[P.s.length - 1].b;
+          let ext = null, front = false;
+          if (dist(t, pa) < tol) ext = P.s; else if (dist(t, pb) < tol) ext = rev(P.s); else if (dist(h, pb) < tol) { ext = P.s; front = true; } else if (dist(h, pa) < tol) { ext = rev(P.s); front = true; }
+          if (ext) { s = front ? ext.concat(s) : s.concat(ext); used.push(P.e); pieces.splice(k, 1); grew = true; break; } } }
+      if (used.length > 1) chains.push({ s, used });
+    }
+    let closedN = 0, joined = 0;
+    for (const c of chains) {
+      const closed = dist(c.s[0].a, c.s[c.s.length - 1].b) < tol, pts = c.s.map(q => q.a), B = c.s.map(q => q.bu);
+      if (!closed) { pts.push(c.s[c.s.length - 1].b); B.push(0); } else closedN++;
+      const f = c.used[0]; for (const e of c.used) remove(e); joined += c.used.length;
+      const o = { type:"poly", layer:f.layer, closed, pts:pts.map(R4pt) }; if (f.lt) o.lt = f.lt; if (B.some(b => Math.abs(b) > 1e-12)) o.bulge = B; add(o);
+    }
+    if (!chains.length) { log("Nothing joined: the ends don't meet. Zoom in, and use the green squares when you draw.", "err"); return; }
+    log(`${joined} objects joined into ${chains.length} polyline${chains.length === 1 ? "" : "s"}` + (closedN ? `, ${closedN} closed: OFFSET, AREA and the 3D shape see ${closedN === 1 ? "it" : "them"} as one shape now.` : "."), "ok");
+  },
+  async linetype(args) {
+    const kws = ["COntinuous", "Dashed", "Hidden", "CEnter"];
+    let k = args && args[0] ? matchKw(args[0], kws) : null;
+    if (!k) { const r = await ask("text", `Enter linetype [COntinuous/Dashed/Hidden/CEnter] <${LTYPES[curLt].name}>:`, { keywords:kws, allowEnter:true }); if (!r) return; k = r.kw; }
+    setLinetype(k === "COntinuous" ? "" : k === "CEnter" ? "CENTER" : k.toUpperCase());
+  },
+  async extend() {
+    log("Current settings: Projection=UCS, Edge=None, Mode=Quick");
+    const tu = [];
+    while (true) {
+      const r = await ask("pick", "Select object to extend or [Undo]:", { allowEnter:true, keywords:["Undo"], withPoint:true });
+      if (r === null) break;
+      if (r.kw === "Undo") { if (tu.length) { const s = JSON.parse(tu.pop()); ents = []; nextId = 1; for (const e of s) ents.push(Object.assign(e, { id:nextId++ })); changed(); render(); } continue; }
+      tu.push(JSON.stringify(ents));
+      const res = extendAt(r.ent, r.pt);
+      if (res !== true) { tu.pop(); log(res, "err"); }
+      render();
+    }
+  },
+  async dimlinear() { await dimLin(false); },
+  async dimaligned() { await dimLin(true); },
+  async dimradius() { await dimRad(false); },
+  async dimdiameter() { await dimRad(true); },
+  async dimangular() {
+    const r = await ask("pick", "DIMANGULAR Select arc, circle, line, or <specify vertex>:", { allowEnter:true, withPoint:true });
+    let V, A, B;
+    if (r === null) {
+      V = await getPoint("Specify angle vertex:"); if (!Array.isArray(V)) return;
+      A = await getPoint("Specify first angle endpoint:", { base:V }); if (!Array.isArray(A)) return;
+      B = await getPoint("Specify second angle endpoint:", { base:V }); if (!Array.isArray(B)) return;
+    } else if (r.ent.type === "arc") { V = [r.ent.cx, r.ent.cy]; A = onCirc(V, r.ent.r, r.ent.a0); B = onCirc(V, r.ent.r, r.ent.a1); }
+    else {
+      const s1 = segAt(r.ent, r.pt); if (!s1) { log("Click a straight line, or press Enter and click the corner, then a point on each side.", "err"); return; }
+      const r2 = await ask("pick", "Select second line:", { withPoint:true }), s2 = r2 && segAt(r2.ent, r2.pt);
+      if (!s2) { log("That isn't a straight line.", "err"); return; }
+      V = lineX(s1[0], [s1[1][0] - s1[0][0], s1[1][1] - s1[0][1]], s2[0], [s2[1][0] - s2[0][0], s2[1][1] - s2[0][1]]);
+      if (!V) { log("Those lines are parallel, so they make no angle.", "err"); return; }
+      A = farOnSide(s1, V, r.pt); B = farOnSide(s2, V, r2.pt);
+    }
+    if (r === null || r.ent.type !== "arc") { if (span(angOf(V, A), angOf(V, B)) > 180) [A, B] = [B, A]; }   // the angle between them, not the outside
+    const mk = loc => dimNew("ang", [V, A, B, loc]);
+    const loc = await getPoint("Specify dimension arc line location:", { noSnap:true, preview:q => [mk(q)] }); if (!Array.isArray(loc)) return;
+    const e = add(mk(loc)); log(`Dimension text = ${dimParts(e).text.t}`, "ok");
+  },
+  async dim() {
+    const t = await ask("text", "Enter dimension type [Linear/Aligned/ANgular/Radius/Diameter] <Linear>:", { keywords:["Linear", "Aligned", "ANgular", "Radius", "Diameter"], allowEnter:true });
+    const k = t && t.kw ? t.kw : "Linear";
+    if (k === "Aligned") return dimLin(true); if (k === "ANgular") return CMDS.dimangular(); if (k === "Radius") return dimRad(false); if (k === "Diameter") return dimRad(true);
+    return dimLin(false);
+  },
+  async dimscale() {
+    const r = await ask("number", `Enter new value for DIMSCALE <${fmt(dimScale)}>:`, { allowEnter:true });
+    if (r && r.num > 0) { dimScale = r.num; log(`New dimensions: text ${fmt(DIM.h * dimScale)} mm tall, arrows ${fmt(DIM.as * dimScale)} mm.`, "ok"); }
+    else if (r) log("DIMSCALE must be more than 0.", "err");
+  },
+});
+function setLinetype(code) {
+  const sel = [...selection].filter(e => e.type !== "text" && e.type !== "dim");
+  if (sel.length && (!busy || tipCmd === "linetype")) {
+    if (!busy) pushUndo(); for (const e of sel) { if (code) e.lt = code; else delete e.lt; } changed();
+    log(`${sel.length} object${sel.length === 1 ? "" : "s"} now ${LTYPES[code].name}.`, "ok"); selection.clear(); render();
+  } else { curLt = code; log(`Current linetype: ${LTYPES[code].name}. New lines come out ${LTYPES[code].name.toLowerCase()}.`); }
+  $("ltSel").value = curLt;
+}
+$("ltSel").addEventListener("change", () => { const v = $("ltSel").value; setLinetype(v); cmdIn.focus(); });
+Object.assign(ALIAS, { PLINE:"pline", PL:"pline", XLINE:"xline", XL:"xline", RAY:"ray", JOIN:"join", J:"join", LINETYPE:"linetype", LT:"linetype",
+  EXTEND:"extend", EX:"extend", DIMLINEAR:"dimlinear", DLI:"dimlinear", DIMALIGNED:"dimaligned", DAL:"dimaligned", DIMRADIUS:"dimradius", DRA:"dimradius",
+  DIMDIAMETER:"dimdiameter", DDI:"dimdiameter", DIMANGULAR:"dimangular", DAN:"dimangular", DIM:"dim", DIMSCALE:"dimscale" });
+Object.assign(NAMES, { pline:"PLINE", xline:"XLINE", ray:"RAY", join:"JOIN", linetype:"LINETYPE", extend:"EXTEND", dimlinear:"DIMLINEAR", dimaligned:"DIMALIGNED",
+  dimradius:"DIMRADIUS", dimdiameter:"DIMDIAMETER", dimangular:"DIMANGULAR", dim:"DIM", dimscale:"DIMSCALE" });
+Object.assign(HINT, { pline:"Creates a polyline: straight pieces and arcs in one shape", xline:"Creates an endless construction line", ray:"Creates a construction line from a point",
+  join:"Joins lines and arcs into one polyline", linetype:"Sets dashed, hidden or center lines", extend:"Stretches a line to meet another object",
+  dimlinear:"Dimensions across or up", dimaligned:"Dimensions along a slanted edge", dimradius:"Dimensions a radius", dimdiameter:"Dimensions a diameter",
+  dimangular:"Dimensions an angle", dim:"Dimensions: pick the kind", dimscale:"Sets the size of dimension text and arrows" });
+for (const k of ["join", "linetype"]) PICKFIRST.add(k);
+Object.assign(TOOLTIP, {
+  PLINE:"<b>Polyline</b> (<code>PL</code>) &middot; One connected shape: straight pieces and curves. <code>A</code> for an arc, <code>L</code> back to lines, <code>C</code> to close.",
+  XLINE:"<b>Construction line</b> (<code>XL</code>) &middot; An endless gray guide line through two points. It never cuts. <code>B</code> cuts an angle in half.",
+  RAY:"<b>Ray</b> &middot; A gray guide line from a point, going on forever one way. It never cuts.",
+  JOIN:"<b>Join</b> (<code>J</code>) &middot; Lines and arcs that meet end to end become one polyline. A closed loop becomes one closed shape.",
+  EXTEND:"<b>Extend</b> (<code>EX</code>) &middot; Click near the end of a line or arc: it grows until it meets the next object.",
+  ltSel:"<b>Linetype</b> (<code>LT</code>) &middot; Continuous, dashed, hidden or center lines. With objects picked, it changes them. Dashed red lines plot as dashes.",
+  DIMLINEAR:"<b>Linear dimension</b> (<code>DLI</code>) &middot; Click two points, then where the dimension goes: across, or up.",
+  DIMALIGNED:"<b>Aligned dimension</b> (<code>DAL</code>) &middot; The true length of a slanted edge, measured along it.",
+  DIMANGULAR:"<b>Angular dimension</b> (<code>DAN</code>) &middot; Click two lines, then where the arc goes: the angle between them.",
+  DIMRADIUS:"<b>Radius dimension</b> (<code>DRA</code>) &middot; Click a circle, arc or rounded corner: R and its radius.",
+  DIMDIAMETER:"<b>Diameter dimension</b> (<code>DDI</code>) &middot; Click a circle: Ø and its diameter.",
+});
+const DIMLOC = "Move to where the dimension goes, and click. Or type how far out, like `10`.";
+Object.assign(TIPS, {
+  pline:{ name:"PLINE", n:2, tip:"A polyline is one shape, so OFFSET, FILLET, AREA and the 3D shape treat it as a whole.", steps:[
+    [/PLINE Specify start point/, 1, "Click where it starts, or type `x,y` and Enter."],
+    [/next point or \[Arc/, 2, "Click the next corner, or type `@x,y`. `A` switches to curves; `C` closes it; Enter stops."],
+    [/endpoint of arc/, 2, "Click where the curve ends: it bends smoothly out of the last piece. `L` goes back to straight; `C` closes it."],
+    [/second point on arc/, 2, "Click a point the curve passes through."], [/^Specify end point of arc:$/, 2, "Click where the curve ends."]] },
+  xline:{ name:"XLINE", geo:"a guide line", n:2, tip:"Construction lines are gray (DRAWN): they never cut. Line things up to them, then ERASE them.", steps:[
+    [/XLINE Specify a point/, 1, "Click a point it passes through. `H` level, `V` straight up, `A` at an angle, `B` cuts an angle in half, `O` parallel to a line."],
+    [/through point/, 2, "Click a second point. Each click makes another line. Enter to stop."],
+    [/angle of xline/, 1, "Type the angle, like `30`, and Enter."],
+    [/angle vertex point/, 1, "Click the corner of the angle."], [/angle start point/, 2, "Click a point on one side."],
+    [/angle end point/, 3, "Click a point on the other side: the line cuts the angle in half (a bisector)."],
+    [/offset distance/, 1, "Type how far away the guide line goes, and Enter."], [/Select a line object/, 2, "Click the line to copy."],
+    [/side to offset/, 3, "Click on the side where it goes."]] },
+  ray:{ name:"RAY", geo:"a ray", n:2, tip:"A ray starts at a point and goes on forever one way, like the rays of an angle.", steps:[
+    [/RAY Specify start point/, 1, "Click where it starts."], [/through point/, 2, "Click a point it goes through. Enter to stop."]] },
+  join:{ name:"JOIN", n:0, tip:"The ends must really meet: draw with the green squares.", steps:[
+    [/^Select objects/, 0, "Pick the lines and arcs that meet end to end, then Enter. A loop becomes one closed shape."]] },
+  linetype:{ name:"LINETYPE", n:0, tip:"On CUT, a dashed line cuts in dashes, like a tear line for paper. For a fold, a solid blue SCORE line is usual.", steps:[
+    [/Enter linetype/, 0, "`D` dashed, `H` hidden, `CE` center, `CO` continuous. With objects picked first, it changes them."]] },
+  extend:{ name:"EXTEND", n:0, tip:"Nothing to grow into? Draw a construction line (`XL`) where it should stop, extend to it, then ERASE the guide.", steps:[
+    [/object to extend/, 0, "Click near the end that should grow. It stretches until it meets the next object. Enter when you're done."]] },
+  dimlinear:{ name:"DIMLINEAR", n:3, tip:"Dimensions go on DIMS (cyan): they never cut, but they show your numbers.", steps:[
+    [/first extension line origin/, 1, "Click the first point to measure from (wait for the green square). Or Enter, then click a line."],
+    [/Select object to dimension/, 1, "Click the line or side to measure."], [/second extension line origin/, 2, "Click the second point."],
+    [/dimension line location or \[Horizontal/, 3, "Up or down measures across; left or right measures up. Click, or type how far out. `H` or `V` picks one."]] },
+  dimaligned:{ name:"DIMALIGNED", n:3, tip:"An aligned dimension is the true length of a slanted edge, as the Pythagorean theorem gives it.", steps:[
+    [/first extension line origin/, 1, "Click one end of the edge. Or Enter, then click the edge."], [/Select object to dimension/, 1, "Click the edge."],
+    [/second extension line origin/, 2, "Click the other end."], [/^Specify dimension line location:$/, 3, DIMLOC]] },
+  dimradius:{ name:"DIMRADIUS", n:2, tip:"R means radius: center to edge. Rounded corners from FILLET have one too.", steps:[
+    [/Select arc or circle/, 1, "Click the circle, arc or rounded corner."], [/dimension line location/, 2, "Click where the label goes."]] },
+  dimdiameter:{ name:"DIMDIAMETER", n:2, tip:"Ø means diameter: all the way across, through the center. It's twice the radius.", steps:[
+    [/Select arc or circle/, 1, "Click the circle."], [/dimension line location/, 2, "Click where the label goes."]] },
+  dimangular:{ name:"DIMANGULAR", n:3, tip:"It shows the angle between the two sides you click, never more than 180°. An arc shows its own angle.", steps:[
+    [/Select arc, circle, line/, 1, "Click one side of the angle. Or Enter, then the corner and a point on each side."],
+    [/Select second line/, 2, "Click the other side."], [/angle vertex/, 1, "Click the corner."], [/first angle endpoint/, 2, "Click a point on one side."],
+    [/second angle endpoint/, 2, "Click a point on the other side."], [/dimension arc line location/, 3, "Click where the arc goes."]] },
+  dimscale:{ name:"DIMSCALE", n:0, tip:"", steps:[[/DIMSCALE/, 0, "Type how many times bigger new dimension text and arrows should be, like `2`."]] },
+});
+TIPS.dim = { name:"DIM", n:0, tip:"Dimensions go on DIMS (cyan): they never cut.", steps:[[/dimension type/, 0, "Enter for Linear, or `A` aligned, `AN` angle, `R` radius, `D` diameter."]]
+  .concat(TIPS.dimlinear.steps, TIPS.dimaligned.steps.slice(3), TIPS.dimradius.steps, TIPS.dimangular.steps) };
+TIPS.trim.steps = [[/object to trim/, 0, "Click each piece you want gone, between the crossings: lines, circles, arcs or polylines. Enter when you're done."]];
+
 // ═══════════════════════════ how it works: the pictures on the hover cards and in the tool guide ═══════════════════════════
 // Each picture is a little model space: the crosshair moves, a green ring is a click, lines grow, ghosts are dashed.
 // SMIL animations, one 3.2 second loop. Built when shown, so nothing runs until a card opens.
@@ -2813,7 +3385,7 @@ function guideHtml() {
   return GUIDE.map(([title, sub, items]) => `<section class="gsec"><h4>${esc(title)}</h4><p class="gsub">${esc(sub)}</p><div class="ggrid">` +
     items.map(([key, icon, name, cmds, how]) => {
       const what = (TOOLTIP[key] || "").replace(/^<b>.*?<\/b>(\s*\([^)]*\))?\s*&middot;\s*/, "");
-      const ic = icon === "sw" ? `<span class="gsw"><i style="background:#FF0000"></i><i style="background:#0000FF"></i><i style="background:#808080"></i></span>`
+      const ic = icon === "lt" ? `<svg class="ic" viewBox="0 0 20 20"><path d="M1.5 10h17" stroke-dasharray="4 2.5"/></svg>` : icon === "sw" ? `<span class="gsw"><i style="background:#FF0000"></i><i style="background:#0000FF"></i><i style="background:#808080"></i></span>`
         : icon.startsWith("i-") ? `<svg class="ic"><use href="#${icon}"/></svg>` : `<span class="gtg">${esc(icon)}</span>`;
       const chips = cmds ? `<span class="cm">${cmds.split(/\s{2,}/).map(c => `<code>${esc(c)}</code>`).join(" ")}</span>` : "";
       return `<article class="gcard"><div class="demo">${DEMO[key] ? DEMO[key]() : ""}</div><div class="gtx"><div class="hd">${ic}<b>${esc(name)}</b>${chips}</div>` +
@@ -2823,6 +3395,67 @@ function guideHtml() {
 function showGuide() { const b = $("guideBody"); b.innerHTML = guideHtml(); reduceMotion(b); showModal("mGuide"); b.scrollTop = 0; }
 $("guidePrint").addEventListener("click", () => { document.body.classList.add("pg"); setTimeout(() => window.print(), 50); });
 window.addEventListener("afterprint", () => document.body.classList.remove("pg"));
+
+// pictures for the line, edit and dimension tools
+DM.C = "#4fd8ff";
+const arrowD = (x, y, dx, dy, s = 5) => { const L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, w = s / 3.2;
+  return `M${x} ${y}L${x - ux * s - uy * w} ${y - uy * s + ux * w}L${x - ux * s + uy * w} ${y - uy * s - ux * w}Z`; };
+const dimG = (inner, t0) => onAt(t0, `<g stroke="${DM.C}" fill="none" stroke-width="1">${inner}</g>`);
+const dimArrows = (...a) => `<path d="${a.map(q => arrowD(...q)).join("")}" fill="${DM.C}" stroke="none"/>`;
+const dimTxt = (x, y, s, rot = 0) => `<text x="${x}" y="${y}" fill="${DM.C}" stroke="none" font-size="8.5" text-anchor="middle"${rot ? ` transform="rotate(${rot} ${x} ${y})"` : ""}>${s}</text>`;
+Object.assign(DEMO, {
+  PLINE:() => demoSvg(grow(20, 70, 60, 30, .1, .32) + drawOn("M60 30A35.36 35.36 0 0 1 120 60", .45, .72) + grow(120, 60, 120, 80, .78, .9) +
+    pop(20, 70, .08) + pop(60, 30, .32) + pop(120, 60, .72) + pop(120, 80, .9) + lab(64, 18, "A: a smooth curve", DM.Y, .38, .78, 7.5) + lab(6, 86, "one shape", DM.Y, .9, 1, 7.5) +
+    cursor([[20, 70], [20, 70], [60, 30], [60, 30], [120, 60], [120, 60], [120, 80], [120, 80]], [0, .1, .32, .45, .72, .78, .9, 1])),
+  XLINE:() => demoSvg(`<line x1="60" y1="55" x2="100" y2="35" stroke="${DM.D}" stroke-width="1.4">${an("x1", [60, 60, 0, 0], [0, .32, .55, 1])}${an("y1", [55, 55, 85, 85], [0, .32, .55, 1])}${an("x2", [60, 60, 100, 160, 160], [0, .12, .32, .55, 1])}${an("y2", [55, 55, 35, 5, 5], [0, .12, .32, .55, 1])}</line>` +
+    `<rect x="30" y="64" width="44" height="18" fill="none" stroke="${DM.R}" stroke-width="1.4" opacity="0">${show(.62)}</rect>` +
+    pop(60, 55, .1) + pop(100, 35, .32) + lab(84, 62, "gray: never cuts", DM.D, .55, 1, 7.5) + cursor([[60, 55], [60, 55], [100, 35], [100, 35]], [0, .12, .32, 1])),
+  RAY:() => demoSvg(`<circle cx="30" cy="70" r="2" fill="${DM.K}"/><line x1="30" y1="70" x2="30" y2="70" stroke="${DM.D}" stroke-width="1.4">${an("x2", [30, 30, 80, 146.7, 146.7], [0, .12, .32, .6, 1])}${an("y2", [70, 70, 40, 0, 0], [0, .12, .32, .6, 1])}</line>` +
+    pop(30, 70, .1) + pop(80, 40, .32) + lab(40, 84, "from a point, forever one way", DM.Y, .62, 1, 7) + cursor([[30, 70], [30, 70], [80, 40], [80, 40]], [0, .12, .32, 1])),
+  JOIN:() => demoSvg(`<path d="M30 70L30 24L110 24L110 70" fill="none" stroke="#5aa9ff" stroke-width="6" stroke-linejoin="round" opacity="0">${show(.5)}</path>` +
+    [["M30 70L30 24", .12], ["M30 24L110 24", .22], ["M110 24L110 70", .32]].map(([d, t]) => `<path d="${d}" fill="none" stroke-width="1.6" stroke="${DM.W}">${an("stroke", [DM.W, DM.W, "#9fc7ef", "#9fc7ef", DM.W], [0, t, t + .02, .5, .52])}</path>`).join("") +
+    pop(30, 50, .12) + pop(70, 24, .22) + pop(110, 50, .32) + lab(46, 52, "J, Enter:", DM.Y, .4, 1, 8) + lab(46, 62, "1 polyline", DM.Y, .5, 1, 8) +
+    cursor([[30, 50], [30, 50], [70, 24], [110, 50], [110, 50]], [0, .12, .22, .32, 1], true)),
+  EXTEND:() => demoSvg(`<line x1="120" y1="12" x2="120" y2="78" stroke="${DM.W}" stroke-width="1.6"/>` +
+    `<line x1="20" y1="45" x2="70" y2="45" stroke="${DM.W}" stroke-width="1.6">${an("x2", [70, 70, 120, 120, 70], [0, .4, .6, .95, 1])}</line>` +
+    pop(64, 45, .35) + lab(70, 36, "click near the end", DM.Y, .15, .45, 7) + lab(70, 64, "grows to the edge", DM.Y, .6, .95, 7) +
+    cursor([[40, 75], [40, 75], [64, 45], [64, 45], [40, 75]], [0, .12, .35, .9, 1], true)),
+  ltSel:() => demoSvg(`<line x1="16" y1="40" x2="144" y2="40" stroke="${DM.W}" stroke-width="1.6"><animate attributeName="stroke-dasharray" values="1 0;9 5;16 4 4 4;4 3" keyTimes="0;.25;.5;.75" dur="${DUR}s" calcMode="discrete" repeatCount="indefinite"/></line>` +
+    `<circle cx="80" cy="40" r="22" fill="none" stroke="${DM.D}" stroke-width="1" opacity=".5"/>` +
+    lab(56, 76, "Continuous", DM.Y, 0, .25, 9) + lab(62, 76, "Dashed", DM.Y, .25, .5, 9) + lab(62, 76, "Center", DM.Y, .5, .75, 9) + lab(62, 76, "Hidden", DM.Y, .75, 1, 9)),
+  DIMLINEAR:() => demoSvg(solid("M30 40H110V72H30Z") + pop(30, 40, .1) + pop(110, 40, .3) + pop(92, 22, .55) +
+    dimG(`<path d="M30 38V19M110 38V19M30 22H110"/>` + dimArrows([30, 22, -1, 0], [110, 22, 1, 0]) + dimTxt(70, 18, "80"), .56) +
+    cursor([[30, 40], [30, 40], [110, 40], [110, 40], [92, 22], [92, 22]], [0, .1, .3, .35, .55, 1])),
+  DIMALIGNED:() => demoSvg(solid("M30 70L110 30") + pop(30, 70, .1) + pop(110, 30, .3) + pop(98, 20, .55) +
+    dimG(`<path d="M28.7 67.3L22.4 54.9M108.7 27.3L102.4 14.9M23.7 57.5L103.7 17.5"/>` + dimArrows([23.7, 57.5, -.894, .447], [103.7, 17.5, .894, -.447]) + dimTxt(61.9, 33.9, "89.44", -26.57), .56) +
+    lab(4, 86, "the true length of a slant", DM.Y, .62, 1, 7.5) + cursor([[30, 70], [30, 70], [110, 30], [110, 30], [98, 20], [98, 20]], [0, .1, .3, .35, .55, 1])),
+  DIMRADIUS:() => demoSvg(`<circle cx="62" cy="50" r="24" fill="none" stroke="${DM.W}" stroke-width="1.6"/>` + pop(80.4, 34.6, .15) + pop(108, 18, .5) +
+    dimG(`<path d="M80.4 34.6L108 18H128"/>` + dimArrows([80.4, 34.6, -27.6, 16.6]) + dimTxt(118, 14.5, "R24"), .52) +
+    cursor([[80.4, 34.6], [80.4, 34.6], [108, 18], [108, 18]], [0, .15, .5, 1], true)),
+  DIMDIAMETER:() => demoSvg(`<circle cx="62" cy="48" r="26" fill="none" stroke="${DM.W}" stroke-width="1.6"/>` + pop(83.3, 33.1, .15) + pop(110, 16, .5) +
+    dimG(`<path d="M40.7 62.9L83.3 33.1L110 16H130"/>` + dimArrows([83.3, 33.1, 21.3, -14.9], [40.7, 62.9, -21.3, 14.9]) + dimTxt(120, 12.5, "Ø52"), .52) +
+    cursor([[83.3, 33.1], [83.3, 33.1], [110, 16], [110, 16]], [0, .15, .5, 1], true)),
+  DIMANGULAR:() => demoSvg(solid("M140 72L30 72L111.9 14.6") + pop(110, 72, .12) + pop(90, 30, .3) + pop(85, 55, .52) +
+    dimG(`<path d="M80 72A50 50 0 0 0 70.96 43.32"/>` + dimArrows([80, 72, 0, 1], [70.96, 43.32, -.574, -.819]) + dimTxt(92, 58, "35°"), .54) +
+    cursor([[110, 72], [110, 72], [90, 30], [90, 30], [85, 55], [85, 55]], [0, .12, .3, .35, .52, 1], true)),
+});
+GUIDE.splice(5, 0,
+  ["Build tab: lines and edits", "Polylines make one shape you can offset, fillet, measure and take to 3D. Gray construction lines never cut.", [
+    ["PLINE", "i-pline", "Polyline", "PLINE  PL", ["Type `PL` and Enter.", "Click the start, then each corner.", "`A` for curves, `L` back to straight, `C` to close."]],
+    ["XLINE", "i-xline", "Construction line", "XLINE  XL", ["Type `XL` and Enter.", "Click a point, then a second point.", "Line things up to it, then ERASE it."]],
+    ["RAY", "i-ray", "Ray", "RAY", ["Type `RAY` and Enter.", "Click the start, then a point it goes through."]],
+    ["TRIM", "i-trim", "Trim", "TRIM  TR", ["Type `TR` and Enter.", "Click each piece to cut away, between crossings. Polylines too.", "Enter when you're done."]],
+    ["EXTEND", "i-extend", "Extend", "EXTEND  EX", ["Type `EX` and Enter.", "Click near the end that should grow.", "Enter when you're done."]],
+    ["JOIN", "i-join", "Join", "JOIN  J", ["Pick lines and arcs that touch end to end.", "Type `J` and Enter.", "A closed loop becomes one closed shape."]],
+    ["ltSel", "lt", "Linetype", "LT", ["Pick objects first, then choose from the list.", "Or choose first: new lines come out that way."]],
+  ]],
+  ["Build tab: dimensions", "Dimensions go on DIMS (cyan) and never cut. Use them to show your numbers, like the one you defend.", [
+    ["DIMLINEAR", "i-dimlin", "Linear", "DIMLINEAR  DLI", ["Type `DLI` and Enter.", "Click two corners (wait for the green squares).", "Move up or down for across, left or right for up; click."]],
+    ["DIMALIGNED", "i-dimali", "Aligned", "DIMALIGNED  DAL", ["Type `DAL` and Enter.", "Click both ends of the slanted edge.", "Click where the dimension goes."]],
+    ["DIMANGULAR", "i-dimang", "Angular", "DIMANGULAR  DAN", ["Type `DAN` and Enter.", "Click one side, then the other.", "Click where the arc goes."]],
+    ["DIMRADIUS", "i-dimrad", "Radius", "DIMRADIUS  DRA", ["Type `DRA` and Enter.", "Click the circle, arc or rounded corner.", "Click where the label goes."]],
+    ["DIMDIAMETER", "i-dimdia", "Diameter", "DIMDIAMETER  DDI", ["Type `DDI` and Enter.", "Click the circle.", "Click where the label goes."]],
+  ]]);
 
 // ═══════════════════════════ bunny ═══════════════════════════
 // Matthew's bunnies pop up in the corner with a tip when a student is stuck: peek brings a fix, loaf the next step,
@@ -2852,6 +3485,9 @@ const BUNNY_ERR = [
   [/hang off the 12 x 12 sheet/, "Some lines are off your plywood. `MOVE` them inside the big square, or `SCALE` them smaller."],
   [/inside the dashed 4 x 4 box yet/, "Your router or waterjet part goes inside the dashed box, on CUT (red). Draw it there, or MOVE it in."],
   [/^Left out, not in/, "Some letters aren't in that font. Try another font, or leave those out."],
+  [/does not intersect an edge/, "EXTEND needs something to grow into. Draw a construction line (`XL`) where it should stop, extend to it, then ERASE the guide."],
+  [/^JOIN needs|^Nothing joined/, "JOIN works on lines and arcs whose ends really touch. Draw them with the green squares, or use `PL` to draw one shape from the start."],
+  [/are dashed: they plot as dashes/, "Dashed red lines cut in dashes. For a fold line, use a solid blue SCORE line instead: Linetype list, Continuous."],
   [/Area needs a closed shape/, "AREA works on closed shapes: circles, rectangles, polygons. Lines drawn one by one don't count."],
   [/^Something went wrong/, "That one's the program's fault, not yours. U undoes, Esc starts over. Tell your teacher what you typed."],
 ];
