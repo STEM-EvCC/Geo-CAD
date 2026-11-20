@@ -295,6 +295,58 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
   border:3px dashed #3d8fd6; color:#e3e7eb; font-size:20px; pointer-events:none; }
 #dropZone span { font-size:13px; color:var(--muted); }
 body.dropping #dropZone { display:flex; }
+
+/* round 4: the Tutorial tab */
+.tles { position:relative; min-width:74px; }
+.tles .tnum { position:absolute; top:3px; left:5px; font-size:10px; font-weight:700; color:#ffd27a; }
+.tles.done::after { content:"\2713"; position:absolute; top:2px; right:5px; font-size:12px; font-weight:800; color:#58d36b; }
+.tles.on { background:var(--hover); box-shadow:inset 0 0 0 1px var(--accent); }
+.tutabout { width:270px; margin:5px 8px; font-size:12px; line-height:1.4; color:var(--muted); white-space:normal; }
+.tutabout b { color:var(--text); font-weight:600; }
+#tutStop:disabled { opacity:.4; cursor:default; }
+#tutCard { position:fixed; z-index:48; display:none; width:270px; background:#f7f3ea; color:#2a2f35; border:2px solid #e0b25c; border-radius:6px;
+  box-shadow:0 10px 30px rgba(0,0,0,.5); font-size:12.5px; line-height:1.4; }
+#tutCard .th { display:flex; align-items:center; gap:6px; padding:6px 6px 4px 10px; font-size:11px; color:#7a6a55; }
+#tutCard .tl { font-weight:700; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#tutCard .tn { white-space:nowrap; }
+#tutCard .th button { width:20px; height:20px; padding:0; line-height:18px; font-size:15px; color:#7a6a55; border-radius:3px; }
+#tutCard .th button:hover { background:#e9e0cf; }
+#tutCard .tbar { height:3px; margin:0 10px; background:#e5dccb; border-radius:2px; overflow:hidden; }
+#tutCard .tbar i { display:block; height:100%; background:#e0b25c; transition:width .3s; }
+#tutCard .tredir { margin:8px 10px 0; padding:5px 8px; background:#dceafa; color:#1f4f82; border-radius:4px; font-weight:600; }
+#tutCard .tsay { padding:8px 10px 0; font-size:14px; font-weight:700; }
+#tutCard .twhy { padding:4px 10px 0; color:#4b5560; }
+#tutCard .twhy:empty { display:none; }
+#tutCard .thint { margin:8px 10px 0; padding:5px 8px; background:#fde4d4; color:#8a3b14; border-radius:4px; }
+#tutCard code { background:#ebe3d3; color:#2a2f35; padding:0 4px; border-radius:3px; font-size:12px; }
+#tutCard .tbtns { display:flex; gap:6px; align-items:center; padding:10px; flex-wrap:wrap; }
+#tutCard .tbtns button { padding:4px 10px; background:#ebe3d3; border:1px solid #cdbfa6; color:#2a2f35; font-size:12px; }
+#tutCard .tbtns button:hover { background:#e2d8c5; }
+#tutCard .tbtns .tsp { flex:1; }
+#tutCard .tbtns button.pri { background:#2f5f8f; border-color:#2f5f8f; color:#fff; }
+#tutCard .tbtns button.pri:disabled { opacity:.45; cursor:default; }
+#tutCard.ok { border-color:#58d36b; }
+#tutCard.ok .tsay { color:#2c7a3a; }
+#tutCard.ok .tsay::before { content:"\2713  Nice! "; font-weight:800; }
+#tutCard.ok .tbtns { visibility:hidden; }
+#tutCard.fin { border-color:#58d36b; }
+#tutCard .tarrow { position:absolute; width:14px; height:14px; background:#f7f3ea; border:2px solid #e0b25c; transform:rotate(45deg); }
+#tutCard.ok .tarrow { border-color:#58d36b; }
+#tutCard .tarrow.none { display:none; }
+#tutCard .tarrow.below { top:-9px; margin-left:-7px; border-right:none; border-bottom:none; }
+#tutCard .tarrow.above { bottom:-9px; margin-left:-7px; border-left:none; border-top:none; }
+#tutCard .tarrow.right { left:-9px; margin-top:-7px; border-right:none; border-top:none; }
+#tutCard .tarrow.left { right:-9px; margin-top:-7px; border-left:none; border-bottom:none; }
+#tutRing { position:fixed; z-index:47; display:none; pointer-events:none; border:3px solid #ffd27a; border-radius:7px; animation:tutPulse 1.1s ease-in-out infinite; }
+@keyframes tutPulse { 0%, 100% { box-shadow:0 0 0 2px rgba(255,210,122,.25), 0 0 14px rgba(255,210,122,.45); } 50% { box-shadow:0 0 0 7px rgba(255,210,122,.12), 0 0 22px rgba(255,210,122,.7); } }
+#tutDot { position:fixed; z-index:44; display:none; pointer-events:none; width:0; height:0; }
+#tutDot::before { content:""; position:absolute; left:-12px; top:-12px; width:18px; height:18px; border:3px solid #58d36b; border-radius:50%; background:rgba(88,211,107,.22); }
+#tutDot::after { content:""; position:absolute; left:-12px; top:-12px; width:18px; height:18px; border:3px solid #58d36b; border-radius:50%; animation:tutRipple 1.3s ease-out infinite; }
+@keyframes tutRipple { from { transform:scale(1); opacity:.9; } to { transform:scale(2.6); opacity:0; } }
+#tutDot span { position:absolute; left:14px; top:6px; white-space:nowrap; color:#7ff08e; font-size:12px; font-weight:700; text-shadow:0 0 3px #000, 0 0 3px #000; }
+#tutPill { position:fixed; z-index:48; left:14px; bottom:40px; display:none; padding:6px 12px; background:#f7f3ea; color:#2a2f35; border:2px solid #e0b25c; border-radius:16px; font-size:12px; font-weight:600; box-shadow:0 4px 14px rgba(0,0,0,.45); }
+.tuthelp { margin:0 0 10px; padding:8px 10px; background:#262c33; border-left:3px solid #e0b25c; }
+@media (prefers-reduced-motion: reduce) { #tutRing, #tutDot::after { animation:none; } }
 </style>
 </head>
 <body>
@@ -347,6 +399,10 @@ body.dropping #dropZone { display:flex; }
     <symbol id="i-download" viewBox="0 0 20 20"><path d="M10 2.5v10M6 8.5l4 4l4-4"/><path d="M3.5 13v4h13v-4"/></symbol>
     <symbol id="i-upload" viewBox="0 0 20 20"><path d="M10 12.5v-10M6 6.5l4-4l4 4"/><path d="M3.5 13v4h13v-4"/></symbol>
     <symbol id="i-user" viewBox="0 0 20 20"><circle cx="10" cy="6.8" r="3.3"/><path d="M3.8 17c.9-3.2 3.3-4.8 6.2-4.8s5.3 1.6 6.2 4.8"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 20 20"><path d="M3.5 6.5a3 3 0 0 1 3-3h7a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-7a3 3 0 0 1-3-3z"/><circle cx="7" cy="10" r="1.6"/><path d="M10.5 8.5h3.5M10.5 11.5h2.5"/></symbol>
+    <symbol id="i-tri" viewBox="0 0 20 20"><path d="M3.5 16.5h13v-11z"/><path d="M13.8 16.5v-2.7h2.7"/><path d="M5 4.5h4M7 2.5v4" stroke-width="1.2"/></symbol>
+    <symbol id="i-tutor" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="9" height="6" rx="1.5"/><path d="M5 9.5l-1 2.5 3-2.5"/><path d="M11 12l2.2 5.5 1.1-2.4 2.4-1.1z"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><rect x="7" y="7" width="6" height="6" rx="1"/></symbol>
     <symbol id="i-help" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M7.8 7.6a2.3 2.3 0 1 1 3.2 2.1c-.7.3-1 .8-1 1.6v.4"/><circle cx="10" cy="14.4" r=".8" fill="currentColor"/></symbol>
   </defs>
 </svg>
@@ -366,7 +422,7 @@ body.dropping #dropZone { display:flex; }
   <button class="qat" data-c="TOOLS" title="Tool guide"><svg class="ic"><use href="#i-guide"/></svg></button>
   <button class="qat" data-c="HELP" title="Help (F1)"><svg class="ic"><use href="#i-help"/></svg></button>
 </div>
-<div id="tabs" role="tablist"><button class="tab on" id="tabHome" data-tab="home" role="tab" aria-selected="true">Home</button><button class="tab" id="tabBuild" data-tab="build" role="tab" aria-selected="false">Build<span class="dot" title="New"></span></button></div>
+<div id="tabs" role="tablist"><button class="tab on" id="tabHome" data-tab="home" role="tab" aria-selected="true">Home</button><button class="tab" id="tabBuild" data-tab="build" role="tab" aria-selected="false">Build<span class="dot" title="New"></span></button><button class="tab" id="tabTutor" data-tab="tutor" role="tab" aria-selected="false">Tutorial<span class="dot" title="New"></span></button></div>
 <div id="ribbon">
   <div class="rtab" data-tab="home" role="tabpanel" aria-label="Home">
   <div class="panel"><div class="tools">
@@ -466,6 +522,17 @@ body.dropping #dropZone { display:flex; }
     <button class="big" data-c="PLOT"><svg class="ic"><use href="#i-plot"/></svg>Plot</button>
     <button class="big" data-c="TOOLS"><svg class="ic"><use href="#i-guide"/></svg><span class="two">Tool<br>guide</span></button>
   </div><div class="ptitle">Output and help</div></div>
+  </div>
+  <div class="rtab hide" data-tab="tutor" role="tabpanel" aria-label="Tutorial">
+  <div class="panel"><div class="tools">
+    <button class="big tles" data-l="tag" title="Lesson 1, about 10 minutes: rectangle, fillet, circle, text, plot"><span class="tnum">1</span><svg class="ic"><use href="#i-tag"/></svg><span class="two">Keychain<br>tag</span></button>
+    <button class="big tles" data-l="numbers" title="Lesson 2, about 8 minutes: typed points, @, Close, a dimension, Delete and Undo"><span class="tnum">2</span><svg class="ic"><use href="#i-tri"/></svg><span class="two">Draw with<br>numbers</span></button>
+    <button class="big tles" data-l="save" title="Lesson 3, about 5 minutes: My drawings, Rename, History, Download, Google Drive"><span class="tnum">3</span><svg class="ic"><use href="#i-drawings"/></svg><span class="two">Save and<br>take home</span></button>
+  </div><div class="ptitle">Lessons</div></div>
+  <div class="panel"><div class="tools"><p class="tutabout"><b>You make it; the card shows where to click.</b> Pick a lesson. The card points at the next button or spot, says why, and waits for you. Stuck? <b>Do it for me</b>.</p></div><div class="ptitle">How it works</div></div>
+  <div class="panel"><div class="tools">
+    <button class="big" id="tutStop" disabled><svg class="ic"><use href="#i-stop"/></svg><span class="two">Stop<br>tutorial</span></button>
+  </div><div class="ptitle">Tutorial</div></div>
   </div>
 </div>
 <div id="filetabs"><span class="on" id="fileTab">Drawing1</span></div>
@@ -588,8 +655,22 @@ body.dropping #dropZone { display:flex; }
   <div class="row"><button id="mdClear" type="button">Clear my drawings from this computer</button>
     <div id="mdClearAsk" hidden><span id="mdClearTxt"></span><button id="mdClearYes" type="button">Delete them</button><button id="mdClearNo" type="button">Cancel</button></div>
     <span style="flex:1"></span><button data-close>Close</button></div></div></div>
+<div id="tutCard" role="dialog" aria-label="Tutorial" aria-live="polite">
+  <div class="th"><span class="tl"></span><span class="tn"></span><button type="button" class="tmin" title="Make the card small">&ndash;</button><button type="button" class="tx" title="Stop the tutorial">&times;</button></div>
+  <div class="tbar"><i></i></div>
+  <div class="tredir" style="display:none"></div>
+  <div class="tsay"></div>
+  <div class="twhy"></div>
+  <div class="thint" style="display:none"></div>
+  <div class="tbtns"><button type="button" class="tback">Back</button><button type="button" class="tdo">Do it for me</button><span class="tsp"></span><button type="button" class="tnextl pri">Next lesson</button><button type="button" class="tnext pri">Next</button></div>
+  <div class="tarrow none"></div>
+</div>
+<div id="tutRing" aria-hidden="true"></div>
+<div id="tutDot" aria-hidden="true"><span>click here</span></div>
+<button id="tutPill" type="button"></button>
 <div id="dropZone" aria-hidden="true">Drop your .dxf to open it<span>It goes into My drawings as a new drawing.</span></div>
 <div class="modal" id="help"><div class="dlg"><h3>TS 82 CAD Help</h3><div class="body">
+  <p class="tuthelp"><b>New to TS 82 CAD?</b> Click <b>Tutorial</b> at the top, next to Build. Each lesson has you make something (a keychain tag, a right triangle) while a card shows you exactly where to click.</p>
   <p style="margin-top:0"><button type="button" id="helpGuide" style="padding:4px 10px;background:#2f5f8f;border:1px solid #3d8fd6">Tool guide: every button, with pictures</button> &nbsp;<span style="color:#9aa5b1;font-size:12px">Hover over any button for a quick picture of how it works.</span></p>
   <p style="margin-top:0">It works like AutoCAD: type a command, press Enter or Space, answer the prompt at the bottom. Enter on its own finishes a command, or repeats the last one. Esc cancels. <code>U</code> undoes.</p>
   <p><b>Tips:</b> while a command runs, the bar above the command line says which step it wants and how. Hover over any tool to see what it does. <b>TIPS</b> in the status bar turns the bar off and on.</p>
@@ -688,6 +769,7 @@ body.dropping #dropZone { display:flex; }
     <tr><td><code>AREA</code> <code>AA</code>, <code>EXPLODE</code> <code>X</code></td><td>area and perimeter of a closed shape; split a word into letters or a rectangle into lines</td></tr>
     <tr><td><code>3D</code>, <code>TOOLS</code>, <code>PROJECT</code></td><td>model in 3D (Tinkercad, Onshape); the tool guide; the final project sheet</td></tr>
     <tr><td><code>NEW</code> <code>OPEN</code> <code>SAVE</code> <code>SAVEAS</code> <code>PLOT</code></td><td>files. PLOT makes the laser file</td></tr>
+    <tr><td><code>TUTORIAL</code></td><td>the Tutorial tab: lessons where a card shows you what to click</td></tr>
     <tr><td><code>MYDRAWINGS</code>, <code>DOWNLOAD</code>, <code>UPLOAD</code></td><td>your drawings saved in this browser; a .dxf to keep in Google Drive; open one again</td></tr>
     <tr><td>F3 F7 F8 F12</td><td>OSNAP, GRID, ORTHO, DYN</td></tr>
   </table>
@@ -1511,6 +1593,7 @@ async function run(text) {
   if (name === "drawings") { log("Command: MYDRAWINGS"); showDrawings(); return; }
   if (name === "download") { log("Command: DOWNLOAD"); libDownload(); return; }
   if (name === "upload") { log("Command: UPLOAD"); FILES.open(); return; }
+  if (name === "tutorial") { log("Command: TUTORIAL"); setTab("tutor"); return; }
   if (name === "project") { showModal("mProject"); return; }
   if (["new", "open", "qsave", "saveas", "plot"].includes(name)) { log("Command: " + NAMES[name]); FILES[name](); return; }
   if (!PICKFIRST.has(name)) { selection.clear(); render(); }
@@ -4103,6 +4186,341 @@ async function libInit() {
 const LIBT = { who:() => LIB.who, id:() => libId, owner:() => libOwner, fresh:() => libFresh, ok:() => LIB.ok, state:() => LIB.state,
   flush:() => { libFlush(); return libChain.then(() => true); }, list:() => libAll(), versions:id => libVersions(id || libId), dxfOf, every:ms => { LIB.every = ms; } };
 
+// ═══════════════════════════ the Tutorial tab: lessons where you make something, and a card shows where to click ═══════════════════════════
+// Each step names one thing to do, points at it (a ring around the button, or a green spot on the drawing), says why,
+// and waits until it's done: the drawing, the prompt and the dialogs are checked a few times a second. If the student
+// wanders off (Esc in the middle of a command, a dialog closed), the lesson steps back and says so. Do it for me does
+// the step, for someone who's stuck.
+const T = { lesson:null, i:0, d:{}, raf:0, last:0, okUntil:0, min:false, note:"", tg:null, redir:null, bunnyOk:false };
+const TAB_NAME = { home:"Home", build:"Build", tutor:"Tutorial" };
+const tShown = id => { const m = $(id); return !!(m && m.classList.contains("show")); };
+const tModal = () => !!document.querySelector(".modal.show");
+const tCmd = c => busy && tipCmd === c;
+const tAsk = re => !!(req && re.test(req.prompt || ""));
+const tNear = (a, b, tol = 0.02) => Math.abs(a[0] - b[0]) <= tol && Math.abs(a[1] - b[1]) <= tol;
+function tBox(e) { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const p of entPts(e)) { x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); } return { x0, y0, x1, y1 }; }
+const tRect = e => e.type === "poly" && e.closed && e.pts.length === 4 && e.pts.every((p, k) => { const q = e.pts[(k + 1) % 4]; return Math.abs(p[0] - q[0]) < 1e-6 || Math.abs(p[1] - q[1]) < 1e-6; });
+const tLine = (a, b) => ents.find(e => e.type === "line" && ((tNear([e.x1, e.y1], a) && tNear([e.x2, e.y2], b)) || (tNear([e.x1, e.y1], b) && tNear([e.x2, e.y2], a))));
+const tSameBox = (b, R, tol = 0.6) => Math.abs(b.x0 - R.x0) < tol && Math.abs(b.y0 - R.y0) < tol && Math.abs(b.x1 - R.x1) < tol && Math.abs(b.y1 - R.y1) < tol;
+const tVal = id => ($(id) && $(id).value || "").trim();
+function tInput(id, v) { const el = $(id); el.value = v; el.dispatchEvent(new Event("input", { bubbles:true })); }
+function tPick(e, pt) { if (req && req.kind === "pick" && e) finish({ ent:e, pt }); }
+const tPt = p => `${fmt(p[0])},${fmt(p[1])}`;
+
+// ── the lessons ──
+// A step: say (what to do) and why; target (where to click) or pt (a spot on the drawing) and type (what to type instead);
+// done(d) finishes it; need(d) must stay true or the lesson goes back to step `back`; next shows a Next button instead;
+// skipIf(d) leaves it out; enter(d) runs as it starts; act(d) is Do it for me; hint(d) adds a note when something is off.
+const TR = d => d.R || { x0:20, y0:20, x1:80, y1:50 };
+const tagRect = d => ents.find(e => e.layer === "CUT" && e.type === "poly" && e.closed && tSameBox(tBox(e), TR(d)));
+const LESSONS = [
+  { id:"tag", n:1, title:"Keychain tag", icon:"i-tag", time:"10 minutes",
+    setup(d) { loadTemplate("project", "Tutorial: a keychain tag, on a fresh project sheet. Follow the card."); docName = "Tutorial-keychain-tag"; setTitle(); saveLocal(); setTab("home"); },
+    steps:[
+      { next:"Start", say:"Make a keychain tag.",
+        why:"You'll draw a tag with rounded corners and a hole, engrave your name on it, and make the laser file. Each step shows where to click, then waits for you. The drawing you had is kept in My drawings." },
+      { next:true, target:"#layerBtn", say:"This box shows the layer you draw on. It says <b>CUT</b>.",
+        why:"Red CUT lines cut all the way through. ENGRAVE marks the surface. Gray DRAWN lines never cut." },
+      { id:"rect", target:'[data-c="RECTANG"]', say:"Click <b>Rectangle</b>.", why:"A rectangle is one closed shape, so the laser cuts all the way round it.",
+        done:() => tCmd("rectang") },
+      { need:() => tCmd("rectang"), back:"rect", pt:() => [20, 20], type:"20,20",
+        say:"Click the green spot for the first corner, or type <code>20,20</code> and press Enter.", why:"20 mm right of the sheet's corner and 20 mm up.",
+        done:() => tAsk(/other corner/) },
+      { need:() => tCmd("rectang"), back:"rect", target:"#cmdbar", type:"@60,30", say:"Type <code>@60,30</code> and press Enter.",
+        why:"<code>@</code> means \"from the last point\": 60 mm across and 30 mm up. The tag is 60 by 30 mm.",
+        done:d => { const e = ents.find(e => tRect(e) && e.layer === "CUT"); if (!e) return false; const b = tBox(e);
+          if (b.x1 - b.x0 < 15 || b.y1 - b.y0 < 8) return false; d.R = b; return true; },
+        hint:() => ents.some(e => tRect(e) && e.layer !== "CUT") ? "That rectangle went on another layer. Press Ctrl+Z, pick CUT in the layer box, and draw it again." : "" },
+      { enter:d => { d.s0 = view.s; }, say:"It's small. Zoom in: roll the mouse wheel forward with the pointer over your rectangle.",
+        why:"Zooming changes only your view, not the drawing. Double-click the wheel to see everything again.",
+        done:d => view.s >= d.s0 * 1.8, act:d => { const R = TR(d); fitBox(R.x0 - 15, R.y0 - 15, R.x1 + 15, R.y1 + 15); render(); } },
+      { id:"fillet", target:'[data-c="FILLET"]', say:"Click <b>Fillet</b>.", why:"Fillet rounds corners. Round corners are kinder to fingers and pockets.",
+        done:() => tCmd("fillet") },
+      { need:() => tCmd("fillet"), back:"fillet", pt:d => [(TR(d).x0 + TR(d).x1) / 2, TR(d).y0],
+        say:"Click the bottom edge of your rectangle, at the green spot.", why:"Fillet needs to know which shape to round.",
+        done:() => tAsk(/round every corner/), act:d => { const R = TR(d); tPick(tagRect(d), [(R.x0 + R.x1) / 2, R.y0]); } },
+      { need:() => tCmd("fillet"), back:"fillet", target:"#cmdbar", type:"", say:"Press <b>Enter</b> to round all four corners.",
+        why:"Enter means \"yes, every corner\". The radius is 3 mm.",
+        done:d => { const e = ents.find(e => e.layer === "CUT" && e.type === "poly" && e.closed && hasBulge(e) && tSameBox(tBox(e), TR(d), 0.8)); return !!e && !busy; } },
+      { id:"circle", target:'[data-c="CIRCLE"]', say:"Now the hole. Click <b>Circle</b>.", why:"The hole is where the key ring goes.",
+        done:() => tCmd("circle") },
+      { need:() => tCmd("circle"), back:"circle", pt:d => [TR(d).x0 + 8, (TR(d).y0 + TR(d).y1) / 2],
+        say:"Click the green spot for the center of the hole.", why:"8 mm in from the left end, halfway up.",
+        done:() => tAsk(/radius of circle/) },
+      { need:() => tCmd("circle"), back:"circle", target:"#cmdbar", type:"3", say:"Type <code>3</code> and press Enter.",
+        why:"Radius 3 makes a hole 6 mm across: room for a key ring.",
+        done:d => { const R = TR(d), c = ents.find(e => e.type === "circle" && e.layer === "CUT" && e.cx > R.x0 && e.cx < R.x1 && e.cy > R.y0 && e.cy < R.y1);
+          if (!c) return false; d.C = c; return true; },
+        hint:d => { const R = TR(d); return ents.some(e => e.type === "circle" && !(e.cx > R.x0 && e.cx < R.x1 && e.cy > R.y0 && e.cy < R.y1)) ? "That circle is outside the tag. Press Ctrl+Z and try again." : ""; } },
+      { id:"text", target:'[data-c="TEXT"]', say:"Now your name. Click <b>Text</b>.", why:"Text turns words into outlines the laser can follow.",
+        done:() => tShown("mText") },
+      { need:() => tShown("mText"), back:"text", target:"#txtWords", next:true, nextOk:() => !!tVal("txtWords"),
+        say:"Type your first name or your initials in the box, then click <b>Next</b> on this card.", why:"Short is better: the tag is 60 mm long, and the hole takes some of it.",
+        act:() => tInput("txtWords", (LIB.who || "").split(" ")[0] || "TS 82") },
+      { need:() => tShown("mText"), back:"text", target:'#txtLayer button[data-v="ENGRAVE"]', say:"Click <b>Engrave</b>.",
+        why:"Engrave marks the surface. Cut would cut the letters out and leave holes.", done:() => textSpec.layer === "ENGRAVE" },
+      { need:() => tShown("mText"), back:"text", target:"#txtH", enter:d => { d.h0 = tVal("txtH"); }, say:"Make the height <code>8</code>: click in the box and type 8.",
+        why:"The height of a capital letter, in mm. 8 fits a 30 mm tag.", done:d => { const v = parseFloat(tVal("txtH")); return v === 8 || (tVal("txtH") !== d.h0 && v >= 4 && v <= 12); },
+        act:() => tInput("txtH", "8") },
+      { need:() => tShown("mText") || tAsk(/TEXT Specify start point/), back:"text", target:"#txtOk", say:"Click <b>Place text</b>.", why:"Now you pick where it goes.",
+        done:() => !tShown("mText") && tAsk(/TEXT Specify start point/) },
+      { need:() => tCmd("text"), back:"text", pt:d => [TR(d).x0 + 15, (TR(d).y0 + TR(d).y1) / 2 - 4],
+        say:"Click the green spot: that's where your name starts.", why:"Your name sits to the right of the hole.", done:() => tAsk(/rotation angle of text/) },
+      { need:() => tCmd("text"), back:"text", target:"#cmdbar", type:"", say:"Press <b>Enter</b> to keep it level.", why:"Typing an angle would turn the words.",
+        enter:d => { d.e0 = ents.filter(e => e.layer === "ENGRAVE").length; },
+        done:d => !busy && ents.filter(e => e.layer === "ENGRAVE").length > d.e0 },
+      { next:true, say:d => tFits(d) ? "&#10003; Your name fits on the tag." : "Your name runs off the tag or over the hole.",
+        why:d => tFits(d) ? "Next, the laser file." : "Press Ctrl+Z to take it off, then Text again with a smaller height or fewer letters. Or click Next to keep going." },
+      { id:"plot", target:'[data-c="PLOT"]', say:"Click <b>Plot</b>.", why:"Plot makes the file the laser reads.", done:() => tShown("mPlot"),
+        enter:d => { d.plotted = false; } },
+      { need:d => tShown("mPlot") || d.plotted, back:"plot", target:"#plotOk", say:"It says <b>The 12 x 12 in sheet</b>: the laser. Click <b>OK</b>.",
+        why:"The file gets only the red and engrave lines. If a Save box opens, save it where your class keeps laser files.", done:d => d.plotted },
+      { finish:true, say:"You made a keychain tag!",
+        why:"A red outline with round corners, a 6 mm hole, and your name to engrave. It's in My drawings as Tutorial-keychain-tag. Take the laser file and the laser card to the laser." },
+    ] },
+  { id:"numbers", n:2, title:"Draw with numbers", icon:"i-tri", time:"8 minutes",
+    setup(d) { loadTemplate("project", "Tutorial: drawing with numbers, on a fresh project sheet. Follow the card."); docName = "Tutorial-right-triangle"; setTitle(); saveLocal();
+      setTab("build"); fitBox(-10, -12, 110, 75); render(); },
+    steps:[
+      { next:"Start", say:"Draw with numbers.",
+        why:"Type exact numbers instead of clicking: a right triangle 40 by 30 mm. Then check its long side with a dimension, and practice picking, Delete and Undo." },
+      { id:"line", target:"#cmd", say:"Click in the command line at the bottom, type <code>L</code>, and press Enter.",
+        why:"Every tool has a short name you can type. L is LINE.", done:() => tCmd("line"), act:() => submitText("L") },
+      { need:() => tCmd("line"), back:"line", target:"#cmdbar", type:"20,20", pt:() => [20, 20], say:"Type <code>20,20</code> and press Enter.",
+        why:"x first, then y: 20 mm right of the sheet's corner and 20 mm up. Call it point A.", done:() => tAsk(/next point/) },
+      { need:() => tCmd("line"), back:"line", target:"#cmdbar", type:"@40,0", say:"Type <code>@40,0</code> and press Enter.",
+        why:"<code>@</code> means \"from the last point\": 40 mm right, 0 up.", done:() => !!tLine([20, 20], [60, 20]),
+        hint:() => ents.some(e => e.type === "line") && !tLine([20, 20], [60, 20]) ? "That line went somewhere else. Type <code>U</code> and Enter to take it back, then type <code>@40,0</code>." : "" },
+      { need:() => tCmd("line"), back:"line", target:"#cmdbar", type:"@0,30", say:"Type <code>@0,30</code> and press Enter.",
+        why:"0 across, 30 mm straight up. That corner is a right angle.", done:() => !!tLine([60, 20], [60, 50]) },
+      { need:() => tCmd("line") || !!tLine([60, 50], [20, 20]), back:"line", target:"#cmdbar", type:"C", say:"Type <code>C</code> and press Enter.",
+        why:"Close draws the last side back to A and ends LINE.", done:() => !!tLine([60, 50], [20, 20]) && !busy },
+      { next:true, say:"The slanted side is the hypotenuse.",
+        why:"Pythagoras: √(40² + 30²) = √(1600 + 900) = √2500 = 50 mm. Let's check with a dimension." },
+      { id:"dim", target:'[data-c="DIMALIGNED"]', say:"Click <b>Aligned</b>.", why:"An aligned dimension measures along a slanted edge.", done:() => tCmd("dimaligned") },
+      { need:() => tCmd("dimaligned"), back:"dim", pt:() => [20, 20], type:"20,20", say:"Click corner A, at the green spot. Wait for the green square, then click.",
+        why:"The green square means it will snap exactly to the corner.", done:() => tAsk(/second extension line origin/) },
+      { need:() => tCmd("dimaligned"), back:"dim", pt:() => [60, 50], type:"60,50", say:"Click the top corner, at the green spot.", why:"The other end of the slanted side.",
+        done:() => tAsk(/dimension line location/) },
+      { need:() => tCmd("dimaligned"), back:"dim", pt:() => [34, 42], type:"34,42", say:"Click above the slanted side to place the dimension.", why:"Any spot above it works.",
+        done:() => !busy && ents.some(e => e.type === "dim" && e.dk === "ali") },
+      { next:true, say:"It says 50. Pythagoras was right.", why:"Dimensions go on DIMS (cyan) and never cut, so you can show your numbers on a drawing." },
+      { id:"pick", pt:() => [40, 35], say:"Click the slanted line itself (not the dimension) to pick it.", why:"A picked line turns dashed blue. Most tools work on what's picked.",
+        done:() => [...selection].some(e => e.type === "line" && e === tLine([60, 50], [20, 20])),
+        act:() => { const e = tLine([60, 50], [20, 20]); if (e) { if (busy) cancelReq(); selection.clear(); selection.add(e); render(); } } },
+      { need:() => selection.size > 0 || !tLine([60, 50], [20, 20]), back:"pick", say:"Press <b>Delete</b> on the keyboard.", why:"Delete erases what's picked.",
+        done:() => !tLine([60, 50], [20, 20]), act:() => run("ERASE") },
+      { target:'#appbar [data-c="U"]', say:"Oops! Press <b>Ctrl+Z</b>, or click Undo at the top.", why:"Undo takes back the last thing you did. Ctrl+Y puts it back again.",
+        done:() => !!tLine([60, 50], [20, 20]), act:() => run("U") },
+      { finish:true, say:"You drew with exact numbers!",
+        why:"x,y for a point, @ for \"from the last point\", C to close, a dimension to check, Delete and Undo. Esc stops any command; Enter on its own repeats the last one." },
+    ] },
+  { id:"save", n:3, title:"Save and take it home", icon:"i-drawings", time:"5 minutes",
+    setup(d) { d.fresh0 = libFresh || !ents.some(e => e.layer !== "NOTES"); hideModals(); if (busy) cancelReq(); setTab("home"); },
+    steps:[
+      { next:"Start", say:"Save it, and take it home.",
+        why:"Your work saves by itself in this browser. This lesson shows where it is, how to name it, and how to keep a copy in Google Drive." },
+      { id:"circle", skipIf:d => !d.fresh0, target:'[data-c="CIRCLE"]', say:"First, draw something to save. Click <b>Circle</b>.", why:"An empty sheet isn't kept.", done:() => tCmd("circle") },
+      { skipIf:d => !d.fresh0, need:() => tCmd("circle"), back:"circle", say:"Click anywhere on the drawing for the center.", why:"Anywhere is fine.", done:() => tAsk(/radius of circle/),
+        act:() => submitText("100,100") },
+      { skipIf:d => !d.fresh0, need:() => tCmd("circle"), back:"circle", target:"#cmdbar", type:"20", say:"Type <code>20</code> and press Enter.", why:"A circle 40 mm across.",
+        done:() => !busy && !libFresh },
+      { id:"open", skipIf:() => !LIB.db, target:"#libChip", say:"Click your name at the top right.", why:"It opens My drawings. If it says Your name, you'll type your name there.",
+        done:() => tShown("mDrawings") },
+      { skipIf:() => !LIB.db || !!LIB.who, need:() => tShown("mDrawings"), back:"open", target:"#mdName", say:"Type your first and last name, then click <b>Switch</b>.",
+        why:"Your name keeps your drawings apart from other students' on this computer.", done:() => !!LIB.who },
+      { id:"ren", skipIf:() => !LIB.db, need:() => tShown("mDrawings"), back:"open", target:'#mdList .mdcard.on button[data-a="ren"]',
+        say:"Your drawing is the one that says <b>open now</b>. Click its <b>Rename</b>.", why:"A good name helps you find it, and names the file you download.",
+        done:() => !!document.querySelector("#mdList .mdren") },
+      { skipIf:() => !LIB.db, need:d => tShown("mDrawings") && (!!document.querySelector("#mdList .mdren") || docName !== d.name0), back:"ren", target:"#mdList .mdren", enter:d => { d.name0 = docName; },
+        say:"Type a name, like your last name and <code>-practice</code>, and press Enter.", why:"Letters, numbers and dashes work best.",
+        done:d => !!docName && docName !== d.name0 && !document.querySelector("#mdList .mdren"),
+        act:() => { const i = document.querySelector("#mdList .mdren"); if (i) { i.value = safeName((LIB.who || "My").split(" ").pop()) + "-practice"; i.dispatchEvent(new KeyboardEvent("keydown", { key:"Enter", bubbles:true })); } } },
+      { skipIf:() => !LIB.db, need:() => tShown("mDrawings"), back:"open", target:'#mdList .mdcard.on button[data-a="hist"]', say:"Click <b>History</b>.",
+        why:"A copy is kept every few minutes. Go back to this rewinds the drawing to then, and keeps what you had too.", done:() => !!document.querySelector("#mdList .mdhh") },
+      { skipIf:() => !LIB.db, need:() => tShown("mDrawings"), back:"open", target:'#mdList .mdhh button[data-a="back"]', say:"Click <b>All my drawings</b> to go back.",
+        why:"Nothing changes until you click Go back to this.", done:() => tShown("mDrawings") && !document.querySelector("#mdList .mdhh") && !!document.querySelector("#mdList .mdcard") },
+      { id:"down", enter:d => { d.downloaded = false; }, target:() => tShown("mDrawings") ? "#mdDown" : '[data-c="DOWNLOAD"]',
+        say:() => tShown("mDrawings") ? "Click <b>Download the open drawing</b>." : "Click <b>Download</b>.",
+        why:"The .dxf goes to your Downloads folder. That's the copy you can take anywhere.", done:d => d.downloaded },
+      { next:true, say:"Put it in your Google Drive.",
+        why:"Open drive.google.com, click <b>New</b>, then <b>File upload</b>, and pick the file from Downloads. Lab computers can clear this browser when you log out, so do this at the end of class." },
+      { next:true, target:() => tShown("mDrawings") ? "#mdUp" : '[data-c="UPLOAD"]', say:"Next time: Upload.",
+        why:"Download your file from Google Drive, then click Upload here, or drag the file onto the drawing. It opens, and it's in My drawings again." },
+      { finish:true, say:"Your work is safe.", why:"It saves by itself here, under your name, and the .dxf in Google Drive goes anywhere." },
+    ] },
+];
+function tFits(d) {
+  const R = TR(d), L = ents.filter(e => e.layer === "ENGRAVE"); if (!L.length) return false;
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const e of L) { const b = tBox(e); x0 = Math.min(x0, b.x0); y0 = Math.min(y0, b.y0); x1 = Math.max(x1, b.x1); y1 = Math.max(y1, b.y1); }
+  if (x0 < R.x0 + 1 || y0 < R.y0 + 1 || x1 > R.x1 - 1 || y1 > R.y1 - 1) return false;
+  const C = d.C; return !C || x0 > C.cx + C.r + 0.5 || x1 < C.cx - C.r - 0.5 || y0 > C.cy + C.r + 0.5 || y1 < C.cy - C.r - 0.5;
+}
+
+// ── the engine ──
+const tVal2 = (v, d) => typeof v === "function" ? v(d) : v;
+function tDone() { try { return JSON.parse(localStorage.getItem("ts82-tut-done") || "[]"); } catch (e) { return []; } }
+function tMarks() { const d = tDone();
+  document.querySelectorAll(".tles").forEach(b => { b.classList.toggle("done", d.includes(b.dataset.l)); b.classList.toggle("on", !!T.lesson && T.lesson.id === b.dataset.l); });
+  $("tutStop").disabled = !T.lesson; }
+function tStart(id) {
+  const L = LESSONS.find(l => l.id === id); if (!L) return;
+  if (busy) cancelReq(); hideModals(); bunnyHide();
+  T.lesson = L; T.d = {}; T.min = false; T.note = ""; T.okUntil = 0;
+  L.setup(T.d); T.i = -1; tGo(0, 1);
+  document.body.classList.add("tutoring"); tMarks();
+  log(`Tutorial ${L.n}: ${L.title}. The card shows what to click next.`, "ok");
+  cancelAnimationFrame(T.raf); T.raf = requestAnimationFrame(tLoop);
+}
+function tStop(quiet) {
+  if (!T.lesson) return; const L = T.lesson; T.lesson = null; cancelAnimationFrame(T.raf);
+  document.body.classList.remove("tutoring");
+  for (const id of ["tutCard", "tutRing", "tutDot", "tutPill"]) $(id).style.display = "none";
+  tMarks(); if (!quiet) log(`Tutorial stopped. Your drawing stays as it is; the Tutorial tab starts ${L.title} again.`, "");
+  if (!tModal()) cmdIn.focus();
+}
+function tGo(i, dir = 1) {         // to step i, past any that don't apply
+  const S = T.lesson.steps;
+  while (i >= 0 && i < S.length && S[i].skipIf && S[i].skipIf(T.d)) i += dir;
+  if (i < 0) i = 0; if (i >= S.length) i = S.length - 1;
+  T.i = i; T.okUntil = 0; const st = S[i]; if (st.enter) st.enter(T.d); tRender();
+}
+function tBack(id, why) { const k = T.lesson.steps.findIndex(s => s.id === id); if (k < 0) return; T.note = why; tGo(k, -1); T.note = why; tRender(); }
+function tResolve(sel) {       // the element to point at: a visible one, or the tab to open first
+  T.redir = null; if (!sel) return null;
+  const all = [...document.querySelectorAll(sel)];
+  const vis = all.find(el => el.getClientRects().length && !el.closest(".rtab.hide") && (!el.closest(".modal") || el.closest(".modal.show")));
+  if (vis) return vis;
+  const inTab = all.find(el => el.closest(".rtab.hide"));
+  if (inTab && !tModal()) { const tab = inTab.closest(".rtab").dataset.tab; T.redir = tab; return document.querySelector(`#tabs .tab[data-tab="${tab}"]`); }
+  return null;
+}
+function tRender() {
+  const L = T.lesson; if (!L) return; const st = L.steps[T.i], c = $("tutCard"), d = T.d;
+  c.querySelector(".tl").textContent = `Lesson ${L.n}: ${L.title}`;
+  c.querySelector(".tn").textContent = `Step ${T.i + 1} of ${L.steps.length}`;
+  c.querySelector(".tbar i").style.width = Math.round((T.i + 1) / L.steps.length * 100) + "%";
+  c.querySelector(".tsay").innerHTML = tVal2(st.say, d);
+  c.querySelector(".twhy").innerHTML = tVal2(st.why, d) || "";
+  c.classList.toggle("fin", !!st.finish); c.classList.remove("ok");
+  const nx = c.querySelector(".tnext"), dof = c.querySelector(".tdo"), bk = c.querySelector(".tback"), nl = c.querySelector(".tnextl");
+  bk.style.visibility = T.i > 0 && !st.finish ? "visible" : "hidden";
+  nx.style.display = st.next || st.finish ? "" : "none";
+  nx.textContent = st.finish ? "Done" : typeof st.next === "string" ? st.next : "Next";
+  const more = LESSONS[LESSONS.indexOf(L) + 1];
+  nl.style.display = st.finish && more ? "" : "none"; if (more) nl.textContent = `Next lesson: ${more.title}`;
+  dof.style.display = !st.finish && (st.act || (!st.next && (st.type !== undefined || st.target || st.pt))) ? "" : "none";
+  tTick(true);
+}
+function tTick(force) {         // check the step; called a few times a second
+  const L = T.lesson; if (!L) return; const st = L.steps[T.i], d = T.d, c = $("tutCard");
+  if (T.okUntil) { if (performance.now() < T.okUntil) return; T.okUntil = 0; T.note = ""; tGo(T.i + 1); return; }
+  if (typeof st.say === "function" && !T.okUntil) { c.querySelector(".tsay").innerHTML = st.say(d); c.querySelector(".twhy").innerHTML = tVal2(st.why, d) || ""; }
+  const sel = tVal2(st.target, d); T.tg = tResolve(sel);
+  const red = c.querySelector(".tredir");
+  red.innerHTML = T.redir ? `First click the <b>${TAB_NAME[T.redir] || T.redir}</b> tab at the top.` : ""; red.style.display = T.redir ? "" : "none";
+  const h = (st.hint && st.hint(d)) || T.note; const hn = c.querySelector(".thint"); hn.innerHTML = h || ""; hn.style.display = h ? "" : "none";
+  const nx = c.querySelector(".tnext"); nx.disabled = !!(st.nextOk && !st.nextOk(d));
+  if (st.next || st.finish) return;
+  let ok = false; try { ok = !!(st.done && st.done(d)); } catch (e) { ok = false; }
+  if (ok) { T.okUntil = performance.now() + 650; c.classList.add("ok"); c.querySelector(".thint").style.display = "none"; return; }
+  let held = true; try { held = !st.need || st.need(d); } catch (e) {}
+  if (!held && st.back) tBack(st.back, "That stopped partway (Esc, or another tool). Let's pick it up again here.");
+}
+function tPlace() {           // the ring, the green spot and the card follow the screen
+  const L = T.lesson; if (!L) return; const st = L.steps[T.i], d = T.d, c = $("tutCard"), ring = $("tutRing"), dot = $("tutDot"), pill = $("tutPill");
+  const el = T.tg, r = el && el.getBoundingClientRect(), hasEl = !!(r && r.width);
+  if (hasEl && !T.min) { Object.assign(ring.style, { display:"block", left:(r.left - 4) + "px", top:(r.top - 4) + "px", width:(r.width + 8) + "px", height:(r.height + 8) + "px" }); }
+  else ring.style.display = "none";
+  let dp = null;
+  if (st.pt && !T.redir && !tModal() && !T.min && !T.okUntil) { const p = tVal2(st.pt, d), s = toScr(p), cr = cv.getBoundingClientRect(), x = cr.left + s[0], y = cr.top + s[1];
+    if (x > cr.left && x < cr.right && y > cr.top && y < cr.bottom) dp = [x, y]; }
+  if (dp) Object.assign(dot.style, { display:"block", left:dp[0] + "px", top:dp[1] + "px" }); else dot.style.display = "none";
+  if (T.min) { c.style.display = "none"; pill.style.display = "block"; pill.textContent = `Tutorial: step ${T.i + 1} of ${L.steps.length}  ▸`; return; }
+  pill.style.display = "none"; c.style.display = "block";
+  const W = innerWidth, H = innerHeight, cw = c.offsetWidth, ch = c.offsetHeight, m = 8, gap = 14, arrow = c.querySelector(".tarrow");
+  let x, y, side = null;
+  if (hasEl && !dp) {
+    const dlg = el.closest(".modal.show .dlg"), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const tries = dlg ? (() => { const q = dlg.getBoundingClientRect(); return [["right", q.right + gap, cy - ch / 2], ["left", q.left - gap - cw, cy - ch / 2], ["below", cx - cw / 2, r.bottom + gap], ["above", cx - cw / 2, r.top - gap - ch]]; })()
+      : [["below", cx - cw / 2, r.bottom + gap], ["above", cx - cw / 2, r.top - gap - ch], ["right", r.right + gap, cy - ch / 2], ["left", r.left - gap - cw, cy - ch / 2]];
+    for (const [s, tx, ty] of tries) {
+      const fx = Math.min(Math.max(m, tx), W - cw - m), fy = Math.min(Math.max(m, ty), H - ch - m);
+      const fits = (s === "below" || s === "above") ? ty >= m && ty + ch <= H - m : tx >= m && tx + cw <= W - m;
+      if (fits) { x = fx; y = fy; side = s; break; }
+    }
+    if (side) {     // the arrow on the card's edge, toward the target
+      const ax = Math.min(Math.max(cx - x, 16), cw - 16), ay = Math.min(Math.max(cy - y, 16), ch - 16);
+      arrow.className = "tarrow " + side; arrow.style.left = (side === "below" || side === "above") ? ax + "px" : ""; arrow.style.top = (side === "left" || side === "right") ? ay + "px" : "";
+    }
+  }
+  if (!side) {     // no target, or a spot on the drawing: dock at the top right of the drawing, away from the spot
+    arrow.className = "tarrow none"; const sr = $("stage").getBoundingClientRect();
+    x = sr.right - cw - 14; y = sr.top + 12;
+    if (dp && dp[0] > x - 30 && dp[0] < x + cw + 30 && dp[1] > y - 30 && dp[1] < y + ch + 30) x = sr.left + 14;
+  }
+  c.style.left = Math.round(x) + "px"; c.style.top = Math.round(y) + "px";
+}
+function tLoop(t) {
+  if (!T.lesson) return;
+  if (t - T.last > 110) { T.last = t; try { tTick(); } catch (e) { console.warn(e); } }
+  try { tPlace(); } catch (e) {}
+  T.raf = requestAnimationFrame(tLoop);
+}
+function tDoIt() {            // Do it for me
+  const st = T.lesson.steps[T.i], d = T.d;
+  if (st.act) st.act(d);
+  else if (st.type !== undefined) submitText(st.type);
+  else if (st.pt && req) submitText(tPt(tVal2(st.pt, d)));
+  else if (T.tg) T.tg.click();
+  if (!tModal()) cmdIn.focus();
+}
+function tFinish(next) {
+  const L = T.lesson, done = tDone(); if (!done.includes(L.id)) { done.push(L.id); try { localStorage.setItem("ts82-tut-done", JSON.stringify(done)); } catch (e) {} }
+  const more = LESSONS[LESSONS.indexOf(L) + 1]; tStop(true); log(`Tutorial ${L.n} done: ${L.title}.`, "ok");
+  if (next && more) return tStart(more.id);
+  T.bunnyOk = true; try { bunnySay("flop", "BINKY!", `Lesson ${L.n} done: ${L.title}. ${more ? `Next on the Tutorial tab: ${more.title}.` : "That's every lesson."}`, 12000); } finally { T.bunnyOk = false; }
+}
+// the card's buttons
+$("tutCard").querySelector(".tnext").addEventListener("click", () => { const st = T.lesson.steps[T.i]; if (st.finish) tFinish(false); else tGo(T.i + 1); if (!tModal()) cmdIn.focus(); });
+$("tutCard").querySelector(".tnextl").addEventListener("click", () => tFinish(true));
+$("tutCard").querySelector(".tback").addEventListener("click", () => { T.note = ""; tGo(T.i - 1, -1); if (!tModal()) cmdIn.focus(); });
+$("tutCard").querySelector(".tdo").addEventListener("click", tDoIt);
+$("tutCard").querySelector(".tx").addEventListener("click", () => tStop());
+$("tutCard").querySelector(".tmin").addEventListener("click", () => { T.min = true; if (!tModal()) cmdIn.focus(); });
+$("tutPill").addEventListener("click", () => { T.min = false; if (!tModal()) cmdIn.focus(); });
+$("tutCard").addEventListener("mousedown", ev => ev.preventDefault());   // clicking the card leaves the cursor where it was (the command line, a name box)
+document.querySelectorAll(".tles").forEach(b => b.addEventListener("click", () => tStart(b.dataset.l)));
+$("tutStop").addEventListener("click", () => tStop());
+// watch Plot and Download for the lessons; the bunny waits while a lesson runs
+const tDoPlot0 = doPlot; doPlot = async function (k) { if (T.lesson) T.d.plotted = true; return tDoPlot0(k); };
+const tLibDownload0 = libDownload; libDownload = function () { if (T.lesson) T.d.downloaded = true; return tLibDownload0(); };
+const tBunnySay0 = bunnySay; bunnySay = function (...a) { if (T.lesson && !T.bunnyOk) return; return tBunnySay0(...a); };
+const tSetTab0 = setTab;
+setTab = function (name) { tSetTab0(name);
+  if (name === "tutor") { const dot = document.querySelector('#tabs .tab[data-tab="tutor"] .dot'); if (dot) dot.remove(); try { localStorage.setItem("ts82-tut-seen", "1"); } catch (e) {} } };
+try { if (localStorage.getItem("ts82-tut-seen")) { const dot = document.querySelector('#tabs .tab[data-tab="tutor"] .dot'); if (dot) dot.remove(); } } catch (e) {}
+tMarks();
+Object.assign(ALIAS, { TUTORIAL:"tutorial", TUT:"tutorial" }); Object.assign(NAMES, { tutorial:"TUTORIAL" });
+Object.assign(HINT, { tutorial:"Lessons that show you where to click" });
+Object.assign(TOOLTIP, { tabTutor:"<b>Tutorial</b> &middot; Short lessons where you make something real. A card points at what to click next, says why, and waits for you." });
+DEMO.tabTutor = () => demoSvg(
+  `<rect x="8" y="6" width="144" height="20" fill="#3a424c"/>` + [0, 1, 2].map(i => `<rect x="${14 + i * 30}" y="9" width="24" height="14" rx="2" fill="#2f363e" stroke="#57616c" stroke-width=".8"/>`).join("") +
+  `<rect x="44" y="9" width="24" height="14" rx="2" fill="#2f363e" stroke="#57616c" stroke-width=".8"/><path d="M50 19h12v-6h-12z" fill="none" stroke="${DM.W}" stroke-width="1"/>` +
+  `<rect x="41" y="6" width="30" height="20" rx="3" fill="none" stroke="#ffd27a" stroke-width="1.6">${an("stroke", ["#ffd27a", "#ffd27a", "#58d36b", "#58d36b"], [0, .42, .44, 1])}${an("stroke-opacity", [1, .35, 1, .35, 1], [0, .12, .24, .36, 1])}</rect>` +
+  `<g><path d="M52 34l4-5l4 5z" fill="#f7f3ea"/><rect x="20" y="34" width="92" height="22" rx="3" fill="#f7f3ea"/>` +
+  `<text x="26" y="44" font-size="7" font-weight="700" fill="#2a2f35">Click Rectangle.</text><text x="26" y="52" font-size="5.5" fill="#5d6670">One closed shape: it cuts all round.</text></g>` +
+  onAt(.45, `<rect x="20" y="34" width="92" height="22" rx="3" fill="#e6f6e8" stroke="#58d36b"/><text x="26" y="48" font-size="7.5" font-weight="700" fill="#2c7a3a">&#10003; Nice!</text>`, .62) +
+  onAt(.62, `<rect x="20" y="34" width="92" height="22" rx="3" fill="#f7f3ea"/><text x="26" y="44" font-size="7" font-weight="700" fill="#2a2f35">Click the green spot.</text><circle cx="120" cy="74" r="4" fill="none" stroke="${DM.K}" stroke-width="1.6"/>`) +
+  pop(56, 16, .4) + cursor([[130, 70], [130, 70], [56, 16], [56, 16], [118, 72], [118, 72]], [0, .2, .4, .6, .85, 1]));
+GUIDE.splice(1, 0, ["Tutorial tab: learn by making", "Short lessons. A card shows where to click, says why, and waits for you.", [
+  ["tabTutor", "i-tutor", "Tutorial", "TUTORIAL", ["Click Tutorial at the top, next to Build.", "Pick a lesson: Keychain tag, Draw with numbers, or Save and take it home.", "Do what the card says. Stuck? Do it for me."]],
+]]);
+const TUTT = { start:tStart, stop:tStop, step:() => T.lesson ? { lesson:T.lesson.id, i:T.i, n:T.lesson.steps.length, redir:T.redir, ok:!!T.okUntil,
+  say:$("tutCard").querySelector(".tsay").textContent, hint:$("tutCard").querySelector(".thint").textContent } : null, doIt:tDoIt, done:tDone };
+
 // ═══════════════════════════ start ═══════════════════════════
 for (const k of Object.keys(tog)) $("tg" + k).classList.toggle("on", tog[k]);
 if (restore()) {
@@ -4119,7 +4537,7 @@ window.ts82 = { toScr:p => { const r = cv.getBoundingClientRect(), s = toScr(p);
   bunny:() => { const b = $("bunny"); return { show:b.classList.contains("show"), pose:bunnyLast.pose, label:b.querySelector(".lab").textContent, text:b.querySelector(".txt").textContent }; },
   bunnyIdle:() => bunnyIdle(true), bunnyHide,
   textLayout, fonts:() => FONTS.map(f => f.key), areaOf:e => areaOf(e), plotWhat:v => { if (v) plotWhat = v; return plotWhat; },
-  plotList:() => JSON.parse(JSON.stringify(laserList())), shape3DSVG, setTab, sel2:() => [...selection].map(e => e.id), lib:LIBT };
+  plotList:() => JSON.parse(JSON.stringify(laserList())), shape3DSVG, setTab, sel2:() => [...selection].map(e => e.id), lib:LIBT, tut:TUTT };
 </script>
 </body>
 </html>
