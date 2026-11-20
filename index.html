@@ -242,6 +242,59 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
   body.pg .gcard .cm code, body.pg .gcard p code, body.pg .gcard li code { background:#f1eee8; border-color:#ccc; color:#8a3e24; }
   body.pg .gcard .demo { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }
+
+/* round 3: My drawings, Download, Upload */
+#appbar .libchip { display:flex; align-items:center; gap:6px; height:24px; padding:0 10px 0 8px; margin:0 6px 0 4px; background:#262c33; border:1px solid var(--line); border-radius:12px; font-size:12px; white-space:nowrap; }
+#appbar .libchip:hover { background:var(--hover); }
+#appbar .libchip svg.ic { width:15px; height:15px; }
+#appbar .libchip.noname #whoTxt { color:#ffd27a; }
+.libchip .st { color:var(--muted); padding-right:7px; margin-right:1px; border-right:1px solid var(--line); }
+.libchip .st:empty { display:none; }
+.libchip .st.saved::before { content:"\2713  "; color:#58d36b; font-weight:700; }
+.libchip .st.saving { color:#ffd27a; }
+.libchip .st.off, .libchip .st.error { color:#ff8a80; }
+@media (max-width: 1180px) { .libchip .st { display:none; } }
+#mWho .dlg { width:min(430px, calc(100% - 24px)); }
+#mDrawings .dlg { width:min(780px, calc(100% - 24px)); max-height:calc(100% - 30px); display:flex; flex-direction:column; }
+#mDrawings .body { overflow:auto; }
+.mdwho { display:flex; gap:8px; align-items:center; }
+.dlg .mdwho label { margin:0; white-space:nowrap; color:var(--text); font-size:13px; }
+.dlg .mdwho input[type=text] { flex:1; width:auto; }
+.mdbtn, .mdbar button, .mdacts button, .mdwho button, .mdhh button, #mDrawings .row button { display:inline-flex; align-items:center; gap:6px; padding:5px 11px; background:#3a424c; border:1px solid #57616c; }
+.mdbar button:hover, .mdacts button:hover, .mdwho button:hover, .mdhh button:hover, #mDrawings .row button:hover { background:var(--hover); }
+.mdbar { display:flex; gap:8px; margin:12px 0 4px; flex-wrap:wrap; align-items:center; }
+.mdbar svg.ic { width:16px; height:16px; }
+#mdNote { color:#ffd27a; font-size:12px; margin:4px 0 6px; }
+#mdNote:empty { display:none; }
+#mdList { display:flex; flex-direction:column; gap:6px; margin-top:6px; }
+.mdcard { display:grid; grid-template-columns:100px 1fr; grid-template-rows:auto auto; gap:6px 12px; padding:8px; background:#262c33; border:1px solid #444d57; }
+.mdcard.on { border-color:var(--accent); }
+.mdthumb { grid-row:1 / span 2; width:100px; height:66px; background:#1d2329; border:1px solid #39424c; }
+.mdthumb svg { width:100%; height:100%; display:block; }
+.mdinfo { min-width:0; }
+.mdinfo b { font-size:13px; word-break:break-all; }
+.mdun { font-weight:400; color:var(--muted); font-size:12px; margin-left:4px; }
+.mdtag { margin-left:8px; font-size:11px; color:#9fc7ef; border:1px solid #3d8fd6; border-radius:8px; padding:0 6px; }
+.mdsub { color:var(--muted); font-size:12px; margin-top:2px; }
+.mdacts { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.mdacts button { padding:3px 10px; font-size:12px; }
+.mdacts button.pri { background:#2f5f8f; border-color:#3d8fd6; }
+.mdacts button.dang, #mdClear, #mdClearYes { border-color:#a04b45; }
+.mdask { color:#ffb4ab; font-size:12px; }
+.mdask.mdother { color:var(--muted); }
+.mdren { width:100%; padding:3px 6px; background:#20262c; color:#fff; border:1px solid var(--accent); font:inherit; }
+.mdempty { padding:18px; text-align:center; color:var(--muted); border:1px dashed #57616c; }
+.mdhh { display:flex; gap:12px; align-items:center; margin-bottom:4px; }
+.mdall { display:flex !important; align-items:center; gap:6px; margin:10px 0 0 !important; color:var(--muted); font-size:12px; cursor:pointer; }
+.mddrive { margin-top:12px; padding:10px 12px; background:#262c33; border-left:3px solid #58d36b; font-size:12px; color:#c9d1d9; line-height:1.5; }
+.mddrive ol { margin:4px 0 0 18px; padding:0; }
+.mddrive code { color:#e3e7eb; }
+#mdClearAsk { display:flex; gap:8px; align-items:center; flex:1; font-size:12px; color:#ffb4ab; }
+#mdClearAsk[hidden] { display:none; }
+#dropZone { position:fixed; inset:0; z-index:45; display:none; flex-direction:column; gap:8px; align-items:center; justify-content:center; background:rgba(29,35,41,.86);
+  border:3px dashed #3d8fd6; color:#e3e7eb; font-size:20px; pointer-events:none; }
+#dropZone span { font-size:13px; color:var(--muted); }
+body.dropping #dropZone { display:flex; }
 </style>
 </head>
 <body>
@@ -290,6 +343,10 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
     <symbol id="i-dimrad" viewBox="0 0 20 20"><circle cx="8.5" cy="11.5" r="6.5"/><path d="M8.5 11.5l4.6-4.6L17 3"/><path d="M13.1 6.9l-2.6.5M13.1 6.9l-.5 2.6"/></symbol>
     <symbol id="i-dimdia" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M5 15L15 5"/><path d="M15 5l-2.7.6M15 5l-.6 2.7M5 15l2.7-.6M5 15l.6-2.7"/></symbol>
     <symbol id="i-explode" viewBox="0 0 20 20"><path d="M6.5 5.5h7M14.5 6.5v7M13.5 14.5h-7M5.5 13.5v-7"/><path d="M2.5 2.5l2 2M17.5 2.5l-2 2M2.5 17.5l2-2M17.5 17.5l-2-2" opacity=".7"/></symbol>
+    <symbol id="i-drawings" viewBox="0 0 20 20"><path d="M6.5 2.5h8l3 3v10h-11z"/><path d="M14.5 2.5v3h3"/><path d="M3.5 5.5v12h10"/><path d="M9 9.5h5.5M9 12.5h5.5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 20 20"><path d="M10 2.5v10M6 8.5l4 4l4-4"/><path d="M3.5 13v4h13v-4"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 20 20"><path d="M10 12.5v-10M6 6.5l4-4l4 4"/><path d="M3.5 13v4h13v-4"/></symbol>
+    <symbol id="i-user" viewBox="0 0 20 20"><circle cx="10" cy="6.8" r="3.3"/><path d="M3.8 17c.9-3.2 3.3-4.8 6.2-4.8s5.3 1.6 6.2 4.8"/></symbol>
     <symbol id="i-help" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M7.8 7.6a2.3 2.3 0 1 1 3.2 2.1c-.7.3-1 .8-1 1.6v.4"/><circle cx="10" cy="14.4" r=".8" fill="currentColor"/></symbol>
   </defs>
 </svg>
@@ -297,6 +354,7 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
   <div class="brand"><b>82</b>TS 82 CAD</div>
   <button class="qat" data-c="NEW" title="New (NEW)"><svg class="ic"><use href="#i-new"/></svg></button>
   <button class="qat" data-c="OPEN" title="Open (Ctrl+O)"><svg class="ic"><use href="#i-open"/></svg></button>
+  <button class="qat" data-c="MYDRAWINGS" title="My drawings"><svg class="ic"><use href="#i-drawings"/></svg></button>
   <button class="qat" data-c="QSAVE" title="Save (Ctrl+S)"><svg class="ic"><use href="#i-save"/></svg></button>
   <button class="qat" data-c="SAVEAS" title="Save As (Ctrl+Shift+S)"><svg class="ic"><use href="#i-saveas"/></svg></button>
   <button class="qat" data-c="PLOT" title="Plot (Ctrl+P)"><svg class="ic"><use href="#i-plot"/></svg></button>
@@ -304,6 +362,7 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
   <button class="qat" data-c="U" title="Undo (Ctrl+Z)"><svg class="ic"><use href="#i-undo"/></svg></button>
   <button class="qat" data-c="REDO" title="Redo (Ctrl+Y)"><svg class="ic"><use href="#i-redo"/></svg></button>
   <div class="title"><span id="docTitle"><b>Drawing1</b></span> &nbsp;&middot;&nbsp; TS 82 CAD</div>
+  <button class="libchip noname" id="libChip" data-c="MYDRAWINGS"><span id="libState" class="st"></span><svg class="ic"><use href="#i-user"/></svg><span id="whoTxt">Your name</span></button>
   <button class="qat" data-c="TOOLS" title="Tool guide"><svg class="ic"><use href="#i-guide"/></svg></button>
   <button class="qat" data-c="HELP" title="Help (F1)"><svg class="ic"><use href="#i-help"/></svg></button>
 </div>
@@ -341,6 +400,11 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
       <button class="small" data-c="AREA" title="AREA"><svg class="ic"><use href="#i-area"/></svg>Area</button>
       <button class="small" data-c="ZOOM E" title="ZOOM Extents"><svg class="ic"><use href="#i-zoom"/></svg>Zoom Extents</button></div>
   </div><div class="ptitle">Utilities</div></div>
+  <div class="panel"><div class="tools"><div class="stack">
+      <button class="small" data-c="MYDRAWINGS"><svg class="ic"><use href="#i-drawings"/></svg>My drawings</button>
+      <button class="small" data-c="DOWNLOAD"><svg class="ic"><use href="#i-download"/></svg>Download</button>
+      <button class="small" data-c="UPLOAD"><svg class="ic"><use href="#i-upload"/></svg>Upload</button></div>
+  </div><div class="ptitle">Drawings</div></div>
   <div class="panel"><div class="tools">
     <button class="big" data-c="PLOT" title="PLOT (Ctrl+P)"><svg class="ic"><use href="#i-plot"/></svg>Plot</button>
   </div><div class="ptitle">Output</div></div>
@@ -348,6 +412,10 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
   <div class="rtab hide" data-tab="build" role="tabpanel" aria-label="Build">
   <div class="panel"><div class="tools">
     <button class="big" data-c="PROJECT"><svg class="ic"><use href="#i-sheet"/></svg><span class="two">Project<br>sheet</span></button>
+    <div class="stack">
+      <button class="small" data-c="MYDRAWINGS"><svg class="ic"><use href="#i-drawings"/></svg>My drawings</button>
+      <button class="small" data-c="DOWNLOAD"><svg class="ic"><use href="#i-download"/></svg>Download</button>
+      <button class="small" data-c="UPLOAD"><svg class="ic"><use href="#i-upload"/></svg>Upload</button></div>
   </div><div class="ptitle">Start</div></div>
   <div class="panel"><div class="tools">
     <button class="big" data-c="PLINE"><svg class="ic"><use href="#i-pline"/></svg>Polyline</button>
@@ -502,6 +570,25 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
   <div id="guideBody"></div>
   <div class="row"><button class="pri" data-close>Close</button></div></div></div>
 
+<div class="modal" id="mWho"><div class="dlg"><h3>Who's drawing?</h3><div class="body">
+  <label for="whoName">Your first and last name</label><input type="text" id="whoName" maxlength="60" autocomplete="off" spellcheck="false" placeholder="Maria Lopez">
+  <p class="note">Your drawings save by themselves in this browser, under your name, so they stay apart from other students' drawings on this computer.
+  Your name stays on this computer. It isn't sent anywhere.</p></div>
+  <div class="row"><button id="whoSkip">Skip for now</button><button class="pri" id="whoOk">Start drawing</button></div></div></div>
+<div class="modal" id="mDrawings"><div class="dlg"><h3>My drawings</h3><div class="body">
+  <div class="mdwho"><label for="mdName">Drawing as</label><input type="text" id="mdName" maxlength="60" autocomplete="off" spellcheck="false" placeholder="Type your first and last name"><button id="mdSwitch" type="button">Switch</button></div>
+  <div class="mdbar"><button id="mdNew" type="button"><svg class="ic"><use href="#i-new"/></svg>New drawing</button><button id="mdUp" type="button"><svg class="ic"><use href="#i-upload"/></svg>Upload a file</button><button id="mdDown" type="button"><svg class="ic"><use href="#i-download"/></svg>Download the open drawing</button></div>
+  <div id="mdNote"></div>
+  <div id="mdList"></div>
+  <label class="mdall"><input type="checkbox" id="mdAll"> Show everyone's drawings on this computer</label>
+  <div class="mddrive"><b>This list stays on this computer, in this browser.</b> Lab computers can clear it when you log out. To keep a drawing or take it to another computer:
+    <ol><li><b>Download</b> it: the <code>.dxf</code> goes to your Downloads folder.</li>
+    <li>Put it in your EvCC Google Drive: <code>drive.google.com</code>, <b>New</b>, <b>File upload</b>. (If the computer has Google Drive in the Save box, <b>Save As</b> can save there straight away.)</li>
+    <li>Next time, download it from Drive and click <b>Upload a file</b>, or drag it onto the drawing.</li></ol></div></div>
+  <div class="row"><button id="mdClear" type="button">Clear my drawings from this computer</button>
+    <div id="mdClearAsk" hidden><span id="mdClearTxt"></span><button id="mdClearYes" type="button">Delete them</button><button id="mdClearNo" type="button">Cancel</button></div>
+    <span style="flex:1"></span><button data-close>Close</button></div></div></div>
+<div id="dropZone" aria-hidden="true">Drop your .dxf to open it<span>It goes into My drawings as a new drawing.</span></div>
 <div class="modal" id="help"><div class="dlg"><h3>TS 82 CAD Help</h3><div class="body">
   <p style="margin-top:0"><button type="button" id="helpGuide" style="padding:4px 10px;background:#2f5f8f;border:1px solid #3d8fd6">Tool guide: every button, with pictures</button> &nbsp;<span style="color:#9aa5b1;font-size:12px">Hover over any button for a quick picture of how it works.</span></p>
   <p style="margin-top:0">It works like AutoCAD: type a command, press Enter or Space, answer the prompt at the bottom. Enter on its own finishes a command, or repeats the last one. Esc cancels. <code>U</code> undoes.</p>
@@ -601,13 +688,22 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
     <tr><td><code>AREA</code> <code>AA</code>, <code>EXPLODE</code> <code>X</code></td><td>area and perimeter of a closed shape; split a word into letters or a rectangle into lines</td></tr>
     <tr><td><code>3D</code>, <code>TOOLS</code>, <code>PROJECT</code></td><td>model in 3D (Tinkercad, Onshape); the tool guide; the final project sheet</td></tr>
     <tr><td><code>NEW</code> <code>OPEN</code> <code>SAVE</code> <code>SAVEAS</code> <code>PLOT</code></td><td>files. PLOT makes the laser file</td></tr>
+    <tr><td><code>MYDRAWINGS</code>, <code>DOWNLOAD</code>, <code>UPLOAD</code></td><td>your drawings saved in this browser; a .dxf to keep in Google Drive; open one again</td></tr>
     <tr><td>F3 F7 F8 F12</td><td>OSNAP, GRID, ORTHO, DYN</td></tr>
   </table>
   <h4>Mouse</h4>
   <p>Wheel zooms. Middle button drags to pan; double-click it to zoom extents. Shift-drag also pans. Click objects to select them before a command, or click empty space twice for a window. Right-click is Enter.</p>
   <h4>Saving</h4>
   <p>In Chrome and Edge, <b>Save As</b> asks where to put the file, and <b>Save</b> (Ctrl+S) writes over it, as in AutoCAD. Firefox and Safari put every save in Downloads; hand in the newest one. <b>Plot</b> makes the laser file the same way.</p>
-  <p style="color:#9aa5b1;font-size:12px">Your work also keeps itself in this browser between visits. A saved file is what opens on another computer and in AutoCAD.</p>
+  <h4>Saving your work</h4>
+  <ul>
+    <li><b>It saves by itself.</b> Every change saves in this browser, under your name (top right). <b>My drawings</b> lists them all; <b>History</b> goes back to an earlier version.</li>
+    <li><b>Lab computers can clear this browser when you log out.</b> At the end of class, click <b>Download</b> and put the <code>.dxf</code> in your EvCC Google Drive (drive.google.com, New, File upload).</li>
+    <li><b>Save As into Google Drive:</b> if the computer shows Google Drive in the Save box, pick it there.</li>
+    <li><b>Open it again:</b> download it from Google Drive, then click <b>Upload</b>, or drag the file onto the drawing.</li>
+    <li><b>Done on a shared computer?</b> My drawings, <b>Clear my drawings from this computer</b>.</li>
+  </ul>
+  <p style="color:#9aa5b1;font-size:12px">A downloaded or saved <code>.dxf</code> is what opens on another computer and in AutoCAD.</p>
   <h4>Fonts and code in TS 82 CAD</h4>
   <p style="color:#9aa5b1;font-size:12px">Atkinson Hyperlegible (Copyright 2020 Braille Institute of America, Inc.), Nunito (Copyright 2014 The Nunito Project Authors), Arvo (Copyright 2010-2013 Anton Koovit), Stardos Stencil (Copyright 2011 Vernon Adams) and Pacifico (Copyright 2018 The Pacifico Project Authors) are used under the SIL Open Font License 1.1. The single-line fonts are the Hershey fonts: they were originally created by Dr. A. V. Hershey while working at the U. S. National Bureau of Standards; the format of the font data was originally created by James Hurt, Cognition, Inc. Outlines are joined with polygon-clipping by Mike Fogel (MIT License).</p>
   </div><div class="row"><button class="pri" data-close>Close</button></div></div></div>
@@ -667,6 +763,7 @@ const TEXT_EM = 1.4;    // AutoCAD text height is the cap height; Arial's em is 
 
 // ═══════════════════════════ state ═══════════════════════════
 let ents = [], fixed = [], tpl = "starter", nextId = 1, cur = "SCORE", docName = "", saved = false;
+let libId = null, libOwner = "", libFresh = false, libQuiet = false, libReady = false, dxfGrp = false;   // My drawings: which drawing this is, and whose
 let view = { s:2, tx:60, ty:400 };
 let undoStack = [], redoStack = [], busy = false, lastCmd = null, req = null, lastPt = [0, 0];
 let selection = new Set(), snapCache = null, mouse = null, lastMouse = null, hover = null, drag = null, winPick = null;
@@ -996,13 +1093,14 @@ const START_MSG = {
 };
 
 // ═══════════════════════════ saving in the browser ═══════════════════════════
-function save() { try { localStorage.setItem(STORE, JSON.stringify({ ents, tpl, cur, docName, tog, lan:lanSize })); } catch (e) {} }
+function saveLocal() { try { localStorage.setItem(STORE, JSON.stringify({ ents, tpl, cur, docName, tog, lan:lanSize, id:libId, who:libOwner })); } catch (e) {} }
+function save() { saveLocal(); libQueue(); }      // and into My drawings, a moment later
 function restore() {
   try { const s = JSON.parse(localStorage.getItem(STORE) || "null");
     if (s && Array.isArray(s.ents) && CAD.tpl[s.tpl]) { tpl = s.tpl;
       if (tpl === "lantern") { lanSize = Array.isArray(s.lan) ? s.lan : null; setLanternTpl(lanSize); }
       fixed = CAD.tpl[tpl].fixed; ents = []; nextId = 1;
-      for (const e of s.ents) ents.push(Object.assign(e, { id:nextId++ })); docName = s.docName || ""; saved = !!docName;
+      for (const e of s.ents) ents.push(Object.assign(e, { id:nextId++ })); docName = s.docName || ""; saved = !!docName; libId = s.id || null; libOwner = s.who || "";
       if (s.tog) Object.assign(tog, s.tog); setLayer(s.cur || "SCORE"); return true; } } catch (e) {}
   return false;
 }
@@ -1410,6 +1508,9 @@ async function run(text) {
   if (name === "help") { $("help").classList.add("show"); return; }
   if (name === "tools") { showGuide(); return; }
   if (name === "threed") { show3D(); return; }
+  if (name === "drawings") { log("Command: MYDRAWINGS"); showDrawings(); return; }
+  if (name === "download") { log("Command: DOWNLOAD"); libDownload(); return; }
+  if (name === "upload") { log("Command: UPLOAD"); FILES.open(); return; }
   if (name === "project") { showModal("mProject"); return; }
   if (["new", "open", "qsave", "saveas", "plot"].includes(name)) { log("Command: " + NAMES[name]); FILES[name](); return; }
   if (!PICKFIRST.has(name)) { selection.clear(); render(); }
@@ -1713,6 +1814,7 @@ function dxfText(list, B = BED) {
     else if (e.type === "xline") { base(e.ray ? "RAY" : "XLINE", e.ray ? "AcDbRay" : "AcDbXline"); const [ux, uy] = xlDir(e);
       g(10, N(e.x)); g(20, N(e.y)); g(30, N(0)); g(11, N(ux)); g(21, N(uy)); g(31, N(0)); }
     else if (e.type === "dim") dimDXF(e, g, hx, () => (h++).toString(16).toUpperCase());
+    if (dxfGrp && e.grp && e.type !== "dim") { g(1001, "TS82"); g(1000, JSON.stringify({ g:String(e.grp).slice(0, 200) })); }
   }
   const head = CAD.dxf.head.replace(`$HANDSEED\n  5\n${CAD.dxf.seed}\n`, `$HANDSEED\n  5\n${h.toString(16).toUpperCase()}\n`)
     .replace("$CLAYER\n  8\nSCORE\n", `$CLAYER\n  8\n${cur}\n`);
@@ -1763,7 +1865,7 @@ function laserSVG(list = laserList(), B = BED) {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${N(B.w)}mm" height="${N(B.h)}mm" viewBox="0 0 ${N(B.w)} ${N(B.h)}">\n` +
     `<title>${esc(docName || "Drawing1")}: laser file (red cuts, blue scores)</title>\n${out.join("\n")}\n</svg>\n`;
 }
-function drawingDXF() { return dxfText(fixed.concat(ents)); }
+function drawingDXF() { dxfGrp = true; try { return dxfText(fixed.concat(ents)); } finally { dxfGrp = false; } }
 function showModal(id) { closeMenus(); if (document.activeElement) document.activeElement.blur(); $(id).classList.add("show"); }
 function hideModals() { document.querySelectorAll(".modal").forEach(m => m.classList.remove("show"));
   if (textDlg) textCancel(); const gb = $("guideBody"); if (gb) gb.innerHTML = ""; cmdIn.focus(); }
@@ -1832,10 +1934,10 @@ function parseDXF(text) {
     while (i < pairs.length && pairs[i][0] !== 0) { grp.push(pairs[i]); i++; }
     const get = (code, def = 0) => { const p = grp.find(q => q[0] === code); return p ? parseFloat(p[1]) : def; };
     const lay = known((grp.find(q => q[0] === 8) || [8, "0"])[1]); const ez = get(230, 1);
-    const xi = grp.findIndex(q => q[0] === 1001 && q[1] === "TS82");      // TS 82 CAD dimensions: rebuilt from their definition
+    let xg = null; const xi = grp.findIndex(q => q[0] === 1001 && q[1] === "TS82");      // TS 82 CAD dimensions: rebuilt from their definition
     if (xi >= 0) { const xs = []; for (let k = xi + 1; k < grp.length && grp[k][0] !== 1001; k++) if (grp[k][0] === 1000) xs.push(grp[k][1]);
       const s = xs.join(""); if (s === "p") continue;
-      try { const d = JSON.parse(s); if (d && d.dim && Array.isArray(d.dim.pts)) { out.push(Object.assign({ type:"dim", layer:"DIMS" }, d.dim)); continue; } } catch (er) {} }
+      try { const d = JSON.parse(s); if (d && d.dim && Array.isArray(d.dim.pts)) { out.push(Object.assign({ type:"dim", layer:"DIMS" }, d.dim)); continue; } if (d && typeof d.g === "string") xg = d.g; } catch (er) {} }
     const n0 = out.length, lt6 = String((grp.find(q => q[0] === 6) || [6, ""])[1]).toUpperCase();
     if (type === "LINE" && lay) out.push({ type:"line", layer:lay, x1:get(10), y1:get(20), x2:get(11), y2:get(21) });
     else if (type === "CIRCLE" && lay) out.push({ type:"circle", layer:lay, cx:get(10) * (ez < 0 ? -1 : 1), cy:get(20), r:get(40) });
@@ -1856,6 +1958,7 @@ function parseDXF(text) {
       out.push({ type:"text", layer:lay, t, x:j ? get(11) : get(10), y:j ? get(21) : get(20), h:get(40, 3), anchor:j === 1 ? "middle" : "left" }); }
     else if ((type === "XLINE" || type === "RAY") && lay) out.push(Object.assign(mkX([get(10), get(20)], [get(11), get(21)], type === "RAY"), { layer:LASER.has(lay) ? "DRAWN" : lay }));
     if (out.length > n0 && lt6 && LTYPES[lt6] && out[out.length - 1].type !== "text") out[out.length - 1].lt = lt6;
+    if (out.length > n0 && xg) out[out.length - 1].grp = xg;
   }
   return out;
 }
@@ -1863,7 +1966,7 @@ function openDrawing(file) {
   const r = new FileReader();
   r.onload = () => { const list = parseDXF(String(r.result));
     if (!list.length) { log("No lines, circles, arcs or notes found in that file.", "err"); toast("Nothing to open in that file."); return; }
-    if (busy) cancelReq();
+    if (busy) cancelReq(); libFlush();
     const ready = list.some(e => e.type === "text" && /ready-made/i.test(e.t));
     const week4 = /Transformation Lab/i.test(String(r.result));      // the Week 4 title block (a locked layer, not opened as an object)
     const week7 = /Rails and Reasons/i.test(String(r.result));      // the Week 7 title block
@@ -1874,7 +1977,8 @@ function openDrawing(file) {
     tpl = project ? "project" : paver ? "paver" : lantern ? "lantern" : week4 ? "week4" : week7 ? "week7" : ready ? "ready" : "starter"; fixed = CAD.tpl[tpl].fixed;
     pushUndo(); ents = []; nextId = 1; for (const e of list) ents.push(Object.assign(e, { id:nextId++ }));
     docName = safeName(file.name.replace(/-LASER/i, "")) || "Drawing1"; saved = true; selection.clear(); fileHandle = null;
-    setTitle(); changed(); zoomView(); if (project) setTab("build"); log(`Opened ${file.name}: ${list.length} objects.`, "ok"); };
+    libId = newLibId(); libOwner = LIB.who; libFresh = false; undoStack = []; redoStack = [];
+    setTitle(); changed(); zoomView(); if (project) setTab("build"); log(`Opened ${file.name}: ${list.length} objects. It's in My drawings now.`, "ok"); };
   r.readAsText(file);
 }
 
@@ -1980,6 +2084,7 @@ for (const k of ["GRID", "ORTHO", "OSNAP", "DYN", "TIPS", "BUNNY"]) $("tg" + k).
 document.addEventListener("keydown", ev => {
   const modal = document.querySelector(".modal.show");
   if (modal) { if (ev.key === "Escape") { ev.preventDefault(); hideModals(); }
+    if (ev.key === "Enter" && modal.id === "mWho") { ev.preventDefault(); $("whoOk").click(); }
     if (ev.key === "Enter" && modal.id === "mSave") { ev.preventDefault(); $("saveOk").click(); }
     if (ev.key === "Enter" && modal.id === "mPlot") { ev.preventDefault(); $("plotOk").click(); }
     if (ev.key === "Enter" && modal.id === "mProject") { ev.preventDefault(); $("projOk").click(); } return; }
@@ -3621,15 +3726,391 @@ function bunnyHello() {
     "I'm the TS 82 bunny. I pop up with a tip when something goes sideways. Click me to send me away; BUNNY at the bottom turns me off.", 10000); }, 1500);
 }
 
+// ═══════════════════════════ my drawings: saved in this browser, by name ═══════════════════════════
+// Every change saves by itself, a moment later, into this browser's storage (IndexedDB), under the name of whoever
+// is drawing, with an earlier version kept every few minutes. Download makes the .dxf to keep in Google Drive;
+// Upload (or dropping a .dxf on the page) opens one again as a new drawing in the list.
+const LIB = { db:null, ok:true, who:"", timer:0, lastVer:{}, keep:30, every:5 * 60e3, state:"", view:null, recs:new Map() };
+const WHO_KEY = "ts82-cad-who";
+const TPL_NAME = { project:"Final project", paver:"Permeable paver", starter:"Starter plate", ready:"Ready-made plate", week4:"Week 4 triangle",
+  week7:"Week 7 rails", lantern:"Star compass lantern" };
+const TPL_SHORT = { project:"project", paver:"paver", week4:"week4", week7:"week7", lantern:"lantern" };
+function whoGet() { try { return localStorage.getItem(WHO_KEY) || ""; } catch (e) { return ""; } }
+function whoSet(n) { try { if (n) localStorage.setItem(WHO_KEY, n); else localStorage.removeItem(WHO_KEY); } catch (e) {} }
+const whoKey = n => String(n || "").trim().replace(/\s+/g, " ").toLowerCase();
+const newLibId = () => "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const cleanName = v => String(v || "").trim().replace(/\s+/g, " ").slice(0, 60);
+const hashStr = t => { let h = 5381; for (let i = 0; i < t.length; i++) h = (h * 33 + t.charCodeAt(i)) | 0; return t.length + ":" + (h >>> 0).toString(36); };
+const recTitle = r => r.title ? esc(r.title) : `${esc(TPL_NAME[r.tpl] || "Drawing")} <i class="mdun">not named yet</i>`;
+function dlBase(t = tpl, who = LIB.who) { return (who ? safeName(who) : "Lastname") + "-" + (TPL_SHORT[t] || "plate"); }
+function when(t) {
+  const d = new Date(t), now = new Date(), tm = d.toLocaleTimeString([], { hour:"numeric", minute:"2-digit" });
+  if (d.toDateString() === now.toDateString()) return tm + " today";
+  const y = new Date(now); y.setDate(now.getDate() - 1);
+  if (d.toDateString() === y.toDateString()) return tm + " yesterday";
+  return d.toLocaleDateString([], { month:"short", day:"numeric" }) + ", " + tm;
+}
+
+// ── the storage: two stores, the drawings and their earlier versions ──
+function libOpen() {
+  return new Promise(res => {
+    let rq; try { rq = indexedDB.open("ts82-cad", 1); } catch (e) { return res(null); }
+    rq.onupgradeneeded = () => { const db = rq.result;
+      if (!db.objectStoreNames.contains("drawings")) db.createObjectStore("drawings", { keyPath:"id" }).createIndex("wk", "wk");
+      if (!db.objectStoreNames.contains("versions")) db.createObjectStore("versions", { keyPath:"vid", autoIncrement:true }).createIndex("did", "did"); };
+    rq.onsuccess = () => res(rq.result); rq.onerror = () => res(null); rq.onblocked = () => res(null);
+  });
+}
+function idb(store, mode, fn) {      // one transaction; resolves with the result of the request fn returns
+  return new Promise((res, rej) => {
+    if (!LIB.db) return rej(new Error("no storage"));
+    let t; try { t = LIB.db.transaction(store, mode); } catch (e) { return rej(e); }
+    let out; const r = fn(t.objectStore(store)); if (r) r.onsuccess = () => { out = r.result; };
+    t.oncomplete = () => res(out); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error || new Error("abort"));
+  });
+}
+const libGet = id => idb("drawings", "readonly", s => s.get(id));
+const libAll = () => idb("drawings", "readonly", s => s.getAll()).then(a => a || []);
+const libPut = rec => idb("drawings", "readwrite", s => s.put(rec));
+const libVersions = id => idb("versions", "readonly", s => s.index("did").getAll(id)).then(a => (a || []).sort((x, y) => y.t - x.t || y.vid - x.vid));
+function libAddVersion(did, data, n, thumb, t) {
+  return idb("versions", "readwrite", s => { s.add({ did, t:t || Date.now(), data, n, thumb });
+    const rq = s.index("did").getAllKeys(did);      // oldest first: drop all but the newest LIB.keep
+    rq.onsuccess = () => { const ks = rq.result || []; for (let i = 0; i < ks.length - LIB.keep; i++) s.delete(ks[i]); };
+    return null; });
+}
+function libDel(id) {
+  return new Promise((res, rej) => { const t = LIB.db.transaction(["drawings", "versions"], "readwrite");
+    t.objectStore("drawings").delete(id); const vs = t.objectStore("versions"), rq = vs.index("did").getAllKeys(id);
+    rq.onsuccess = () => { for (const k of rq.result || []) vs.delete(k); };
+    t.oncomplete = () => res(); t.onerror = t.onabort = () => rej(t.error); });
+}
+
+// ── what gets kept: the drawing, a small picture of it, and who it belongs to ──
+function libData() { return { ents:ents.map(e => { const c = clone(e); delete c.id; return c; }), tpl, cur, docName, lan:lanSize }; }
+const libCount = list => list.filter(e => e.layer !== "NOTES").length;
+function libThumb(list = ents) {
+  let L = list.filter(e => e.type !== "xline" && e.type !== "text" && e.layer !== "NOTES" && e.layer !== "BED" && e.layer !== "TITLE");
+  if (!L.length) return ""; if (L.length > 900) L = L.slice(0, 900);
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const e of L) for (const p of entPts(e)) { x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); }
+  if (!isFinite(x0)) return "";
+  const w = Math.max(x1 - x0, 1), h = Math.max(y1 - y0, 1), pad = Math.max(w, h) * 0.06, r1 = v => Math.round(v * 10) / 10, by = new Map();
+  for (const e of L) { let d = ""; try { d = entPathD(e); } catch (er) {} if (!d) continue;
+    const col = (LAYERS[e.layer] || LAYERS.DRAWN).color; by.set(col, (by.get(col) || "") + d.replace(/-?\d*\.?\d+(e[-+]?\d+)?/gi, m => String(r1(+m)))); }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${r1(x0 - pad)} ${r1(-y1 - pad)} ${r1(w + 2 * pad)} ${r1(h + 2 * pad)}" preserveAspectRatio="xMidYMid meet">` +
+    `<g transform="scale(1 -1)" fill="none" stroke-linecap="round" stroke-linejoin="round">` +
+    [...by].map(([c, d]) => `<path d="${d}" stroke="${c}" stroke-width="1.3" vector-effect="non-scaling-stroke"/>`).join("") + `</g></svg>`;
+}
+function libSameAsTemplate() {      // an untouched sheet is not worth a place in the list
+  const t = CAD.tpl[tpl]; if (!t) return false;
+  const strip = l => JSON.stringify(l.map(e => { const c = clone(e); delete c.id; return c; }));
+  return strip(ents) === strip(t.ents || []);
+}
+
+// ── saving: a moment after each change, with a version every few minutes ──
+let libChain = Promise.resolve();
+function libState(k, t) {
+  LIB.state = k; const el = $("libState"); if (!el) return;
+  el.className = "st " + k;
+  el.textContent = k === "saving" ? "Saving..." : k === "saved" ? "Saved " + new Date(t).toLocaleTimeString([], { hour:"numeric", minute:"2-digit" })
+    : k === "off" ? "Not saving here: Download to keep it" : k === "error" ? "Couldn't save: Download to keep it" : "";
+}
+function libQueue() {
+  if (!libReady || libQuiet || !LIB.db || libFresh) return;
+  clearTimeout(LIB.timer); libState("saving"); LIB.timer = setTimeout(() => libSaveNow(), 700);
+}
+function libFlush() { if (LIB.timer) libSaveNow(); }
+function libSaveNow(ver) {
+  clearTimeout(LIB.timer); LIB.timer = 0;
+  if (!LIB.db || libFresh) return libChain;
+  if (!libId) libId = newLibId();
+  if (!libOwner && LIB.who) libOwner = LIB.who;
+  const id = libId, data = libData(), thumb = libThumb(), who = libOwner, now = Date.now(), n = libCount(data.ents);     // taken now, before anything changes
+  const doVer = ver || !LIB.lastVer[id] || now - LIB.lastVer[id] >= LIB.every; if (doVer) LIB.lastVer[id] = now;
+  const h = doVer ? hashStr(JSON.stringify(data)) : "";
+  libChain = libChain.then(async () => {
+    const old = await libGet(id), addVer = doVer && !(old && old.vh === h);       // no second copy of the same version
+    await libPut({ id, who, wk:whoKey(who), title:data.docName || "", tpl:data.tpl, data, n, thumb, created:old ? old.created : now, updated:now, vh:addVer ? h : old && old.vh });
+    if (addVer) await libAddVersion(id, data, n, thumb, now);
+    if (id === libId && !LIB.timer) libState("saved", now);
+  }).catch(e => { console.warn("TS 82 CAD: couldn't save in this browser.", e); libState("error"); });
+  return libChain;
+}
+function libApply(d) {        // put a kept drawing on screen
+  if (busy) cancelReq();
+  let t = d.tpl;
+  if (t === "lantern") { lanSize = Array.isArray(d.lan) ? d.lan : null; setLanternTpl(lanSize); }
+  if (!CAD.tpl[t]) t = "starter";
+  tpl = t; fixed = CAD.tpl[t].fixed; ents = []; nextId = 1;
+  for (const e of d.ents || []) ents.push(Object.assign(clone(e), { id:nextId++ }));
+  docName = d.docName || ""; saved = !!docName; fileHandle = null;
+  undoStack = []; redoStack = []; selection.clear(); snapCache = null;
+  setLayer(LAYERS[d.cur] ? d.cur : "SCORE"); setTitle(); zoomView(); render();
+  if (t === "project") setTab("build");
+}
+function libLoad(rec, msg) {
+  libFlush(); libQuiet = true;
+  try { libApply(rec.data); libId = rec.id; libOwner = rec.who || ""; libFresh = false; } finally { libQuiet = false; }
+  saveLocal(); libState("saved", rec.updated);
+  log(msg || `Opened ${rec.title || "the drawing"} from My drawings.`, "ok");
+}
+function dxfOf(d) {           // the .dxf of a kept drawing that isn't on screen
+  const keep = { ents, fixed, cur, tpl, lanSize };
+  try {
+    tpl = d.tpl; if (tpl === "lantern") { lanSize = Array.isArray(d.lan) ? d.lan : null; setLanternTpl(lanSize); }
+    if (!CAD.tpl[tpl]) tpl = "starter";
+    fixed = CAD.tpl[tpl].fixed; ents = (d.ents || []).map(clone); cur = LAYERS[d.cur] ? d.cur : "SCORE";
+    return drawingDXF();
+  } finally {
+    ({ ents, cur, tpl, lanSize } = keep);
+    if (d.tpl === "lantern" || keep.tpl === "lantern") setLanternTpl(lanSize);
+    fixed = keep.tpl === "lantern" ? CAD.tpl.lantern.fixed : keep.fixed;
+  }
+}
+
+// a new sheet starts a new drawing in the list (once something changes); the one before is kept first
+const libLoadTemplate0 = loadTemplate;
+loadTemplate = function (name, msg) {
+  libFlush(); libQuiet = true;
+  try { libLoadTemplate0(name, msg); } finally { libQuiet = false; }
+  libId = newLibId(); libOwner = LIB.who; libFresh = true; saveLocal(); libState("");
+};
+const libChanged0 = changed;
+changed = function () { if (!libQuiet) libFresh = false; libChanged0(); };
+window.addEventListener("pagehide", libFlush);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") libFlush(); });
+
+// ── who's drawing ──
+function whoChip() { const t = $("whoTxt"); if (t) t.textContent = LIB.who || "Your name"; $("libChip").classList.toggle("noname", !LIB.who); }
+function libAskWho() { if (!LIB.ok) return; $("whoName").value = ""; showModal("mWho"); setTimeout(() => $("whoName").focus(), 30); }
+async function libSwitch(name) {      // "kept": the drawing on screen is now theirs; "opened": their latest; "new": a fresh sheet
+  name = cleanName(name); LIB.who = name; whoSet(name); whoChip();
+  const hello = `Drawing as ${name}. Your drawings save by themselves in this browser: My drawings lists them.`;
+  if ((libOwner && whoKey(libOwner) === whoKey(name)) || (!libOwner && !libFresh)) {      // theirs already, or work with no name yet
+    libOwner = name; saveLocal(); if (!libFresh) await libSaveNow(); log(hello, "ok"); return "kept"; }
+  libFlush(); await libChain;
+  const mine = (await libAll()).filter(r => r.wk === whoKey(name)).sort((a, b) => b.updated - a.updated);
+  if (mine.length) { if (mine[0].who) { name = mine[0].who; LIB.who = name; whoSet(name); whoChip(); }      // their name as they first typed it
+    libLoad(mine[0], `Drawing as ${name}. Opened your latest drawing, ${mine[0].title || TPL_NAME[mine[0].tpl] || "Untitled"}.`); return "opened"; }
+  if (libFresh) { libOwner = name; saveLocal(); log(hello, "ok"); return "kept"; }      // an untouched sheet: start on it
+  const st = CAD.start && CAD.tpl[CAD.start] ? CAD.start : "starter";      // someone else's drawing is on screen, and none of yours are here
+  loadTemplate(st, `Drawing as ${name}. You have no drawings on this computer yet: pick a new one, or Upload your file.`);
+  hideModals(); showModal("mNew"); return "new";
+}
+$("whoOk").addEventListener("click", async () => {
+  const n = cleanName($("whoName").value);
+  if (!n) { toast("Type your name, or click Skip for now."); $("whoName").focus(); return; }
+  hideModals(); await libSwitch(n);
+});
+$("whoSkip").addEventListener("click", () => { hideModals(); log("No name yet: your drawings save with no name. Click Your name at the top right to add it.", ""); });
+$("whoName").addEventListener("keydown", ev => {
+  if (ev.key === "Enter") { ev.preventDefault(); $("whoOk").click(); } if (ev.key === "Escape") { ev.preventDefault(); $("whoSkip").click(); } ev.stopPropagation(); });
+
+// ── the My drawings dialog ──
+function showDrawings() {
+  $("mdName").value = LIB.who; $("mdAll").checked = false; $("mdClearAsk").hidden = true; $("mdClear").hidden = false;
+  showModal("mDrawings"); mdRender(); if (!LIB.who) setTimeout(() => $("mdName").focus(), 30);
+}
+const mdBtn = (a, label, cls = "") => `<button type="button" data-a="${a}"${cls ? ` class="${cls}"` : ""}>${label}</button>`;
+async function mdRender() {
+  LIB.view = null; const box = $("mdList"), me = whoKey(LIB.who), all = $("mdAll").checked;
+  $("mdNote").textContent = libFresh ? "The drawing on screen goes into this list as soon as you change something." : "";
+  if (!LIB.db) { box.innerHTML = `<div class="mdempty">This browser isn't letting TS 82 CAD save here (a private window, or storage turned off). Use <b>Download</b> to keep your drawing.</div>`; return; }
+  box.innerHTML = `<div class="mdempty">Loading...</div>`;
+  try { libFlush(); await libChain; } catch (e) {}
+  let recs = []; try { recs = await libAll(); } catch (e) {}
+  LIB.recs = new Map(recs.map(r => [r.id, r]));
+  const list = recs.filter(r => all || r.wk === me).sort((a, b) => (b.id === libId) - (a.id === libId) || b.updated - a.updated);
+  if (!list.length) { box.innerHTML = `<div class="mdempty">${LIB.who ? `No drawings for ${esc(LIB.who)} on this computer yet.` : "No drawings with no name on this computer."} ` +
+    `Start one with <b>New drawing</b>, or bring yours in with <b>Upload a file</b>.</div>`; return; }
+  box.innerHTML = list.map(r => { const open = r.id === libId, mine = r.wk === me, noname = !r.wk;
+    return `<div class="mdcard${open ? " on" : ""}" data-id="${r.id}"><div class="mdthumb">${r.thumb || ""}</div>` +
+      `<div class="mdinfo"><b class="mdt">${recTitle(r)}</b>${open ? `<span class="mdtag">open now</span>` : ""}` +
+      `<div class="mdsub">${r.title ? esc(TPL_NAME[r.tpl] || "Drawing") + " &middot; " : ""}${r.n} object${r.n === 1 ? "" : "s"} &middot; saved ${when(r.updated)}${all ? ` &middot; ${esc(r.who || "no name")}` : ""}</div></div>` +
+      `<div class="mdacts">${mine || open ? (open ? "" : mdBtn("open", "Open", "pri")) + mdBtn("down", "Download") + mdBtn("ren", "Rename") + mdBtn("copy", "Make a copy") + mdBtn("hist", "History") + (open ? "" : mdBtn("del", "Delete", "dang"))
+        : (noname ? mdBtn("open", "Open", "pri") : "") + mdBtn("copy", "Copy to mine", noname ? "" : "pri") + mdBtn("down", "Download") + `<span class="mdask mdother">${noname ? "No name: open it to make it yours." : "Someone else's: copy it to work on it."}</span>`}</div></div>`; }).join("");
+}
+async function mdHistory(rec) {
+  if (rec.id === libId) { libFlush(); await libChain; }
+  const vs = await libVersions(rec.id).catch(() => []), box = $("mdList");
+  LIB.view = { rec, vs: new Map(vs.map(v => [String(v.vid), v])) };
+  box.innerHTML = `<div class="mdhh">${mdBtn("back", "&larr; All my drawings")}<span><b>${recTitle(rec)}</b>: earlier versions, newest first</span></div>` +
+    (vs.length ? vs.map(v => `<div class="mdcard" data-v="${v.vid}"><div class="mdthumb">${v.thumb || ""}</div><div class="mdinfo"><b>${when(v.t)}</b>` +
+      `<div class="mdsub">${v.n} object${v.n === 1 ? "" : "s"}</div></div><div class="mdacts">${mdBtn("vback", "Go back to this", "pri")}${mdBtn("vdown", "Download")}</div></div>`).join("")
+      : `<div class="mdempty">No earlier versions yet. One is kept every few minutes while you work, and each time you Download.</div>`) +
+    `<p class="note">Going back keeps the drawing as it is now in this list too, so you can change your mind.</p>`;
+}
+async function libRestoreVersion(rec, v) {
+  libFlush(); await libChain;
+  if (rec.id === libId) await libSaveNow(true);
+  else { const now = await libGet(rec.id); if (now) await libAddVersion(rec.id, now.data, now.n, now.thumb); }
+  const r2 = (await libGet(rec.id)) || rec;
+  hideModals();
+  const data = clone(v.data); data.docName = r2.title || "";      // the drawing goes back; its name stays
+  libLoad(Object.assign({}, r2, { data }), `Went back to ${rec.title || "the drawing"} as it was at ${when(v.t)}. What you had is kept in History.`);
+  await libSaveNow();
+}
+function libDownload() {      // the drawing on screen, as a .dxf in Downloads
+  if (!docName) { docName = dlBase(); setTitle(); }
+  doSave(); libSaveNow(true);
+  log("Keep it in Google Drive: open drive.google.com, click New, File upload, and pick this file. Next time, Upload opens it here.", "");
+  toast(`Downloaded ${docName}.dxf. Put it in your Google Drive to keep it.`);
+}
+function libDownloadRec(rec, data, stamp) {
+  const base = (rec.title || dlBase(rec.tpl, rec.who)) + (stamp ? "-" + stamp : "");
+  download(dxfOf(data || rec.data), `${base}.dxf`, "application/dxf");
+  log(`Downloaded ${base}.dxf to your Downloads folder.`, "ok"); toast(`Downloaded ${base}.dxf.`);
+}
+function mdRename(card, rec) {
+  const t = card.querySelector(".mdt"), inp = document.createElement("input");
+  inp.type = "text"; inp.value = rec.title || ""; inp.placeholder = dlBase(rec.tpl, rec.who); inp.className = "mdren"; inp.setAttribute("aria-label", "New name");
+  t.replaceWith(inp); inp.focus(); inp.select(); let done = false;
+  const finish = async ok => { if (done) return; done = true; const nm = safeName(inp.value);
+    if (!ok || !nm || nm === rec.title) { mdRender(); return; }
+    if (rec.id === libId) { docName = nm; fileHandle = null; setTitle(); saveLocal(); await libSaveNow(); }
+    else { rec.title = nm; rec.data.docName = nm; rec.updated = Date.now(); await libPut(rec); }
+    log(`Renamed it ${nm}.`, "ok"); mdRender(); };
+  inp.addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); finish(true); } if (ev.key === "Escape") { ev.preventDefault(); finish(false); } ev.stopPropagation(); });
+  inp.addEventListener("blur", () => finish(true));
+}
+async function mdCopy(rec) {
+  if (rec.id === libId) { libFlush(); await libChain; rec = (await libGet(rec.id)) || rec; }
+  const now = Date.now(), nm = safeName((rec.title || dlBase(rec.tpl, rec.who)) + "-copy"), data = Object.assign(clone(rec.data), { docName:nm });
+  const c = { id:newLibId(), who:LIB.who, wk:whoKey(LIB.who), title:nm, tpl:rec.tpl, data, n:rec.n, thumb:rec.thumb, created:now, updated:now };
+  await libPut(c); await libAddVersion(c.id, data, c.n, c.thumb, now);
+  log(`Copied it: ${nm} is in ${LIB.who ? "your" : "the"} drawings now.`, "ok"); $("mdAll").checked = false; mdRender();
+}
+$("mdList").addEventListener("click", async ev => {
+  const b = ev.target.closest("button[data-a]"); if (!b) return;
+  const a = b.dataset.a, card = b.closest(".mdcard");
+  if (a === "back") return mdRender();
+  if (a === "vback" || a === "vdown") { const V = LIB.view, v = V && V.vs.get(card.dataset.v); if (!v) return;
+    if (a === "vdown") { const d = new Date(v.t), p = n => String(n).padStart(2, "0");
+      return libDownloadRec(V.rec, v.data, `${d.getMonth() + 1}-${d.getDate()}-${p(d.getHours())}${p(d.getMinutes())}`); }
+    return libRestoreVersion(V.rec, v); }
+  const rec = card && LIB.recs.get(card.dataset.id); if (!rec) return;
+  if (a === "open") { hideModals(); libLoad(rec); return; }
+  if (a === "down") { if (rec.id === libId) libDownload(); else libDownloadRec(rec); return; }
+  if (a === "ren") return mdRename(card, rec);
+  if (a === "copy") return mdCopy(rec);
+  if (a === "hist") return mdHistory(rec);
+  if (a === "del") { card.querySelector(".mdacts").innerHTML = `<span class="mdask">Delete ${esc(rec.title || "this drawing")} for good?</span>${mdBtn("delyes", "Delete", "dang")}${mdBtn("delno", "Keep it")}`; return; }
+  if (a === "delno") return mdRender();
+  if (a === "delyes") { await libDel(rec.id); log(`Deleted ${rec.title || "the drawing"} from this computer.`, ""); return mdRender(); }
+});
+async function mdSwitch() {
+  const n = cleanName($("mdName").value);
+  if (!n) { toast("Type your name first."); $("mdName").focus(); return; }
+  if (whoKey(n) === whoKey(LIB.who)) { LIB.who = n; whoSet(n); whoChip(); return mdRender(); }
+  const r = await libSwitch(n); if (r !== "new") mdRender();
+}
+$("mdSwitch").addEventListener("click", mdSwitch);
+$("mdName").addEventListener("keydown", ev => { if (ev.key === "Enter") { ev.preventDefault(); mdSwitch(); } if (ev.key === "Escape") { ev.preventDefault(); hideModals(); } ev.stopPropagation(); });
+$("mdAll").addEventListener("change", mdRender);
+$("mdNew").addEventListener("click", () => { hideModals(); FILES.new(); });
+$("mdUp").addEventListener("click", () => { hideModals(); FILES.open(); });
+$("mdDown").addEventListener("click", () => libDownload());
+$("mdClear").addEventListener("click", async () => {
+  const me = whoKey(LIB.who); let n = 0; try { n = (await libAll()).filter(r => r.wk === me).length; } catch (e) {}
+  $("mdClearTxt").innerHTML = LIB.who ? `Delete all ${n} of ${esc(LIB.who)}'s drawings from this computer, and take the name off? Download any you need first.`
+    : `Delete the ${n} drawing${n === 1 ? "" : "s"} with no name from this computer? Download any you need first.`;
+  $("mdClearAsk").hidden = false; $("mdClear").hidden = true;
+});
+$("mdClearNo").addEventListener("click", () => { $("mdClearAsk").hidden = true; $("mdClear").hidden = false; });
+$("mdClearYes").addEventListener("click", async () => {
+  libFlush(); await libChain;
+  const me = whoKey(LIB.who), wasMine = !libOwner || whoKey(libOwner) === me;
+  try { for (const r of await libAll()) if (r.wk === me) await libDel(r.id); } catch (e) { console.warn(e); }
+  LIB.who = ""; whoSet(""); whoChip(); hideModals();
+  if (wasMine) { const st = CAD.start && CAD.tpl[CAD.start] ? CAD.start : "starter"; libFresh = true;
+    loadTemplate(st, "Your drawings are cleared from this computer. This is a new, blank drawing."); }
+  toast("Your drawings are cleared from this computer."); libAskWho();
+});
+
+// ── Download and Upload: the ribbon, the commands, and dropping a file on the page ──
+let dragN = 0;
+const hasFiles = ev => ev.dataTransfer && [...(ev.dataTransfer.types || [])].includes("Files");
+window.addEventListener("dragenter", ev => { if (!hasFiles(ev)) return; dragN++; document.body.classList.add("dropping"); });
+window.addEventListener("dragleave", ev => { if (!hasFiles(ev)) return; if (--dragN <= 0) { dragN = 0; document.body.classList.remove("dropping"); } });
+window.addEventListener("dragover", ev => { if (!hasFiles(ev)) return; ev.preventDefault(); ev.dataTransfer.dropEffect = "copy"; });
+window.addEventListener("drop", ev => {
+  if (!hasFiles(ev)) return; ev.preventDefault(); dragN = 0; document.body.classList.remove("dropping");
+  const f = [...ev.dataTransfer.files].find(x => /\.dxf$/i.test(x.name));
+  if (!f) { toast("That isn't a .dxf. Drop the .dxf file you downloaded."); return; }
+  hideModals(); openDrawing(f);
+});
+Object.assign(ALIAS, { MYDRAWINGS:"drawings", DRAWINGS:"drawings", DOWNLOAD:"download", UPLOAD:"upload" });
+Object.assign(NAMES, { drawings:"MYDRAWINGS", download:"DOWNLOAD", upload:"UPLOAD" });
+Object.assign(HINT, { drawings:"Your drawings, saved in this browser under your name", download:"Downloads this drawing as a .dxf, to keep in Google Drive",
+  upload:"Opens a .dxf from your computer or Google Drive" });
+Object.assign(TOOLTIP, {
+  MYDRAWINGS:"<b>My drawings</b> &middot; Every change saves by itself in this browser, under your name. Open any drawing, rename it, or go back to an earlier version.",
+  DOWNLOAD:"<b>Download</b> &middot; This drawing as a <code>.dxf</code> in your Downloads folder. Put it in your Google Drive to keep it, or to open it on another computer.",
+  UPLOAD:"<b>Upload</b> &middot; Opens a <code>.dxf</code> from your computer, a USB drive, or Google Drive (download it from Drive first). Or drag the file onto the drawing.",
+});
+
+// ── the pictures for the hover cards and the tool guide ──
+const fileIcon = (label = "DXF") => `<path d="M-7 -9h9l5 5v13h-14z" fill="#e3e7eb" stroke="#161b20" stroke-width=".8"/><path d="M2 -9v5h5" fill="none" stroke="#161b20" stroke-width=".8"/>` +
+  `<text x="0" y="4.5" font-size="4.6" font-weight="700" text-anchor="middle" fill="#2f5f8f">${label}</text>`;
+const folderIcon = (x, y) => `<path d="M${x} ${y}h11l3 3h16v19h-30z" fill="#3a424c" stroke="${DM.D}" stroke-width="1"/>`;
+const cloudIcon = (x, y) => `<path d="M${x} ${y + 14}a7 7 0 0 1 2-13.6a10 10 0 0 1 19 1.6a6 6 0 0 1 1 12z" fill="#2b3a4a" stroke="#9fc7ef" stroke-width="1.1"/>`;
+const miniPart = (o = "") => `<g ${o}><rect x="18" y="26" width="40" height="30" fill="none" stroke="${DM.R}" stroke-width="1.6"/><circle cx="46" cy="41" r="6" fill="none" stroke="${DM.R}" stroke-width="1.6"/>` +
+  `<path d="M24 50h14" stroke="${DM.B}" stroke-width="1.6"/></g>`;
+Object.assign(DEMO, {
+  MYDRAWINGS:() => demoSvg([0, 1, 2].map(i => { const y = 10 + i * 24, sh = [`<rect x="31" y="${y + 6}" width="10" height="8" fill="none" stroke="${DM.R}" stroke-width="1"/>`,
+      `<circle cx="36" cy="${y + 10}" r="4.5" fill="none" stroke="${DM.B}" stroke-width="1"/>`, `<path d="M36 ${y + 5}l4.3 2.5v5l-4.3 2.5l-4.3-2.5v-5z" fill="none" stroke="${DM.R}" stroke-width="1"/>`][i];
+    return `<g opacity="0">${show(.06 + i * .1)}<rect x="22" y="${y}" width="116" height="20" rx="2" fill="#262c33" stroke="#4a535e" stroke-width="1">` +
+      (i === 1 ? an("stroke", ["#4a535e", "#4a535e", "#3d8fd6", "#3d8fd6"], [0, .6, .62, 1]) : "") + `</rect>` +
+      `<rect x="26" y="${y + 3}" width="20" height="14" fill="#212830" stroke="#39424c" stroke-width=".6"/>${sh}` +
+      `<rect x="52" y="${y + 5}" width="${[46, 38, 52][i]}" height="4" fill="#e3e7eb" opacity=".85"/><rect x="52" y="${y + 12}" width="${[60, 54, 44][i]}" height="3" fill="#9aa5b1" opacity=".7"/></g>`; }).join("") +
+    lab(98, 8, "Saved", DM.K, .4, 1, 7.5) + pop(118, 32, .6) + lab(30, 86, "Open: right where you left off", DM.Y, .64, 1, 7.5) +
+    cursor([[150, 80], [150, 80], [118, 32], [118, 32]], [0, .45, .6, 1])),
+  DOWNLOAD:() => demoSvg(miniPart() + folderIcon(92, 58) + lab(86, 88, "Downloads", DM.D, 0, 1, 7) + cloudIcon(112, 8) + lab(104, 32, "Google Drive", "#9fc7ef", .78, 1, 7) +
+    `<g opacity="0">${show(.1)}<g>${atf("translate", ["38 41", "38 41", "107 64", "107 64", "126 16", "126 16"], [0, .12, .42, .55, .78, 1])}${fileIcon()}</g></g>` +
+    lab(4, 78, "Download: a .dxf file", DM.Y, .1, .55, 7.5) + lab(4, 74, "then in Google Drive:", DM.Y, .58, 1, 7) + lab(4, 84, "New, File upload", DM.Y, .58, 1, 7)),
+  UPLOAD:() => demoSvg(cloudIcon(112, 8) + lab(104, 32, "Google Drive", "#9fc7ef", 0, 1, 7) + folderIcon(92, 58) + lab(86, 88, "Downloads", DM.D, 0, 1, 7) +
+    `<rect x="12" y="20" width="56" height="42" fill="none" stroke="#4a535e" stroke-dasharray="3 2"/>` +
+    `<g>${atf("translate", ["126 16", "126 16", "107 64", "107 64", "40 41", "40 41"], [0, .1, .32, .42, .62, 1])}<g>${an("opacity", [1, 1, 0, 0], [0, .62, .66, 1])}${fileIcon()}</g></g>` +
+    miniPart(`opacity="0"`).replace(`<g opacity="0">`, `<g opacity="0">${show(.64)}`) + lab(4, 74, "Upload: it opens,", DM.Y, .66, 1, 7) + lab(4, 84, "and it's in My drawings", DM.Y, .66, 1, 7)),
+});
+GUIDE.splice(1, 0, ["Saving your work: My drawings, Download, Upload", "Your work saves by itself in this browser. A downloaded .dxf is the copy you can take anywhere.", [
+  ["MYDRAWINGS", "i-drawings", "My drawings", "MYDRAWINGS", ["Click My drawings at the top, or your name at the top right.", "The first time, type your name.", "Click Open on any drawing. History goes back to an earlier version."]],
+  ["DOWNLOAD", "i-download", "Download", "DOWNLOAD", ["Click Download.", "The `.dxf` goes to your Downloads folder.", "In drive.google.com: New, File upload, and pick it."]],
+  ["UPLOAD", "i-upload", "Upload", "UPLOAD  Ctrl+O", ["In Google Drive, download your `.dxf`.", "Click Upload and pick it, or drag it onto the drawing.", "It opens, and it's in My drawings now."]],
+]]);
+(function () { const top = GUIDE[0][2], sa = top.find(r => r[0] === "SAVEAS"), sv = top.find(r => r[0] === "QSAVE");
+  if (sa) sa[4] = ["Click Save As.", "Type Lastname-project, with your last name.", "Pick the folder: the shared folder, or Google Drive if the computer shows it."];
+  if (sv) sv[4] = ["Your work saves in this browser by itself.", "Ctrl+S also writes your `.dxf` file. The first time, it asks for a name."]; })();
+
+// ── start: open the storage, and ask whose drawings these are ──
+function libHello() {
+  const what = docName || "the last drawing on this computer", who = whoGet();
+  if (who) { log(`Opened ${what}, in ${who}'s drawings. Not ${who}? Click the name at the top right.`, "ok"); toast(`Opened ${what}. Not ${who}? Click the name at the top right.`); }
+  else log(`Opened ${what}. Not yours? Type NEW and pick the one your packet says.`, "ok");
+}
+async function libInit() {
+  LIB.who = whoGet(); whoChip();
+  LIB.db = typeof indexedDB === "undefined" ? null : await libOpen();
+  if (!LIB.db) { LIB.ok = false; libState("off"); return; }
+  libReady = true;
+  try { if (/Chrome\//.test(navigator.userAgent) && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) {}   // Chrome and Edge decide quietly; Firefox would ask
+  if (!libId) { libId = newLibId(); libOwner = libOwner || (libFresh ? LIB.who : ""); saveLocal(); }
+  let rec = null; try { rec = await libGet(libId); } catch (e) {}
+  if (rec) libState("saved", rec.updated); else if (!libFresh) await libSaveNow();     // a drawing from before My drawings: into the list now
+  if (!LIB.who && !/tools|guide/i.test(location.hash) && !document.querySelector(".modal.show")) libAskWho();
+}
+const LIBT = { who:() => LIB.who, id:() => libId, owner:() => libOwner, fresh:() => libFresh, ok:() => LIB.ok, state:() => LIB.state,
+  flush:() => { libFlush(); return libChain.then(() => true); }, list:() => libAll(), versions:id => libVersions(id || libId), dxfOf, every:ms => { LIB.every = ms; } };
+
 // ═══════════════════════════ start ═══════════════════════════
 for (const k of Object.keys(tog)) $("tg" + k).classList.toggle("on", tog[k]);
 if (restore()) {
   for (const k of Object.keys(tog)) $("tg" + k).classList.toggle("on", tog[k]);
-  setTitle(); zoomView(); const who = docName ? `${docName}` : "the last drawing on this computer";
-  log(`Opened ${who}. Not yours? Type NEW and pick the one your packet says.`, "ok"); toast(`Opened ${who}. Not yours? Type NEW.`);
+  setTitle(); zoomView(); libFresh = libSameAsTemplate(); libHello();
 } else { const st = CAD.start && CAD.tpl[CAD.start] ? CAD.start : "starter"; loadTemplate(st, START_MSG[st] || ""); }
 tipsHover(); if (tpl === "project" || /build/i.test(location.hash)) setTab("build");
-setPrompt(""); render(); cmdIn.focus(); bunnyHello();
+setPrompt(""); render(); cmdIn.focus(); bunnyHello(); libInit();
 if (/tools|guide/i.test(location.hash)) showGuide();     // index.html#tools opens the tool guide, for a link in Canvas
 window.ts82 = { toScr:p => { const r = cv.getBoundingClientRect(), s = toScr(p); return [s[0] + r.left, s[1] + r.top]; },
   ents:() => JSON.parse(JSON.stringify(ents)), laserSVG, dxf:drawingDXF, laserDXF:() => dxfText(laserList()), parseDXF,
@@ -3638,7 +4119,7 @@ window.ts82 = { toScr:p => { const r = cv.getBoundingClientRect(), s = toScr(p);
   bunny:() => { const b = $("bunny"); return { show:b.classList.contains("show"), pose:bunnyLast.pose, label:b.querySelector(".lab").textContent, text:b.querySelector(".txt").textContent }; },
   bunnyIdle:() => bunnyIdle(true), bunnyHide,
   textLayout, fonts:() => FONTS.map(f => f.key), areaOf:e => areaOf(e), plotWhat:v => { if (v) plotWhat = v; return plotWhat; },
-  plotList:() => JSON.parse(JSON.stringify(laserList())), shape3DSVG, setTab, sel2:() => [...selection].map(e => e.id) };
+  plotList:() => JSON.parse(JSON.stringify(laserList())), shape3DSVG, setTab, sel2:() => [...selection].map(e => e.id), lib:LIBT };
 </script>
 </body>
 </html>
