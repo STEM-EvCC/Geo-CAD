@@ -99,7 +99,7 @@ const SOLIDS = new Set(['extrude', 'revolve', 'lpattern', 'cpattern', 'mirror'])
 export const PALETTE = ['#c9d6e3', '#f2c48d', '#a8d5ba', '#e9a6a6', '#c3b1e1', '#f3e08a', '#9ccfd8', '#e6b8d0'];
 
 export function regen(doc, M, opts = {}) {
-  const res = { bodies: [], faces: [], planes: {}, sketches: {}, errors: {}, warn: {}, tools: {}, featFaces: {}, alloc: [], values: {}, varErrors: {} };
+  const res = { bodies: [], faces: [], planes: {}, sketches: {}, errors: {}, warn: {}, tools: {}, featFaces: {}, handles: {}, alloc: [], values: {}, varErrors: {} };
   const track = (m) => { res.alloc.push(m); return m; };
   const V = evalVariables(doc.vars);
   res.values = V.values; res.varErrors = V.errors;
@@ -239,6 +239,7 @@ export function regen(doc, M, opts = {}) {
         const base = resolvePlane(f.ref);
         const d = num(f.off || '0', 'Offset') * (f.flip ? -1 : 1);
         res.planes[f.id] = { o: add(base.o, mul(base.n, d)), n: base.n, x: base.x, y: base.y };
+        res.handles[f.id] = [{ k: 'lin', key: 'off', mode: 'plane', o: base.o, d: base.n, v: d }];
       } else if (f.t === 'extrude') {
         const s = sketchFor(f.sketch);
         const picked = pickRegions(s.regions, f.regions);
@@ -277,6 +278,12 @@ export function regen(doc, M, opts = {}) {
           regFace(f.id, 'side:' + sf.eid, toWorld(pl, sf.p[0], sf.p[1]), mul(toWorldVec(pl, sf.nx, sf.ny), sgn), i);
         });
         res.tools[f.id] = [{ tool, op: f.op }];
+        if (f.end !== 'through') {
+          let u0 = Infinity, u1 = -Infinity, v0 = Infinity, v1 = -Infinity;
+          for (const r of picked.list) for (const q of r.outer) { u0 = Math.min(u0, q[0]); u1 = Math.max(u1, q[0]); v0 = Math.min(v0, q[1]); v1 = Math.max(v1, q[1]); }
+          const C0 = toWorld(pl, (u0 + u1) / 2, (v0 + v1) / 2);
+          res.handles[f.id] = [f.end === 'sym' ? { k: 'lin', key: 'depth', mode: 'sym', o: C0, d: pl.n, v: d / 2 } : { k: 'lin', key: 'depth', mode: 'blind', o: C0, d: pl.n, v: flip * d }];
+        }
         applyOp(tool, f.op, f.id);
       } else if (f.t === 'revolve') {
         const s = sketchFor(f.sketch);
@@ -313,6 +320,12 @@ export function regen(doc, M, opts = {}) {
         const ex = toWorldVec(pl, dy, -dx), ez = toWorldVec(pl, dx, dy), ey = cross(ez, ex);
         const org = toWorld(pl, A.x, A.y);
         tool = track(tool.transform(frameMat(ex, ey, ez, org)));
+        if (!full) {
+          let z0 = Infinity, z1 = -Infinity;
+          for (const P of polys) for (const q of P) { z0 = Math.min(z0, q[1]); z1 = Math.max(z1, q[1]); }
+          const mode = f.sym ? 'sym' : f.flip ? 'flip' : 'norm';
+          res.handles[f.id] = [{ k: 'ang', key: 'angle', mode, org, ex, ey, ez, R: rmax * 1.15 + 3, z: (z0 + z1) / 2, a0, ang, th: mode === 'sym' ? ang / 2 : mode === 'flip' ? -ang : ang }];
+        }
         const sgn = f.op === 'remove' ? -1 : 1;
         if (!full) {
           const rot = (v, deg) => matVec(rotMat([0, 0, 0], ez, deg), v);
@@ -334,6 +347,7 @@ export function regen(doc, M, opts = {}) {
       } else if (f.t === 'lpattern' || f.t === 'cpattern' || f.t === 'mirror') {
         if (!f.feats || !f.feats.length) throw new Error('Pick the features to copy');
         const mats = [];
+        let lph = null;
         if (f.t === 'lpattern') {
           const n1 = Math.round(num(f.count, 'Count')), s1 = num(f.spacing, 'Spacing');
           if (!(n1 >= 1 && n1 <= 200)) throw new Error('Count must be 1 to 200');
@@ -346,6 +360,8 @@ export function regen(doc, M, opts = {}) {
             d2 = mul(getAxis(f.dir2, 'a second direction').d, f.flip2 ? -1 : 1);
           }
           if (n1 * n2 > 400) throw new Error('That is too many copies (keep it under 400)');
+          lph = [{ key: 'spacing', d: d1, v: s1, n: n1 }];
+          if (f.dir2) lph.push({ key: 'spacing2', d: d2, v: s2, n: n2 });
           for (let a = 0; a < n1; a++) for (let b = 0; b < n2; b++) {
             if (!a && !b) continue;
             const t = add(mul(d1, a * s1), mul(d2, b * s2));
@@ -369,6 +385,11 @@ export function regen(doc, M, opts = {}) {
           src.forEach(s => entries.push({ ...s, fid }));
         }
         if (!entries.length) throw new Error('Those features make no solid to copy');
+        if (lph) {
+          const tb = entries[0].tool.boundingBox();
+          const c = mul(add(tb.min, tb.max), 0.5);
+          res.handles[f.id] = lph.filter(h => h.n >= 2).map(h => ({ k: 'lin', key: h.key, mode: 'spacing', o: c, d: h.d, v: h.v }));
+        }
         const out = [];
         mats.forEach((Mx, k) => {
           for (const e of entries) {

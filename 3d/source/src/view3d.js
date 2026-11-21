@@ -40,6 +40,8 @@ export class View3D {
     this.gHi = new THREE.Group(); this.scene.add(this.gHi);
     this.gGrid = new THREE.Group(); this.scene.add(this.gGrid);
     this.gOrigin = new THREE.Group(); this.scene.add(this.gOrigin);
+    this.gHandles = new THREE.Group(); this.scene.add(this.gHandles);
+    this.handleHits = [];
     this.buildOrigin();
     this.bodies = [];       // {body, mesh, edges, groups, geo}
     this.planeObjs = [];    // {key, mesh, plane, size, label}
@@ -80,6 +82,8 @@ export class View3D {
   }
 
   render() {
+    const hs = this.pxSize() * 58;
+    for (const c of this.gHandles.children) if (c.userData.screen) c.scale.setScalar(hs);
     this.renderer.setScissorTest(false);
     this.renderer.setViewport(0, 0, this.W, this.H);
     this.renderer.render(this.scene, this.camera);
@@ -369,6 +373,56 @@ export class View3D {
       this.gPreview.add(mesh); this.gPreview.add(edges);
     }
     this.request();
+  }
+
+  // drag handles: [{k:'lin'|'ang', pos, dir, hover, active, arc:[pts], base}]
+  setHandles(list) {
+    for (const c of [...this.gHandles.children]) { this.gHandles.remove(c); c.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
+    this.handleHits = [];
+    list.forEach((h, i) => {
+      const col = h.active ? 0xc2410c : h.hover ? 0xfb923c : 0xf28c28;
+      const mat = new THREE.MeshBasicMaterial({ color: col, depthTest: false, transparent: true, opacity: 0.96 });
+      const lmat = new THREE.LineDashedMaterial({ color: col, depthTest: false, transparent: true, opacity: 0.75, dashSize: 2, gapSize: 1.5 });
+      if (h.base) {
+        const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([v3(h.base), v3(h.pos)]), lmat);
+        l.computeLineDistances(); l.renderOrder = 20; this.gHandles.add(l);
+      }
+      if (h.arc && h.arc.length > 1) {
+        const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(h.arc.map(v3)), lmat);
+        l.computeLineDistances(); l.renderOrder = 20; this.gHandles.add(l);
+      }
+      const g = new THREE.Group();
+      g.userData = { screen: true, hid: i };
+      if (h.k === 'lin') {
+        const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.7, 12), mat); shaft.position.y = 0.35;
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.32, 20), mat); cone.position.y = 0.84;
+        const knob = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 10), mat);
+        [shaft, cone, knob].forEach(m => { m.renderOrder = 21; g.add(m); });
+        const hit = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 1.2, 8), mat); hit.position.y = 0.5; hit.visible = false; hit.userData.hid = i;
+        g.add(hit); this.handleHits.push(hit);
+        const d = v3(h.dir).normalize();
+        g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d);
+      } else {
+        const ball = new THREE.Mesh(new THREE.SphereGeometry(0.16, 20, 12), mat); ball.renderOrder = 21; g.add(ball);
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.03, 8, 28), mat); ring.renderOrder = 21; g.add(ring);
+        if (h.dir) ring.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), v3(h.dir).normalize());
+        const hit = new THREE.Mesh(new THREE.SphereGeometry(0.34, 10, 8), mat); hit.visible = false; hit.userData.hid = i;
+        g.add(hit); this.handleHits.push(hit);
+      }
+      g.position.copy(v3(h.pos));
+      this.gHandles.add(g);
+    });
+    this.request();
+  }
+  pickHandle(x, y) {
+    if (!this.handleHits.length) return null;
+    const hs = this.pxSize() * 58;
+    for (const c of this.gHandles.children) if (c.userData.screen) c.scale.setScalar(hs);
+    this.gHandles.updateMatrixWorld(true);
+    const r = this.ray(x, y);
+    this.raycaster.ray.copy(r);
+    const hits = this.raycaster.intersectObjects(this.handleHits, false);
+    return hits.length ? hits[0].object.userData.hid : null;
   }
 
   // pick a body face. returns {bodyIdx, tri, group, point, normal}
