@@ -198,6 +198,8 @@ svg.ic { width:20px; height:20px; display:block; fill:none; stroke:currentColor;
 .link3d b { font-size:15px; } .link3d .u { color:var(--muted); font-size:11.5px; margin-left:6px; }
 .link3d span.d { display:block; margin:5px 0 6px; font-size:12.5px; color:#c9d1d9; line-height:1.4; }
 .link3d .go { color:#7fb7f0; font-size:12.5px; font-weight:600; }
+.link3d.ours { grid-column:1 / -1; border-color:#3d8fd6; background:#24303d; }
+.link3d .tag3 { margin-left:8px; padding:1px 7px; border-radius:9px; background:#2f5f8f; color:#fff; font-size:11px; font-weight:600; vertical-align:2px; }
 #m3D h4 { margin:14px 0 4px; color:#e9a98f; font-size:13px; }
 #m3D ol { margin:4px 0; padding-left:1.3em; font-size:12.5px; line-height:1.45; } #m3D li { margin:4px 0; }
 /* linetype list on the Build tab */
@@ -643,8 +645,10 @@ body.dropping #dropZone { display:flex; }
   <p class="note">The letters become outlines (closed shapes), so the laser, router and waterjet follow them and the file looks the same on every computer. Ctrl+Enter places the text.</p></div>
   <div class="row"><button data-close>Cancel</button><button class="pri" id="txtOk">Place text</button></div></div></div>
 <div class="modal" id="m3D"><div class="dlg"><h3>Model in 3D</h3><div class="body">
-  <div class="b3"><img id="b3img" alt=""><div class="bub"><b class="lab">HOP INTO 3D?</b>Do you want to model in 3D? Try these! Both are free, run in a web browser, and can bring in a shape you drew here.</div></div>
+  <div class="b3"><img id="b3img" alt=""><div class="bub"><b class="lab">HOP INTO 3D?</b>Do you want to model in 3D? Try these! All three are free and run in a web browser. Geo-CAD 3D is ours: no account needed.</div></div>
   <div class="links3d">
+    <a class="link3d ours" id="link3dOurs" href="https://stem-evcc.github.io/Geo-CAD/3d/" target="_blank" rel="noopener"><b>Geo-CAD 3D</b><span class="tag3">Ours: no account</span><span class="u">stem-evcc.github.io/Geo-CAD/3d</span>
+      <span class="d">Our own Part Studio, made for TS 82. It works like Onshape: sketch with exact sizes and rules until the sketch turns black, then Extrude or Revolve it into a solid. Sizes can be math (<code>#rise</code>, <code>sqrt</code>, <code>atan</code>), it weighs your part in PLA, and it saves an STL for the Prusa. Your parts save in this browser.</span><span class="go">Open Geo-CAD 3D &#8599;</span></a>
     <a class="link3d" href="https://www.tinkercad.com/" target="_blank" rel="noopener"><b>Tinkercad</b><span class="u">tinkercad.com</span>
       <span class="d">Snap boxes, cylinders and holes together, like building blocks. Quick to learn, and good for parts you 3D print on the Prusa.</span><span class="go">Open Tinkercad &#8599;</span></a>
     <a class="link3d" href="https://www.onshape.com/en/education/sign-up" target="_blank" rel="noopener"><b>Onshape</b><span class="u">onshape.com, free student plan</span>
@@ -652,10 +656,11 @@ body.dropping #dropZone { display:flex; }
   </div>
   <h4>Bring this drawing along</h4>
   <ol>
+    <li><b>Geo-CAD 3D:</b> it can't open a TS 82 CAD file yet, so sketch the shape there with the same sizes (the <b>Plate with a hole</b> example is a good start), then <b>Extrude</b> it. The other way works: right-click a flat face, or a sketch in the feature list, pick the <b>DXF</b> export, then click <b>Upload</b> here to cut it on the laser.</li>
     <li><b>Tinkercad:</b> click <b>Save a 3D shape (SVG)</b> below. In Tinkercad, click <b>Import</b> and pick the file. Check that the size it shows matches your drawing in mm, then Import. It comes in as a flat shape you can stretch up. Your red (CUT) shapes become solid; red shapes inside them become holes.</li>
     <li><b>Onshape:</b> Save As in TS 82 CAD (a .dxf). In Onshape, start a <b>Sketch</b>, click <b>Insert DXF or DWG</b>, import your file and pick millimeters. Close the sketch, then <b>Extrude</b> it.</li>
   </ol>
-  <p class="note">Tinkercad and Onshape are websites outside TS 82 CAD: you sign in there, and your 3D work saves there.</p></div>
+  <p class="note">Geo-CAD 3D needs no sign-in: your parts save in that browser, or as a project file. Tinkercad and Onshape are websites outside TS 82 CAD: you sign in there, and your 3D work saves there.</p></div>
   <div class="row"><button id="b3svg">Save a 3D shape (SVG)</button><button class="pri" data-close>Close</button></div></div></div>
 <div class="modal" id="mGuide"><div class="dlg"><h3><span>Tool guide: every button, what it does, and how it works</span><button id="guidePrint" type="button">Print this page</button></h3>
   <div id="guideBody"></div>
@@ -792,7 +797,7 @@ body.dropping #dropZone { display:flex; }
     <tr><td><code>SCALE</code> <code>SC</code></td><td>select, base point, scale factor. <code>R</code> (Reference): make one length the size you choose</td></tr>
     <tr><td><code>TEXT</code> <code>T</code></td><td>words as outlines, in a font you pick. One click picks the whole word</td></tr>
     <tr><td><code>AREA</code> <code>AA</code>, <code>EXPLODE</code> <code>X</code></td><td>area and perimeter of a closed shape; split a word into letters or a rectangle into lines</td></tr>
-    <tr><td><code>3D</code>, <code>TOOLS</code>, <code>PROJECT</code></td><td>model in 3D (Tinkercad, Onshape); the tool guide; the final project sheet</td></tr>
+    <tr><td><code>3D</code>, <code>TOOLS</code>, <code>PROJECT</code></td><td>model in 3D (Geo-CAD 3D, Tinkercad, Onshape); the tool guide; the final project sheet</td></tr>
     <tr><td><code>NEW</code> <code>OPEN</code> <code>SAVE</code> <code>SAVEAS</code> <code>PLOT</code></td><td>files. PLOT makes the laser file</td></tr>
     <tr><td><code>COLOR</code> <code>COL</code></td><td>line color: red cuts, blue scores, white engraves, gray never cuts; yellow, green, purple and the rest are for drawing only</td></tr>
     <tr><td><code>TUTORIAL</code></td><td>the Tutorial tab: lessons where a card shows you what to click</td></tr>
@@ -2794,7 +2799,7 @@ function setTab(name) {
     const dot = document.querySelector('#tabs .tab[data-tab="build"] .dot'); if (dot) dot.remove();
     let seen = false; try { seen = !!localStorage.getItem("ts82-bunny-build"); localStorage.setItem("ts82-bunny-build", "1"); } catch (e) {}
     if (!seen && typeof bunnySay === "function") bunnySay("loaf", "THE BUILD TAB",
-      "Tools for your final project: the project sheet, polygons, rounded corners, patterns and text. Want to model in 3D? I know two good tools.", 16000, false, { label:"Model in 3D", fn:show3D });
+      "Tools for your final project: the project sheet, polygons, rounded corners, patterns and text. Want to model in 3D? Try Geo-CAD 3D, our own, or Tinkercad and Onshape.", 16000, false, { label:"Model in 3D", fn:show3D });
   }
 }
 document.querySelectorAll("#tabs .tab").forEach(b => b.addEventListener("click", () => { setTab(b.dataset.tab); cmdIn.focus(); }));
@@ -2840,7 +2845,7 @@ Object.assign(TOOLTIP, {
   SCALE:"<b>Scale</b> (<code>SC</code>) &middot; A dilation: bigger or smaller from a base point. Every angle stays the same.",
   TEXT:"<b>Text</b> (<code>TEXT</code>) &middot; Words as outlines the laser, router or waterjet can follow. Pick a font, a height, and cut, score or engrave.",
   AREA:"<b>Area</b> (<code>AREA</code>) &middot; Click a closed shape, or click its corners: its area and perimeter.",
-  "3D":"<b>Model in 3D</b> &middot; Want height? The bunny points you to Tinkercad and Onshape, and saves your shape to take along.",
+  "3D":"<b>Model in 3D</b> &middot; Want height? The bunny points you to Geo-CAD 3D (ours), Tinkercad and Onshape, and saves your shape to take along.",
   tabHome:"<b>Home</b> &middot; Draw, change, measure and plot, as in AutoCAD.",
   tabBuild:"<b>Build</b> &middot; For your final project: the project sheet, polygons, rounded corners, patterns, text, and 3D.",
 });
@@ -3597,7 +3602,7 @@ const GUIDE = [
     ["ARRAYPOLAR", "i-polar", "Polar array", "ARRAYPOLAR", ["Pick it, then click Polar array.", "Click the center.", "Type how many in all, then Enter for 360°."]],
     ["SCALE", "i-scale", "Scale", "SCALE  SC", ["Pick it, Enter.", "Click the base point: it stays put.", "Type the factor, like `2` or `0.5`."]],
     ["TEXT", "i-text", "Text", "TEXT", ["Click Text.", "Type your words; pick a font, a height and a layer.", "Place text, then click where it starts. Enter."]],
-    ["3D", "i-cube", "Model in 3D", "3D", ["Click Model in 3D.", "Pick Tinkercad or Onshape.", "Save a 3D shape to bring your drawing along."]],
+    ["3D", "i-cube", "Model in 3D", "3D", ["Click Model in 3D.", "Pick Geo-CAD 3D (ours), Tinkercad or Onshape.", "Save a 3D shape to bring your drawing along."]],
   ]],
   ["Status bar: the switches at the bottom", "Blue means on. Click to switch.", [
     ["tgGRID", "GRID", "Grid", "F7", ["Shows the background squares. It changes nothing in the drawing."]],
