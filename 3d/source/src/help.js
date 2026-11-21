@@ -1,0 +1,131 @@
+// Tool registry: names, shortcut keys, hover tips (plain steps), icons, Onshape/Tinkercad words.
+export const ICONS = {
+  sketch: 'M4 20h16M6 16.5 15.5 7l2.5 2.5L8.5 19H6z M14 8.5l2.5 2.5',
+  extrude: 'M4 15l8 4 8-4-8-4z M12 11V3 M9 6l3-3 3 3',
+  revolve: 'M12 2v20 M15 6.5c3.5 1 5 3 5 5.5 0 3.3-3.6 6-8 6s-8-2.7-8-6c0-2.3 1.5-4.3 4-5.3 M6 4.5l2.2 2.2L6 9',
+  plane: 'M2.5 17 7.5 7h14l-5 10z',
+  lpattern: 'M3 8h4.5v4.5H3z M9.75 8h4.5v4.5h-4.5z M16.5 8H21v4.5h-4.5z M3 17h18 M18 14.5l3 2.5-3 2.5',
+  cpattern: 'M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M12 3.5v2.5 M12 18v2.5 M3.5 12H6 M18 12h2.5 M6 6l1.8 1.8 M16.2 16.2 18 18 M6 18l1.8-1.8 M16.2 7.8 18 6',
+  mirror: 'M12 2v3 M12 8v3 M12 14v3 M12 20v2 M9.5 6 3 18h6.5z M14.5 6 21 18h-6.5z',
+  measure: 'M3 16 16 3l5 5L8 21z M7 12l2 2 M10 9l2 2 M13 6l2 2',
+  mass: 'M7 8h10l3 12H4z M9.5 8a2.5 2.5 0 1 1 5 0',
+  vars: 'M5 4c-2 4-2 12 0 16 M19 4c2 4 2 12 0 16 M9 8l6 8 M15 8l-6 8',
+  select: 'M5 3l13 8-6 1.5L9 19z',
+  line: 'M4 19 20 5 M4 19m-1.6 0a1.6 1.6 0 1 0 3.2 0a1.6 1.6 0 1 0-3.2 0 M20 5m-1.6 0a1.6 1.6 0 1 0 3.2 0a1.6 1.6 0 1 0-3.2 0',
+  rect: 'M4 6h16v12H4z',
+  rectc: 'M4 6h16v12H4z M4 6l16 12 M20 6 4 18',
+  circle: 'M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0-16 0 M12 12h8 M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0',
+  arc3: 'M4 18a10 10 0 0 1 16 0 M4 18m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0 M20 18m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0 M12 8.6m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0',
+  arcc: 'M5 15a8 8 0 0 1 14 0 M12 15m-1.3 0a1.3 1.3 0 1 0 2.6 0a1.3 1.3 0 1 0-2.6 0 M12 15 5 15',
+  arct: 'M3 18h8a7 7 0 0 0 7-7V5 M11 18m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0-3 0',
+  polygon: 'M12 3l8 5v8l-8 5-8-5V8z',
+  slot: 'M7 7h10a5 5 0 0 1 0 10H7A5 5 0 0 1 7 7z M7 12h10',
+  point: 'M12 12m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0',
+  fillet: 'M4 20V12a8 8 0 0 1 8-8h8 M4 4h4 M4 4v4',
+  trim: 'M6 6m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0 M6 18m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0 M8 8l12 10 M8 16 20 6',
+  smirror: 'M12 3v18 M9 7 4 17h5z M15 7l5 10h-5z',
+  construction: 'M4 20 20 4 M4 20m-1.4 0a1.4 1.4 0 1 0 2.8 0 M8 16l3-3 M13 11l3-3',
+  use: 'M4 4h10v10H4z M10 10h10v10H10z',
+  dimension: 'M4 8v10 M20 8v10 M4 13h16 M7 10.5 4 13l3 2.5 M17 10.5l3 2.5-3 2.5',
+  coin: 'M8 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0-8 0 M16 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0-8 0',
+  h: 'M3 12h18 M3 9v6 M21 9v6',
+  v: 'M12 3v18 M9 3h6 M9 21h6',
+  par: 'M5 19 13 5 M11 19l8-14',
+  perp: 'M5 19h14 M12 19V5 M12 15h3v4',
+  tan: 'M3 20h18 M12 12m-7 0a7 7 0 1 0 14 0a7 7 0 1 0-14 0',
+  eq: 'M5 9h14 M5 15h14',
+  mid: 'M3 12h18 M12 8v8 M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0',
+  conc: 'M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0-16 0 M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0-8 0',
+  sym: 'M12 3v18 M5 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M19 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M8 12h2 M14 12h2',
+  fix: 'M9 3h6l-1 6 3 3H7l3-3z M12 12v9',
+  finish: 'M4 12.5l5 5L20 6.5',
+  cancel: 'M6 6l12 12 M18 6 6 18',
+  undo: 'M9 14 4 9l5-5 M4 9h10a6 6 0 0 1 0 12h-3',
+  redo: 'M15 14l5-5-5-5 M20 9H10a6 6 0 0 0 0 12h3',
+  newdoc: 'M6 3h8l4 4v14H6z M14 3v4h4 M12 11v6 M9 14h6',
+  open: 'M3 7h6l2 2h10v10H3z',
+  save: 'M5 3h12l3 3v15H5z M8 3v6h8V3 M8 21v-7h8v7',
+  export: 'M12 3v12 M7 10l5 5 5-5 M4 17v4h16v-4',
+  help: 'M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6 M12 17v.5',
+  fit: 'M4 9V4h5 M15 4h5v5 M20 15v5h-5 M9 20H4v-5',
+  normal: 'M4 7l8-4 8 4-8 4z M12 11v10 M9 18l3 3 3-3',
+  iso: 'M12 3l8 4.5v9L12 21l-8-4.5v-9z M12 12l8-4.5 M12 12v9 M12 12 4 7.5',
+  examples: 'M4 5h7v7H4z M13 5h7v7h-7z M4 14h7v5H4z M13 14h7v5h-7z',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0',
+  eyeoff: 'M3 3l18 18 M10.6 5.1A10 10 0 0 1 12 5c6 0 10 7 10 7a17 17 0 0 1-3.2 3.9 M6.6 6.6C3.8 8.5 2 12 2 12s4 7 10 7a9.6 9.6 0 0 0 4.4-1.1',
+  trash: 'M4 7h16 M9 7V4h6v3 M6 7l1 14h10l1-14',
+  plus: 'M12 5v14 M5 12h14',
+  grid: 'M4 4h16v16H4z M4 9.3h16 M4 14.6h16 M9.3 4v16 M14.6 4v16',
+};
+
+export function icon(name, cls = 'ic') {
+  return `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ''}"/></svg>`;
+}
+
+// what: one line; steps: plain steps, one action each; os: Onshape word; tc: Tinkercad comparison
+export const TOOLS = {
+  sketch: { name: 'Sketch', key: 'S', what: 'Start a flat 2D drawing on a plane or on a flat face of your part.', steps: ['Click Sketch.', 'Click Top, Front or Right, or click a flat face of your part.', 'Draw, then add dimensions and constraints.', 'Click the green check to finish.'], os: 'Sketch' },
+  extrude: { name: 'Extrude', key: 'E', what: 'Push a closed sketch area straight out to make it 3D. Can also cut, or keep only the overlap.', steps: ['Click Extrude.', 'Click the sketch areas you want (they turn orange).', 'Choose New, Add, Remove or Intersect.', 'Type a depth, like 5 or #thick.', 'Click the green check.'], os: 'Extrude', tc: 'Like Tinkercad\'s height handle, but the size is a number you can link to a variable.' },
+  revolve: { name: 'Revolve', key: 'V', what: 'Spin a closed sketch area around a line to make round parts like cups, knobs and wheels.', steps: ['Draw half of the outline, on one side of a line.', 'Click Revolve and pick the areas.', 'Click the line to spin around (the axis).', 'Choose Full (360°) or type an angle.', 'Click the green check.'], os: 'Revolve' },
+  plane: { name: 'Plane', key: 'P', what: 'Make a new flat plane a set distance from another plane or face, to sketch on later.', steps: ['Click Plane.', 'Click a plane or a flat face.', 'Type the offset distance.', 'Click the green check.'], os: 'Plane (Offset)' },
+  lpattern: { name: 'Linear pattern', key: '', what: 'Copy features in a straight line (or a grid) with even spacing.', steps: ['Click Linear pattern.', 'Click the features to copy (in the list or on the part).', 'Pick a direction.', 'Type how many copies and the spacing.', 'Click the green check.'], os: 'Linear pattern' },
+  cpattern: { name: 'Circular pattern', key: '', what: 'Copy features around an axis, evenly spaced, like bolt holes or spokes.', steps: ['Click Circular pattern.', 'Click the features to copy.', 'Pick the axis (Z axis, or a sketch point or line).', 'Type how many copies and the total angle (360 spreads them all the way around).', 'Click the green check.'], os: 'Circular pattern' },
+  mirror: { name: 'Mirror', key: '', what: 'Copy features across a plane, like a reflection. Build half, then mirror it.', steps: ['Click Mirror.', 'Click the features to copy.', 'Pick the mirror plane (Top, Front, Right or a flat face).', 'Click the green check.'], os: 'Mirror' },
+  measure: { name: 'Measure', key: 'M', what: 'Click corners, points or flat faces to measure distance, angle and area.', steps: ['Click Measure.', 'Click a corner or a face.', 'Click a second one.', 'Read the result in the box. Press Esc to stop.'], os: 'Measure tool' },
+  mass: { name: 'Mass and volume', key: '', what: 'Volume, surface area, size and mass for a material like PLA, plywood or acrylic.', steps: ['Click Mass.', 'Choose a material.', 'Read volume (cm³) and mass (g).', 'For a 3D print, set infill to get a rough print mass.'], os: 'Mass properties' },
+  vars: { name: 'Variables', key: '', what: 'Named numbers you can use in any size. Change one and the whole part updates.', steps: ['Click + in the Variables box.', 'Give it a name, like thick.', 'Type its value or a formula, like #width/2.', 'Use it in a dimension by typing #thick.'], os: 'Variable / Variable Studio' },
+  select: { name: 'Select', key: 'Esc', what: 'Click to pick geometry. Drag blue geometry to see how it can still move. Drag a box to pick many.', steps: ['Click a line, point or circle.', 'Shift+click to add more.', 'Then click a constraint button, or press Delete.'] },
+  line: { name: 'Line', key: 'L', what: 'Draw connected straight lines. It snaps to points and makes lines horizontal or vertical for you.', steps: ['Click where the line starts.', 'Click where it ends. Keep clicking to chain lines.', 'Click the first point again to close the shape.', 'Press Esc to stop.'], os: 'Line', tc: 'Tinkercad has no lines; here every shape starts as a sketch.' },
+  rect: { name: 'Rectangle', key: 'R', what: 'Draw a rectangle from one corner to the opposite corner.', steps: ['Click the first corner.', 'Click the opposite corner.', 'Add dimensions for width and height.'], os: 'Corner rectangle' },
+  rectc: { name: 'Center rectangle', key: 'Shift+R', what: 'Draw a rectangle from its center out to a corner. Great for parts centered on the origin.', steps: ['Click the center (try the origin).', 'Click a corner.'], os: 'Center point rectangle' },
+  circle: { name: 'Circle', key: 'C', what: 'Draw a circle from its center.', steps: ['Click the center.', 'Click to set the size.', 'Add a diameter dimension.'], os: 'Center point circle' },
+  arc3: { name: '3-point arc', key: 'A', what: 'Draw an arc through a start point, an end point and a point on the curve.', steps: ['Click the start.', 'Click the end.', 'Move to bend the arc, then click.'], os: '3 point arc' },
+  arcc: { name: 'Center arc', key: '', what: 'Draw an arc from its center, then its start and end.', steps: ['Click the center.', 'Click the start point.', 'Move around and click the end.'], os: 'Center point arc' },
+  arct: { name: 'Tangent arc', key: 'T', what: 'Draw an arc that leaves the end of a line smoothly (tangent), with no corner.', steps: ['Click the open end of a line or arc.', 'Click where the arc ends.'], os: 'Tangent arc' },
+  polygon: { name: 'Polygon', key: '', what: 'Draw a regular polygon (all sides equal), like a hexagon for a nut.', steps: ['Set the number of sides in the bar above.', 'Click the center.', 'Click a corner.'], os: 'Inscribed polygon' },
+  slot: { name: 'Slot', key: '', what: 'Draw a rounded slot, like a long hole for a bolt to slide in.', steps: ['Click the first end center.', 'Click the second end center.', 'Move to set the width and click.'], os: 'Slot' },
+  point: { name: 'Point', key: '', what: 'Place a single point, for example a center for a circular pattern.', steps: ['Click where the point goes.'], os: 'Point' },
+  fillet: { name: 'Sketch fillet', key: 'F', what: 'Round a sharp corner where two lines meet.', steps: ['Type a radius in the bar above.', 'Click the corner point.', 'Change the R dimension any time.'], os: 'Sketch fillet' },
+  trim: { name: 'Trim', key: 'X', what: 'Click a piece of a line or curve to cut it off where it crosses other lines.', steps: ['Hover: the piece that will go turns red.', 'Click to remove it.'], os: 'Trim' },
+  smirror: { name: 'Sketch mirror', key: '', what: 'Copy sketch geometry across a line. The copy stays symmetric.', steps: ['Select the geometry to copy.', 'Click Sketch mirror.', 'Click the mirror line.'], os: 'Mirror (sketch)' },
+  construction: { name: 'Construction', key: 'Q', what: 'Turn lines into dashed helper lines. They guide your design but never become part of the solid.', steps: ['Select lines or circles.', 'Click Construction (or press Q).', 'Or turn it on before drawing new helper lines.'], os: 'Construction' },
+  use: { name: 'Use edges', key: 'U', what: 'Copy the outline of a flat face of your part into this sketch, so new shapes can line up with it.', steps: ['Click Use edges.', 'Click a flat face of the part.', 'The outline appears as black reference lines.'], os: 'Use (project/convert)' },
+  dimension: { name: 'Dimension', key: 'D', what: 'Set an exact size: length, distance, diameter, radius or angle. Type a number or a formula with #variables.', steps: ['Click a line (or two points, two lines, a circle).', 'Move the mouse to place the number, then click.', 'Type the size, like 40 or #width/2, and press Enter.'], os: 'Dimension', tc: 'In Tinkercad you type sizes on the ruler; here the size stays linked and can use math.' },
+  coin: { name: 'Coincident', key: 'I', what: 'Make two points the same point, or put a point on a line or circle.', steps: ['Click a point.', 'Click another point, line or circle.', 'Click Coincident.'], os: 'Coincident' },
+  h: { name: 'Horizontal', key: 'H', what: 'Make a line level (left to right), or line up two points level.', steps: ['Click a line (or two points).', 'Click Horizontal.'], os: 'Horizontal' },
+  v: { name: 'Vertical', key: 'V', what: 'Make a line straight up and down, or line up two points vertically.', steps: ['Click a line (or two points).', 'Click Vertical.'], os: 'Vertical' },
+  par: { name: 'Parallel', key: 'B', what: 'Make two lines go the same direction, like railroad tracks.', steps: ['Click two lines.', 'Click Parallel.'], os: 'Parallel' },
+  perp: { name: 'Perpendicular', key: '', what: 'Make two lines meet at a right angle (90°).', steps: ['Click two lines.', 'Click Perpendicular.'], os: 'Perpendicular' },
+  tan: { name: 'Tangent', key: '', what: 'Make a line and a circle (or two circles) touch smoothly at one point.', steps: ['Click a line or arc and a circle or arc.', 'Click Tangent.'], os: 'Tangent' },
+  eq: { name: 'Equal', key: 'E', what: 'Make two lines the same length, or two circles the same size.', steps: ['Click two lines (or two circles/arcs).', 'Click Equal.'], os: 'Equal' },
+  mid: { name: 'Midpoint', key: '', what: 'Put a point exactly in the middle of a line.', steps: ['Click a point and a line.', 'Click Midpoint.'], os: 'Midpoint' },
+  conc: { name: 'Concentric', key: '', what: 'Give two circles or arcs the same center.', steps: ['Click two circles or arcs.', 'Click Concentric.'], os: 'Concentric' },
+  sym: { name: 'Symmetric', key: '', what: 'Make two points mirror images across a line (great with the origin axes).', steps: ['Click two points.', 'Click the line of symmetry (it can be an axis).', 'Click Symmetric.'], os: 'Symmetric' },
+  fix: { name: 'Fix', key: '', what: 'Pin points so they cannot move. Use sparingly; dimensions to the origin are better design intent.', steps: ['Click points (or a shape).', 'Click Fix.'], os: 'Fix' },
+  finish: { name: 'Finish sketch', key: 'Enter', what: 'Close the sketch and go back to 3D.', steps: ['Click the green check.'] },
+  cancel: { name: 'Cancel', key: '', what: 'Throw away the changes in this sketch.', steps: ['Click the X.'] },
+};
+
+export const CONSTRAINT_INFO = {
+  h: 'Horizontal', v: 'Vertical', par: 'Parallel', perp: 'Perpendicular', tan: 'Tangent', eq: 'Equal', eqd: 'Equal length',
+  mid: 'Midpoint', sym: 'Symmetric', on: 'On curve', col: 'Collinear', fix: 'Fixed',
+};
+
+export function tipHTML(id) {
+  const t = TOOLS[id];
+  if (!t) return '';
+  return `<div class="tip-h">${icon(id, 'ic tip-ic')}<b>${t.name}</b>${t.key ? `<kbd>${t.key}</kbd>` : ''}</div>
+  <p>${t.what}</p><ol>${t.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+  ${t.os ? `<div class="tip-os">In Onshape: <b>${t.os}</b></div>` : ''}${t.tc ? `<div class="tip-os">${t.tc}</div>` : ''}`;
+}
+
+export const GUIDE = [
+  { h: 'The big idea: 2D first, then 3D', p: ['Every part starts as a flat <b>sketch</b> on a plane. You draw rough shapes, then make them exact with <b>dimensions</b> (sizes) and <b>constraints</b> (rules like horizontal, equal, tangent).', 'Then a <b>feature</b> turns the sketch into 3D: <b>Extrude</b> pushes it straight out, <b>Revolve</b> spins it around a line. Features stack up in the list on the left, top to bottom, like steps in a recipe.', 'You can go back and change any step. Double-click it in the list. Everything after it rebuilds.'] },
+  { h: 'Design intent: blue, black and red', p: ['In a sketch, <b style="color:#1f6fd1">blue</b> geometry can still move. Drag it to see how. <b>Black</b> geometry is fully defined: every size and position is decided.', 'The status bar counts what is left (degrees of freedom). A finished sketch should usually be all black.', '<b style="color:#d63b3b">Red</b> means two rules fight each other. Undo the last thing you added.', 'Design intent means choosing rules that match what you mean. If a hole should stay centered, make it symmetric or dimension it with #width/2, so it stays centered when the width changes.'] },
+  { h: 'Variables: math that drives the part', p: ['Add a variable in the Variables box, like <code>width = 60</code>. Use it in any size by typing <code>#width</code>.', 'Formulas work: <code>#width/2</code>, <code>sqrt(#run^2 + #rise^2)</code>, <code>atan(#rise/#run)</code>, <code>pi*#d</code>. Trig uses degrees.', 'Units: sizes are millimeters. Type <code>2 in</code> for inches (it becomes 50.8 mm).', 'Shortcut: in a dimension box, type <code>#thick = 3</code> to make a new variable and use it at the same time.', 'A size in parentheses, like (44.72), is a reference dimension. It only measures, so you can check your math against it.'] },
+  { h: 'Mouse and keys', p: ['<b>Rotate</b>: right-drag, or left-drag on empty space. <b>Pan</b>: middle-drag or Shift+drag. <b>Zoom</b>: scroll wheel (it zooms toward the mouse).', 'Click the cube in the corner for Top, Front, Right and corner views. <b>Fit</b> shows everything.', 'Undo: Ctrl+Z. Redo: Ctrl+Y. Delete: Delete key. Stop a tool: Esc.', 'Sketch keys: L line, R rectangle, C circle, A arc, D dimension, Q construction, F fillet, X trim.'] },
+  { h: 'New, Add, Remove, Intersect', p: ['<b>New</b> makes a separate part. <b>Add</b> joins onto the parts it touches. <b>Remove</b> cuts away (holes, pockets). <b>Intersect</b> keeps only where the new shape and the part overlap.', 'Tip: for a hole all the way through, use Remove with <b>Through all</b>, so the hole stays through even if the part gets thicker.'] },
+  { h: 'Getting it to the makerspace', p: ['<b>3D printer (Prusa)</b>: Export STL, then open it in PrusaSlicer.', '<b>Laser, router or waterjet</b>: select a sketch in the list and choose Export sketch DXF or SVG. Cut lines come out red (red cuts), and the file opens in TS 82 CAD or AutoCAD. You can also export a flat face of the part.', 'Mass: pick PLA in the Mass box and compare the estimate with the scale.'] },
+  { h: 'About', p: ['Geo-CAD 3D was made for TS 82 at Everett Community College. It runs in your browser; your part is saved in this browser automatically, and Save gives you a file to keep.', 'Built with three.js (MIT license) for drawing and Manifold (Apache 2.0 license) for the solid shapes.'] },
+  { h: 'Words you will see in Onshape', p: ['Part Studio = this whole page. Feature list = the list on the left. Sketch, Extrude, Revolve, Fillet, Mirror, Linear and Circular pattern, Variable: same names here, so your skills carry over.', 'Fully defined (black) and under defined (blue) work the same way in Onshape and SolidWorks.'] },
+];
