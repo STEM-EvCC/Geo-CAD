@@ -131,6 +131,7 @@ svg.ic{width:22px;height:22px;display:block;fill:none;stroke:currentColor;stroke
 .fld .fv{font-size:13.5px;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
 .fld.act{border-color:var(--orange);background:#fff8f0;box-shadow:0 0 0 3px rgba(242,140,40,.15)}
 .fh{font-size:12px;color:#8a4b0f;margin-top:4px}
+.fsub{font-size:11.5px;color:var(--muted);margin-left:auto}
 .chip2{display:inline-flex;align-items:center;gap:3px;background:var(--orange2);border:1px solid #f6c38f;border-radius:12px;padding:1px 4px 1px 8px;font-size:12.5px}
 .chip2 button{border:0;background:none;padding:0 3px;font-weight:700;color:#8a4b0f}
 .seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:0;border:1px solid #c4d0dc;border-radius:7px;overflow:hidden;margin:6px 0}
@@ -138,6 +139,8 @@ svg.ic{width:22px;height:22px;display:block;fill:none;stroke:currentColor;stroke
 .seg button:last-child{border-right:0}
 .seg button.on{background:var(--navy);color:#fff;font-weight:700}
 .opnote{font-size:12px;color:var(--muted);margin:-2px 0 6px}
+.dragtip{display:flex;align-items:center;gap:6px;font-size:12.5px;color:#8a4b0f;background:#fff4e8;border-radius:6px;padding:4px 8px;margin:6px 0}
+.dragtip svg.ic{width:16px;height:16px;color:#f28c28}
 .ex{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;margin-top:3px}
 .ex input{padding:6px 8px;border:1px solid #c4d0dc;border-radius:6px;font-size:15px;font-weight:400}
 .ex input:focus{outline:2px solid var(--blue);outline-offset:0}
@@ -4403,7 +4406,7 @@ function dependents(doc, id) {
 }
 var PALETTE = ["#c9d6e3", "#f2c48d", "#a8d5ba", "#e9a6a6", "#c3b1e1", "#f3e08a", "#9ccfd8", "#e6b8d0"];
 function regen(doc, M, opts = {}) {
-  const res = { bodies: [], faces: [], planes: {}, sketches: {}, errors: {}, warn: {}, tools: {}, featFaces: {}, alloc: [], values: {}, varErrors: {} };
+  const res = { bodies: [], faces: [], planes: {}, sketches: {}, errors: {}, warn: {}, tools: {}, featFaces: {}, handles: {}, alloc: [], values: {}, varErrors: {} };
   const track = (m) => {
     res.alloc.push(m);
     return m;
@@ -4587,6 +4590,7 @@ function regen(doc, M, opts = {}) {
         const base = resolvePlane(f.ref);
         const d = num(f.off || "0", "Offset") * (f.flip ? -1 : 1);
         res.planes[f.id] = { o: add(base.o, mul(base.n, d)), n: base.n, x: base.x, y: base.y };
+        res.handles[f.id] = [{ k: "lin", key: "off", mode: "plane", o: base.o, d: base.n, v: d }];
       } else if (f.t === "extrude") {
         const s = sketchFor(f.sketch);
         const picked = pickRegions(s.regions, f.regions);
@@ -4626,6 +4630,17 @@ function regen(doc, M, opts = {}) {
           regFace(f.id, "side:" + sf.eid, toWorld(pl, sf.p[0], sf.p[1]), mul(toWorldVec(pl, sf.nx, sf.ny), sgn), i);
         });
         res.tools[f.id] = [{ tool, op: f.op }];
+        if (f.end !== "through") {
+          let u0 = Infinity, u1 = -Infinity, v0 = Infinity, v1 = -Infinity;
+          for (const r of picked.list) for (const q of r.outer) {
+            u0 = Math.min(u0, q[0]);
+            u1 = Math.max(u1, q[0]);
+            v0 = Math.min(v0, q[1]);
+            v1 = Math.max(v1, q[1]);
+          }
+          const C0 = toWorld(pl, (u0 + u1) / 2, (v0 + v1) / 2);
+          res.handles[f.id] = [f.end === "sym" ? { k: "lin", key: "depth", mode: "sym", o: C0, d: pl.n, v: d / 2 } : { k: "lin", key: "depth", mode: "blind", o: C0, d: pl.n, v: flip * d }];
+        }
         applyOp(tool, f.op, f.id);
       } else if (f.t === "revolve") {
         const s = sketchFor(f.sketch);
@@ -4675,6 +4690,15 @@ function regen(doc, M, opts = {}) {
         const ex = toWorldVec(pl, dy, -dx), ez = toWorldVec(pl, dx, dy), ey = cross(ez, ex);
         const org = toWorld(pl, A.x, A.y);
         tool = track(tool.transform(frameMat(ex, ey, ez, org)));
+        if (!full) {
+          let z0 = Infinity, z1 = -Infinity;
+          for (const P of polys) for (const q of P) {
+            z0 = Math.min(z0, q[1]);
+            z1 = Math.max(z1, q[1]);
+          }
+          const mode = f.sym ? "sym" : f.flip ? "flip" : "norm";
+          res.handles[f.id] = [{ k: "ang", key: "angle", mode, org, ex, ey, ez, R: rmax * 1.15 + 3, z: (z0 + z1) / 2, a0, ang, th: mode === "sym" ? ang / 2 : mode === "flip" ? -ang : ang }];
+        }
         const sgn = f.op === "remove" ? -1 : 1;
         if (!full) {
           const rot = (v, deg) => matVec(rotMat([0, 0, 0], ez, deg), v);
@@ -4695,6 +4719,7 @@ function regen(doc, M, opts = {}) {
       } else if (f.t === "lpattern" || f.t === "cpattern" || f.t === "mirror") {
         if (!f.feats || !f.feats.length) throw new Error("Pick the features to copy");
         const mats = [];
+        let lph = null;
         if (f.t === "lpattern") {
           const n1 = Math.round(num(f.count, "Count")), s1 = num(f.spacing, "Spacing");
           if (!(n1 >= 1 && n1 <= 200)) throw new Error("Count must be 1 to 200");
@@ -4708,6 +4733,8 @@ function regen(doc, M, opts = {}) {
             d2 = mul(getAxis(f.dir2, "a second direction").d, f.flip2 ? -1 : 1);
           }
           if (n1 * n2 > 400) throw new Error("That is too many copies (keep it under 400)");
+          lph = [{ key: "spacing", d: d1, v: s1, n: n1 }];
+          if (f.dir2) lph.push({ key: "spacing2", d: d2, v: s2, n: n2 });
           for (let a = 0; a < n1; a++) for (let b = 0; b < n2; b++) {
             if (!a && !b) continue;
             const t = add(mul(d1, a * s1), mul(d2, b * s2));
@@ -4734,6 +4761,11 @@ function regen(doc, M, opts = {}) {
           src.forEach((s) => entries.push({ ...s, fid }));
         }
         if (!entries.length) throw new Error("Those features make no solid to copy");
+        if (lph) {
+          const tb = entries[0].tool.boundingBox();
+          const c = mul(add(tb.min, tb.max), 0.5);
+          res.handles[f.id] = lph.filter((h) => h.n >= 2).map((h) => ({ k: "lin", key: h.key, mode: "spacing", o: c, d: h.d, v: h.v }));
+        }
         const out = [];
         mats.forEach((Mx, k) => {
           for (const e of entries) {
@@ -23187,6 +23219,154 @@ var CanvasTexture = class extends Texture {
     this.needsUpdate = true;
   }
 };
+var CylinderGeometry = class _CylinderGeometry extends BufferGeometry {
+  constructor(radiusTop = 1, radiusBottom = 1, height = 1, radialSegments = 32, heightSegments = 1, openEnded = false, thetaStart = 0, thetaLength = Math.PI * 2) {
+    super();
+    this.type = "CylinderGeometry";
+    this.parameters = {
+      radiusTop,
+      radiusBottom,
+      height,
+      radialSegments,
+      heightSegments,
+      openEnded,
+      thetaStart,
+      thetaLength
+    };
+    const scope = this;
+    radialSegments = Math.floor(radialSegments);
+    heightSegments = Math.floor(heightSegments);
+    const indices = [];
+    const vertices = [];
+    const normals = [];
+    const uvs = [];
+    let index = 0;
+    const indexArray = [];
+    const halfHeight = height / 2;
+    let groupStart = 0;
+    generateTorso();
+    if (openEnded === false) {
+      if (radiusTop > 0) generateCap(true);
+      if (radiusBottom > 0) generateCap(false);
+    }
+    this.setIndex(indices);
+    this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+    this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+    this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+    function generateTorso() {
+      const normal = new Vector3();
+      const vertex2 = new Vector3();
+      let groupCount = 0;
+      const slope = (radiusBottom - radiusTop) / height;
+      for (let y = 0; y <= heightSegments; y++) {
+        const indexRow = [];
+        const v = y / heightSegments;
+        const radius = v * (radiusBottom - radiusTop) + radiusTop;
+        for (let x = 0; x <= radialSegments; x++) {
+          const u = x / radialSegments;
+          const theta = u * thetaLength + thetaStart;
+          const sinTheta = Math.sin(theta);
+          const cosTheta = Math.cos(theta);
+          vertex2.x = radius * sinTheta;
+          vertex2.y = -v * height + halfHeight;
+          vertex2.z = radius * cosTheta;
+          vertices.push(vertex2.x, vertex2.y, vertex2.z);
+          normal.set(sinTheta, slope, cosTheta).normalize();
+          normals.push(normal.x, normal.y, normal.z);
+          uvs.push(u, 1 - v);
+          indexRow.push(index++);
+        }
+        indexArray.push(indexRow);
+      }
+      for (let x = 0; x < radialSegments; x++) {
+        for (let y = 0; y < heightSegments; y++) {
+          const a = indexArray[y][x];
+          const b = indexArray[y + 1][x];
+          const c = indexArray[y + 1][x + 1];
+          const d = indexArray[y][x + 1];
+          if (radiusTop > 0 || y !== 0) {
+            indices.push(a, b, d);
+            groupCount += 3;
+          }
+          if (radiusBottom > 0 || y !== heightSegments - 1) {
+            indices.push(b, c, d);
+            groupCount += 3;
+          }
+        }
+      }
+      scope.addGroup(groupStart, groupCount, 0);
+      groupStart += groupCount;
+    }
+    function generateCap(top) {
+      const centerIndexStart = index;
+      const uv = new Vector2();
+      const vertex2 = new Vector3();
+      let groupCount = 0;
+      const radius = top === true ? radiusTop : radiusBottom;
+      const sign = top === true ? 1 : -1;
+      for (let x = 1; x <= radialSegments; x++) {
+        vertices.push(0, halfHeight * sign, 0);
+        normals.push(0, sign, 0);
+        uvs.push(0.5, 0.5);
+        index++;
+      }
+      const centerIndexEnd = index;
+      for (let x = 0; x <= radialSegments; x++) {
+        const u = x / radialSegments;
+        const theta = u * thetaLength + thetaStart;
+        const cosTheta = Math.cos(theta);
+        const sinTheta = Math.sin(theta);
+        vertex2.x = radius * sinTheta;
+        vertex2.y = halfHeight * sign;
+        vertex2.z = radius * cosTheta;
+        vertices.push(vertex2.x, vertex2.y, vertex2.z);
+        normals.push(0, sign, 0);
+        uv.x = cosTheta * 0.5 + 0.5;
+        uv.y = sinTheta * 0.5 * sign + 0.5;
+        uvs.push(uv.x, uv.y);
+        index++;
+      }
+      for (let x = 0; x < radialSegments; x++) {
+        const c = centerIndexStart + x;
+        const i = centerIndexEnd + x;
+        if (top === true) {
+          indices.push(i, i + 1, c);
+        } else {
+          indices.push(i + 1, i, c);
+        }
+        groupCount += 3;
+      }
+      scope.addGroup(groupStart, groupCount, top === true ? 1 : 2);
+      groupStart += groupCount;
+    }
+  }
+  copy(source) {
+    super.copy(source);
+    this.parameters = Object.assign({}, source.parameters);
+    return this;
+  }
+  static fromJSON(data) {
+    return new _CylinderGeometry(data.radiusTop, data.radiusBottom, data.height, data.radialSegments, data.heightSegments, data.openEnded, data.thetaStart, data.thetaLength);
+  }
+};
+var ConeGeometry = class _ConeGeometry extends CylinderGeometry {
+  constructor(radius = 1, height = 1, radialSegments = 32, heightSegments = 1, openEnded = false, thetaStart = 0, thetaLength = Math.PI * 2) {
+    super(0, radius, height, radialSegments, heightSegments, openEnded, thetaStart, thetaLength);
+    this.type = "ConeGeometry";
+    this.parameters = {
+      radius,
+      height,
+      radialSegments,
+      heightSegments,
+      openEnded,
+      thetaStart,
+      thetaLength
+    };
+  }
+  static fromJSON(data) {
+    return new _ConeGeometry(data.radius, data.height, data.radialSegments, data.heightSegments, data.openEnded, data.thetaStart, data.thetaLength);
+  }
+};
 var _v0 = /* @__PURE__ */ new Vector3();
 var _v1$1 = /* @__PURE__ */ new Vector3();
 var _normal = /* @__PURE__ */ new Vector3();
@@ -23343,6 +23523,66 @@ var SphereGeometry = class _SphereGeometry extends BufferGeometry {
     return new _SphereGeometry(data.radius, data.widthSegments, data.heightSegments, data.phiStart, data.phiLength, data.thetaStart, data.thetaLength);
   }
 };
+var TorusGeometry = class _TorusGeometry extends BufferGeometry {
+  constructor(radius = 1, tube = 0.4, radialSegments = 12, tubularSegments = 48, arc = Math.PI * 2) {
+    super();
+    this.type = "TorusGeometry";
+    this.parameters = {
+      radius,
+      tube,
+      radialSegments,
+      tubularSegments,
+      arc
+    };
+    radialSegments = Math.floor(radialSegments);
+    tubularSegments = Math.floor(tubularSegments);
+    const indices = [];
+    const vertices = [];
+    const normals = [];
+    const uvs = [];
+    const center = new Vector3();
+    const vertex2 = new Vector3();
+    const normal = new Vector3();
+    for (let j = 0; j <= radialSegments; j++) {
+      for (let i = 0; i <= tubularSegments; i++) {
+        const u = i / tubularSegments * arc;
+        const v = j / radialSegments * Math.PI * 2;
+        vertex2.x = (radius + tube * Math.cos(v)) * Math.cos(u);
+        vertex2.y = (radius + tube * Math.cos(v)) * Math.sin(u);
+        vertex2.z = tube * Math.sin(v);
+        vertices.push(vertex2.x, vertex2.y, vertex2.z);
+        center.x = radius * Math.cos(u);
+        center.y = radius * Math.sin(u);
+        normal.subVectors(vertex2, center).normalize();
+        normals.push(normal.x, normal.y, normal.z);
+        uvs.push(i / tubularSegments);
+        uvs.push(j / radialSegments);
+      }
+    }
+    for (let j = 1; j <= radialSegments; j++) {
+      for (let i = 1; i <= tubularSegments; i++) {
+        const a = (tubularSegments + 1) * j + i - 1;
+        const b = (tubularSegments + 1) * (j - 1) + i - 1;
+        const c = (tubularSegments + 1) * (j - 1) + i;
+        const d = (tubularSegments + 1) * j + i;
+        indices.push(a, b, d);
+        indices.push(b, c, d);
+      }
+    }
+    this.setIndex(indices);
+    this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+    this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+    this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+  }
+  copy(source) {
+    super.copy(source);
+    this.parameters = Object.assign({}, source.parameters);
+    return this;
+  }
+  static fromJSON(data) {
+    return new _TorusGeometry(data.radius, data.tube, data.radialSegments, data.tubularSegments, data.arc);
+  }
+};
 var MeshStandardMaterial = class extends Material {
   static get type() {
     return "MeshStandardMaterial";
@@ -23418,6 +23658,26 @@ var MeshStandardMaterial = class extends Material {
     this.wireframeLinejoin = source.wireframeLinejoin;
     this.flatShading = source.flatShading;
     this.fog = source.fog;
+    return this;
+  }
+};
+var LineDashedMaterial = class extends LineBasicMaterial {
+  static get type() {
+    return "LineDashedMaterial";
+  }
+  constructor(parameters) {
+    super();
+    this.isLineDashedMaterial = true;
+    this.scale = 1;
+    this.dashSize = 3;
+    this.gapSize = 1;
+    this.setValues(parameters);
+  }
+  copy(source) {
+    super.copy(source);
+    this.scale = source.scale;
+    this.dashSize = source.dashSize;
+    this.gapSize = source.gapSize;
     return this;
   }
 };
@@ -24738,6 +24998,9 @@ var View3D = class {
     this.scene.add(this.gGrid);
     this.gOrigin = new Group();
     this.scene.add(this.gOrigin);
+    this.gHandles = new Group();
+    this.scene.add(this.gHandles);
+    this.handleHits = [];
     this.buildOrigin();
     this.bodies = [];
     this.planeObjs = [];
@@ -24784,6 +25047,8 @@ var View3D = class {
     this.camera.updateProjectionMatrix();
   }
   render() {
+    const hs = this.pxSize() * 58;
+    for (const c of this.gHandles.children) if (c.userData.screen) c.scale.setScalar(hs);
     this.renderer.setScissorTest(false);
     this.renderer.setViewport(0, 0, this.W, this.H);
     this.renderer.render(this.scene, this.camera);
@@ -25133,6 +25398,80 @@ var View3D = class {
       this.gPreview.add(edges);
     }
     this.request();
+  }
+  // drag handles: [{k:'lin'|'ang', pos, dir, hover, active, arc:[pts], base}]
+  setHandles(list) {
+    for (const c of [...this.gHandles.children]) {
+      this.gHandles.remove(c);
+      c.traverse((o) => {
+        if (o.geometry) o.geometry.dispose();
+      });
+    }
+    this.handleHits = [];
+    list.forEach((h, i) => {
+      const col = h.active ? 12730636 : h.hover ? 16486972 : 15895592;
+      const mat = new MeshBasicMaterial({ color: col, depthTest: false, transparent: true, opacity: 0.96 });
+      const lmat = new LineDashedMaterial({ color: col, depthTest: false, transparent: true, opacity: 0.75, dashSize: 2, gapSize: 1.5 });
+      if (h.base) {
+        const l = new Line(new BufferGeometry().setFromPoints([v3(h.base), v3(h.pos)]), lmat);
+        l.computeLineDistances();
+        l.renderOrder = 20;
+        this.gHandles.add(l);
+      }
+      if (h.arc && h.arc.length > 1) {
+        const l = new Line(new BufferGeometry().setFromPoints(h.arc.map(v3)), lmat);
+        l.computeLineDistances();
+        l.renderOrder = 20;
+        this.gHandles.add(l);
+      }
+      const g = new Group();
+      g.userData = { screen: true, hid: i };
+      if (h.k === "lin") {
+        const shaft = new Mesh(new CylinderGeometry(0.04, 0.04, 0.7, 12), mat);
+        shaft.position.y = 0.35;
+        const cone = new Mesh(new ConeGeometry(0.13, 0.32, 20), mat);
+        cone.position.y = 0.84;
+        const knob = new Mesh(new SphereGeometry(0.09, 16, 10), mat);
+        [shaft, cone, knob].forEach((m) => {
+          m.renderOrder = 21;
+          g.add(m);
+        });
+        const hit = new Mesh(new CylinderGeometry(0.22, 0.22, 1.2, 8), mat);
+        hit.position.y = 0.5;
+        hit.visible = false;
+        hit.userData.hid = i;
+        g.add(hit);
+        this.handleHits.push(hit);
+        const d = v3(h.dir).normalize();
+        g.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), d);
+      } else {
+        const ball = new Mesh(new SphereGeometry(0.16, 20, 12), mat);
+        ball.renderOrder = 21;
+        g.add(ball);
+        const ring = new Mesh(new TorusGeometry(0.22, 0.03, 8, 28), mat);
+        ring.renderOrder = 21;
+        g.add(ring);
+        if (h.dir) ring.quaternion.setFromUnitVectors(new Vector3(0, 0, 1), v3(h.dir).normalize());
+        const hit = new Mesh(new SphereGeometry(0.34, 10, 8), mat);
+        hit.visible = false;
+        hit.userData.hid = i;
+        g.add(hit);
+        this.handleHits.push(hit);
+      }
+      g.position.copy(v3(h.pos));
+      this.gHandles.add(g);
+    });
+    this.request();
+  }
+  pickHandle(x, y) {
+    if (!this.handleHits.length) return null;
+    const hs = this.pxSize() * 58;
+    for (const c of this.gHandles.children) if (c.userData.screen) c.scale.setScalar(hs);
+    this.gHandles.updateMatrixWorld(true);
+    const r = this.ray(x, y);
+    this.raycaster.ray.copy(r);
+    const hits = this.raycaster.intersectObjects(this.handleHits, false);
+    return hits.length ? hits[0].object.userData.hid : null;
   }
   // pick a body face. returns {bodyIdx, tri, group, point, normal}
   pickFace(x, y, opts = {}) {
@@ -27871,10 +28210,10 @@ function icon(name, cls = "ic") {
 }
 var TOOLS = {
   sketch: { name: "Sketch", key: "S", what: "Start a flat 2D drawing on a plane or on a flat face of your part.", steps: ["Click Sketch.", "Click Top, Front or Right, or click a flat face of your part.", "Draw, then add dimensions and constraints.", "Click the green check to finish."], os: "Sketch" },
-  extrude: { name: "Extrude", key: "E", what: "Push a closed sketch area straight out to make it 3D. Can also cut, or keep only the overlap.", steps: ["Click Extrude.", "Click the sketch areas you want (they turn orange).", "Choose New, Add, Remove or Intersect.", "Type a depth, like 5 or #thick.", "Click the green check."], os: "Extrude", tc: "Like Tinkercad's height handle, but the size is a number you can link to a variable." },
-  revolve: { name: "Revolve", key: "V", what: "Spin a closed sketch area around a line to make round parts like cups, knobs and wheels.", steps: ["Draw half of the outline, on one side of a line.", "Click Revolve and pick the areas.", "Click the line to spin around (the axis).", "Choose Full (360\xB0) or type an angle.", "Click the green check."], os: "Revolve" },
-  plane: { name: "Plane", key: "P", what: "Make a new flat plane a set distance from another plane or face, to sketch on later.", steps: ["Click Plane.", "Click a plane or a flat face.", "Type the offset distance.", "Click the green check."], os: "Plane (Offset)" },
-  lpattern: { name: "Linear pattern", key: "", what: "Copy features in a straight line (or a grid) with even spacing.", steps: ["Click Linear pattern.", "Click the features to copy (in the list or on the part).", "Pick a direction.", "Type how many copies and the spacing.", "Click the green check."], os: "Linear pattern" },
+  extrude: { name: "Extrude", key: "E", what: "Push a closed sketch area straight out to make it 3D. Can also cut, or keep only the overlap.", steps: ["Click Extrude.", "Click the sketch areas you want (they turn orange).", "Choose New, Add, Remove or Intersect.", "Type a depth, like 5 or #thick, or drag the orange arrow (Shift for no snapping).", "Click the green check."], os: "Extrude", tc: "Like Tinkercad's height handle, but the size is a number you can link to a variable." },
+  revolve: { name: "Revolve", key: "V", what: "Spin a closed sketch area around a line to make round parts like cups, knobs and wheels.", steps: ["Draw half of the outline, on one side of a line.", "Click Revolve and pick the areas.", "Click the line to spin around (the axis).", "Choose Full (360\xB0), or type an angle or drag the orange ball.", "Click the green check."], os: "Revolve" },
+  plane: { name: "Plane", key: "P", what: "Make a new flat plane a set distance from another plane or face, to sketch on later.", steps: ["Click Plane.", "Click a plane or a flat face.", "Type the offset distance or drag the orange arrow.", "Click the green check."], os: "Plane (Offset)" },
+  lpattern: { name: "Linear pattern", key: "", what: "Copy features in a straight line (or a grid) with even spacing.", steps: ["Click Linear pattern.", "Click the features to copy (in the list or on the part).", "Pick a direction.", "Type how many copies and the spacing, or drag the orange arrow at the second copy.", "Click the green check."], os: "Linear pattern" },
   cpattern: { name: "Circular pattern", key: "", what: "Copy features around an axis, evenly spaced, like bolt holes or spokes.", steps: ["Click Circular pattern.", "Click the features to copy.", "Pick the axis (Z axis, or a sketch point or line).", "Type how many copies and the total angle (360 spreads them all the way around).", "Click the green check."], os: "Circular pattern" },
   mirror: { name: "Mirror", key: "", what: "Copy features across a plane, like a reflection. Build half, then mirror it.", steps: ["Click Mirror.", "Click the features to copy.", "Pick the mirror plane (Top, Front, Right or a flat face).", "Click the green check."], os: "Mirror" },
   measure: { name: "Measure", key: "M", what: "Click corners, points or flat faces to measure distance, angle and area.", steps: ["Click Measure.", "Click a corner or a face.", "Click a second one.", "Read the result in the box. Press Esc to stop."], os: "Measure tool" },
@@ -27923,6 +28262,7 @@ var GUIDE = [
   { h: "Design intent: blue, black and red", p: ['In a sketch, <b style="color:#1f6fd1">blue</b> geometry can still move. Drag it to see how. <b>Black</b> geometry is fully defined: every size and position is decided.', "The status bar counts what is left (degrees of freedom). A finished sketch should usually be all black.", '<b style="color:#d63b3b">Red</b> means two rules fight each other. Undo the last thing you added.', "Design intent means choosing rules that match what you mean. If a hole should stay centered, make it symmetric or dimension it with #width/2, so it stays centered when the width changes."] },
   { h: "Variables: math that drives the part", p: ["Add a variable in the Variables box, like <code>width = 60</code>. Use it in any size by typing <code>#width</code>.", "Formulas work: <code>#width/2</code>, <code>sqrt(#run^2 + #rise^2)</code>, <code>atan(#rise/#run)</code>, <code>pi*#d</code>. Trig uses degrees.", "Units: sizes are millimeters. Type <code>2 in</code> for inches (it becomes 50.8 mm).", "Shortcut: in a dimension box, type <code>#thick = 3</code> to make a new variable and use it at the same time.", "A size in parentheses, like (44.72), is a reference dimension. It only measures, so you can check your math against it."] },
   { h: "Mouse and keys", p: ["<b>Rotate</b>: right-drag, or left-drag on empty space. <b>Pan</b>: middle-drag or Shift+drag. <b>Zoom</b>: scroll wheel (it zooms toward the mouse).", "Click the cube in the corner for Top, Front, Right and corner views. <b>Fit</b> shows everything.", "Undo: Ctrl+Z. Redo: Ctrl+Y. Delete: Delete key. Stop a tool: Esc.", "Sketch keys: L line, R rectangle, C circle, A arc, D dimension, Q construction, F fillet, X trim."] },
+  { h: "Live preview and drag handles", p: ["While a feature box is open, the part shows what it will look like. Every change updates it right away.", "Drag the orange arrow to set an Extrude depth or Plane offset, the orange ball to set a Revolve angle, or the arrows on a Linear pattern to set the spacing. Sizes snap to round numbers; hold Shift for any number. Dragging an Extrude back past the sketch flips it.", "In a number box, the up and down arrow keys add or subtract 1 (Shift: 10, Alt: 0.1)."] },
   { h: "New, Add, Remove, Intersect", p: ["<b>New</b> makes a separate part. <b>Add</b> joins onto the parts it touches. <b>Remove</b> cuts away (holes, pockets). <b>Intersect</b> keeps only where the new shape and the part overlap.", "Tip: for a hole all the way through, use Remove with <b>Through all</b>, so the hole stays through even if the part gets thicker."] },
   { h: "Getting it to the makerspace", p: ["<b>3D printer (Prusa)</b>: Export STL, then open it in PrusaSlicer.", "<b>Laser, router or waterjet</b>: select a sketch in the list and choose Export sketch DXF or SVG. Cut lines come out red (red cuts), and the file opens in TS 82 CAD or AutoCAD. You can also export a flat face of the part.", "Mass: pick PLA in the Mass box and compare the estimate with the scale."] },
   { h: "About", p: ["Geo-CAD 3D was made for TS 82 at Everett Community College. It runs in your browser; your part is saved in this browser automatically, and Save gives you a file to keep.", "Built with three.js (MIT license) for drawing and Manifold (Apache 2.0 license) for the solid shapes."] },
@@ -27943,7 +28283,6 @@ var FeatureDialog = class {
     else this.d = this.defaults(type);
     this.active = this.firstField();
     this.render();
-    this.update(true);
   }
   defaults(type) {
     const app = this.app, doc = app.doc;
@@ -27982,14 +28321,14 @@ var FeatureDialog = class {
   }
   firstField() {
     const t = this.type, d = this.d;
-    if (t === "extrude" || t === "revolve") return !d.sketch ? "sketch" : t === "revolve" && !d.axis ? "axis" : "sketch";
+    if (t === "extrude" || t === "revolve") return !d.sketch ? "sketch" : t === "revolve" && !d.axis ? "axis" : null;
     if (t === "plane") return d.ref ? null : "ref";
     if (t === "lpattern" || t === "cpattern" || t === "mirror") return d.feats.length ? null : "feats";
     return null;
   }
   activeKind() {
     const a = this.active;
-    if (!a) return null;
+    if (!a) return this.type === "extrude" || this.type === "revolve" ? "sketch" : null;
     if (a === "sketch") return "sketch";
     if (a === "axis" && this.type === "revolve") return "line";
     if (a === "ref" || a === "plane") return "plane";
@@ -28027,10 +28366,11 @@ var FeatureDialog = class {
         const picked = pickRegions(regs, d.regions).list;
         areaTxt = `<b>${esc(sk.name)}</b> \xB7 ${picked.length} of ${regs.length} area${regs.length === 1 ? "" : "s"}${d.regions.auto ? " (auto)" : ""}`;
       }
-      h += field("sketch", "Sketch areas", areaTxt, "Click areas in the view to pick them (orange = picked). Click a sketch in the list to switch.");
+      h += field("sketch", "Sketch areas", areaTxt + (this.active === "sketch" ? "" : ' <span class="fsub">click to choose</span>'), "Click areas in the view to pick them (orange = picked). Click a sketch in the list to switch.");
       if (t === "extrude") {
         h += seg("end", [["blind", "Depth", null], ["sym", "Symmetric", null], ["through", "Through all", null]]);
         if (d.end !== "through") h += expr("depth", "Depth (mm)");
+        if (d.end !== "through") h += `<div class="dragtip">${icon("extrude")} Or drag the orange arrow in the view.</div>`;
         if (d.end === "blind") h += `<button class="flip${d.flip ? " on" : ""}" data-flip="flip">${icon("redo")} Flip direction</button>`;
         if (d.end === "sym") h += `<div class="opnote">Half the depth goes each way from the sketch.</div>`;
         if (d.end === "through") h += `<div class="opnote">Goes all the way through everything, both directions. If the part gets thicker later, it still goes through.</div>`;
@@ -28045,6 +28385,7 @@ var FeatureDialog = class {
         h += `<label class="chk"><input type="checkbox" data-c="full" ${d.full !== false ? "checked" : ""}> Full turn (360\xB0)</label>`;
         if (d.full === false) {
           h += expr("angle", "Angle (degrees)");
+          h += `<div class="dragtip">${icon("revolve")} Or drag the orange ball around the axis.</div>`;
           h += `<label class="chk"><input type="checkbox" data-c="sym" ${d.sym ? "checked" : ""}> Symmetric (half each way)</label>`;
           if (!d.sym) h += `<button class="flip${d.flip ? " on" : ""}" data-flip="flip">${icon("redo")} Flip direction</button>`;
         }
@@ -28054,6 +28395,7 @@ var FeatureDialog = class {
       h += field("ref", "Start from", d.ref ? `<b>${esc(this.refLabel(d.ref))}</b>` : "Click a plane or flat face", "Click a plane or a flat face of the part.");
       h += `<div class="row3"><button data-pq="Top">Top</button><button data-pq="Front">Front</button><button data-pq="Right">Right</button></div>`;
       h += expr("off", "Offset distance (mm)");
+      if (d.ref) h += `<div class="dragtip">${icon("plane")} Or drag the orange arrow in the view.</div>`;
       h += `<button class="flip${d.flip ? " on" : ""}" data-flip="flip">${icon("redo")} Flip side</button>`;
     }
     if (t === "lpattern" || t === "cpattern" || t === "mirror") {
@@ -28064,6 +28406,7 @@ var FeatureDialog = class {
       h += this.dirField("dir", "Direction", d.dir);
       h += expr("count", "How many (including the first)");
       h += expr("spacing", "Spacing (mm)");
+      h += `<div class="dragtip">${icon("lpattern")} Or drag the orange arrow at the second copy.</div>`;
       h += `<button class="flip${d.flip ? " on" : ""}" data-flip="flip">${icon("redo")} Flip direction</button>`;
       h += `<label class="chk"><input type="checkbox" data-c="two" ${d.dir2 ? "checked" : ""}> Second direction (makes a grid)</label>`;
       if (d.dir2) {
@@ -28157,6 +28500,16 @@ var FeatureDialog = class {
           this.ok();
         }
         if (e.key === "Escape") this.app.closeDialog(false);
+        if ((e.key === "ArrowUp" || e.key === "ArrowDown") && /^\s*-?(\d+\.?\d*|\.\d+)\s*$/.test(inp.value)) {
+          e.preventDefault();
+          const step = e.shiftKey ? 10 : e.altKey ? 0.1 : 1;
+          let v = parseFloat(inp.value) + (e.key === "ArrowUp" ? step : -step);
+          if (["depth", "count", "count2", "angle"].includes(k)) v = Math.max(k === "depth" ? 0.1 : 1, v);
+          inp.value = fmt(v, 3);
+          d[k] = inp.value;
+          show();
+          this.update();
+        }
       };
     });
     el.querySelectorAll("[data-flip]").forEach((b) => b.onclick = () => {
@@ -28212,6 +28565,24 @@ var FeatureDialog = class {
     if (help) help.onclick = () => this.app.toast(TOOLS[this.type].what + " " + TOOLS[this.type].steps.join(" "));
     $("#dCancel").onclick = () => this.app.closeDialog(false);
     $("#dOk").onclick = () => this.ok();
+  }
+  syncInputs() {
+    const el = $("#dlg"), d = this.d;
+    if (!el) return;
+    el.querySelectorAll("[data-x]").forEach((inp) => {
+      const k = inp.dataset.x;
+      if (String(d[k] ?? "") === inp.value) return;
+      inp.value = d[k] ?? "";
+      const o = el.querySelector(`[data-xo="${k}"]`);
+      try {
+        o.textContent = "= " + fmt(evaluate(inp.value, this.app.res.values), 3);
+        o.classList.remove("bad");
+      } catch (er) {
+        o.textContent = er.message;
+        o.classList.add("bad");
+      }
+    });
+    el.querySelectorAll("[data-flip]").forEach((b) => b.classList.toggle("on", !!d[b.dataset.flip]));
   }
   update(now) {
     clearTimeout(this._t);
@@ -28438,8 +28809,10 @@ var FeatureDialog = class {
     if (!s) return;
     const picked = new Set(pickRegions(s.regions, this.d.regions).list);
     const v = this.app.view;
+    const choosing = this.active === "sketch";
     for (const r of s.regions) {
       const isP = picked.has(r), isH = this.hovRegion === r && this.activeKind() === "sketch";
+      if (!choosing && !isH) continue;
       ctx.beginPath();
       for (const loop of [r.outer, ...r.holes]) loop.forEach((p, i) => {
         const [x, y] = v.project(toWorld(s.plane, p[0], p[1]));
@@ -28998,12 +29371,183 @@ var App = class {
     if (opts.preview) this.view.setPreview(opts.preview);
     else this.view.setPreview(null);
     this.updatePlanes();
-    this.renderTree();
-    this.renderVars();
-    this.renderParts();
-    if (this.card === "mass") this.renderMass();
-    this.view.setGrid(this.gridSize(), this.mode === "part");
+    this.updateHandles();
+    if (!opts.light) {
+      this.renderTree();
+      this.renderVars();
+      this.renderParts();
+      if (this.card === "mass") this.renderMass();
+      this.view.setGrid(this.gridSize(), this.mode === "part");
+    }
     this.view.request();
+  }
+  // ---------- drag handles on feature previews ----------
+  handleList() {
+    if (!this.dialog || this.mode !== "part" || !this.res || !this.res.handles) return [];
+    return this.res.handles[this.dialog.d.id] || [];
+  }
+  handlePos(h, live) {
+    if (h.k === "lin") {
+      const v = live ?? h.v;
+      return [h.o[0] + h.d[0] * v, h.o[1] + h.d[1] * v, h.o[2] + h.d[2] * v];
+    }
+    const th = (live ?? h.th) * Math.PI / 180, c = Math.cos(th), sn = Math.sin(th);
+    return [0, 1, 2].map((i) => h.org[i] + h.ez[i] * h.z + h.R * (c * h.ex[i] + sn * h.ey[i]));
+  }
+  updateHandles() {
+    const list = this.handleList();
+    this.view.setHandles(list.map((h, i) => {
+      const live = this.hdrag && this.hdrag.i === i ? this.hdrag.val : void 0;
+      const pos = this.handlePos(h, live);
+      if (h.k === "lin") {
+        const v = live ?? h.v;
+        return { k: "lin", pos, dir: v < 0 ? h.d.map((c) => -c) : h.d, base: h.o, hover: this.hoverHandle === i, active: live !== void 0 };
+      }
+      const th = live ?? h.th, a0 = h.mode === "norm" ? 0 : h.mode === "flip" ? th : -th, a1 = h.mode === "norm" ? th : h.mode === "flip" ? 0 : th;
+      const arc = [];
+      for (let k = 0; k <= 48; k++) {
+        const t = (a0 + (a1 - a0) * k / 48) * Math.PI / 180;
+        arc.push([0, 1, 2].map((j) => h.org[j] + h.ez[j] * h.z + h.R * (Math.cos(t) * h.ex[j] + Math.sin(t) * h.ey[j])));
+      }
+      return { k: "ang", pos, dir: h.ez, arc, hover: this.hoverHandle === i, active: live !== void 0 };
+    }));
+  }
+  handleLabel(h, live) {
+    const v = live ?? (h.k === "lin" ? h.v : h.th);
+    if (h.k === "ang") {
+      const ang = h.mode === "sym" ? 2 * v : h.mode === "flip" ? -v : v;
+      return fmt(ang, 1) + "\xB0";
+    }
+    if (h.mode === "sym") return fmt(2 * Math.abs(v), 2) + " mm";
+    if (h.mode === "spacing") return fmt(v, 2) + " mm apart";
+    return fmt(Math.abs(v), 2) + " mm";
+  }
+  linStep() {
+    const px = this.view.pxSize();
+    return [0.1, 0.25, 0.5, 1, 2, 5, 10, 25, 50, 100].find((c) => c / px >= 10) || 100;
+  }
+  rayOf(x, y) {
+    const r = this.view.ray(x, y);
+    return { o: [r.origin.x, r.origin.y, r.origin.z], d: [r.direction.x, r.direction.y, r.direction.z] };
+  }
+  linParam(h, x, y) {
+    const r = this.rayOf(x, y), D = h.d;
+    const dot2 = (a, b2) => a[0] * b2[0] + a[1] * b2[1] + a[2] * b2[2];
+    const w0 = [h.o[0] - r.o[0], h.o[1] - r.o[1], h.o[2] - r.o[2]];
+    const b = dot2(D, r.d), dd = dot2(D, w0), e = dot2(r.d, w0), den = 1 - b * b;
+    if (den < 2e-3) return null;
+    return (b * e - dd) / den;
+  }
+  angParam(h, x, y) {
+    const r = this.rayOf(x, y);
+    const dot2 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const C = [0, 1, 2].map((i) => h.org[i] + h.ez[i] * h.z);
+    const den = dot2(r.d, h.ez);
+    if (Math.abs(den) < 0.05) return null;
+    const t = dot2([C[0] - r.o[0], C[1] - r.o[1], C[2] - r.o[2]], h.ez) / den;
+    const P = [0, 1, 2].map((i) => r.o[i] + r.d[i] * t - C[i]);
+    return Math.atan2(dot2(P, h.ey), dot2(P, h.ex)) * 180 / Math.PI;
+  }
+  startHandle(i, x, y, e) {
+    const h = this.handleList()[i];
+    if (!h) return;
+    const d = this.dialog.d;
+    const field = h.key;
+    this.hdrag = { i, h, x, y, val: h.k === "lin" ? h.v : h.th, v0: h.k === "lin" ? h.v : h.th, field, wasExpr: d[field] != null && !/^\s*-?(\d+\.?\d*|\.\d+)\s*$/.test(String(d[field])) };
+    if (h.k === "lin") {
+      const t = this.linParam(h, x, y);
+      this.hdrag.t0 = t;
+      this.hdrag.screen = t == null;
+    } else {
+      const a = this.angParam(h, x, y);
+      this.hdrag.last = a;
+      this.hdrag.cum = 0;
+      this.hdrag.screen = a == null;
+    }
+    this.view.overlay.style.cursor = "grabbing";
+    this.updateHandles();
+  }
+  dragHandle(x, y, e) {
+    const g = this.hdrag, h = g.h, d = this.dialog && this.dialog.d;
+    if (!d) return;
+    let val;
+    if (h.k === "lin") {
+      const px = this.view.pxSize();
+      if (g.screen) val = g.v0 + (g.y - y) * px;
+      else {
+        const t = this.linParam(h, x, y);
+        if (t == null) return;
+        val = g.v0 + (t - g.t0);
+      }
+      const step = this.linStep();
+      if (!e.shiftKey) val = Math.round(val / step) * step;
+      const min = Math.min(step, 0.1);
+      if (h.mode === "blind") {
+        if (Math.abs(val) < min) val = (val < 0 ? -1 : 1) * min;
+        d.flip = val < 0;
+        d.depth = fmt(Math.abs(val), 3);
+      } else if (h.mode === "sym") {
+        val = Math.max(min / 2, Math.abs(val));
+        d.depth = fmt(2 * val, 3);
+      } else if (h.mode === "plane") {
+        d.flip = val < 0;
+        d.off = fmt(Math.abs(val), 3);
+      } else {
+        if (Math.abs(val) < min) val = (val < 0 ? -1 : 1) * min;
+        d[h.key] = fmt(val, 3);
+      }
+    } else {
+      if (g.screen) {
+        val = g.v0 + (x - g.x) * 0.5;
+      } else {
+        const a = this.angParam(h, x, y);
+        if (a == null) return;
+        let da = a - g.last;
+        while (da > 180) da -= 360;
+        while (da < -180) da += 360;
+        g.cum += da;
+        g.last = a;
+        val = g.v0 + g.cum;
+      }
+      const snap = e.shiftKey ? 1 : 5;
+      val = Math.round(val / snap) * snap;
+      let ang = h.mode === "sym" ? 2 * val : h.mode === "flip" ? -val : val;
+      ang = Math.max(snap, Math.min(360, ang));
+      val = h.mode === "sym" ? ang / 2 : h.mode === "flip" ? -ang : ang;
+      d.angle = fmt(ang, 2);
+    }
+    g.val = val;
+    if (g.wasExpr && !g.told) {
+      g.told = true;
+      this.toast("Dragging changed " + (h.k === "ang" ? "the angle" : "the size") + " to a plain number. Type a #variable in the box to link it again.");
+    }
+    this.dialog.syncInputs();
+    this.updateHandles();
+    this.schedulePreview();
+    this.view.request();
+  }
+  endHandle() {
+    this.hdrag = null;
+    this.view.overlay.style.cursor = "grab";
+    if (this._pv) {
+      cancelAnimationFrame(this._pv);
+      this._pv = 0;
+    }
+    if (this.dialog) {
+      this.previewDialog(this.dialog);
+      this.dialog.render();
+      this.dialog.showErrors();
+    }
+  }
+  schedulePreview() {
+    if (this._pv) return;
+    this._pv = requestAnimationFrame(() => {
+      this._pv = 0;
+      if (this.dialog) {
+        this.previewDialog(this.dialog, true);
+        this.dialog.showErrors();
+      }
+    });
   }
   bbox(onlyVisible = true) {
     let mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
@@ -29310,13 +29854,22 @@ var App = class {
     v.handlers = {
       down: (x, y, e) => {
         if (this.mode === "sketch") return this.sk.down(x, y, e);
+        if (this.dialog && e.button === 0) {
+          const i = this.view.pickHandle(x, y);
+          if (i != null) {
+            this.startHandle(i, x, y, e);
+            return true;
+          }
+        }
         return false;
       },
       drag: (x, y, e) => {
         if (this.mode === "sketch") this.sk.drag(x, y, e);
+        else if (this.hdrag) this.dragHandle(x, y, e);
       },
       up: (x, y, e) => {
         if (this.mode === "sketch") this.sk.up(x, y, e);
+        else if (this.hdrag) this.endHandle();
       },
       move: (x, y, e) => {
         if (this.mode === "sketch") this.sk.move(x, y, e);
@@ -29391,7 +29944,31 @@ var App = class {
       }
     }
     if (this.dialog) this.dialog.drawOverlay(ctx);
+    if (this.dialog) this.drawHandleLabels(ctx);
     if (this.measure) this.drawMeasure(ctx);
+  }
+  drawHandleLabels(ctx) {
+    const list = this.handleList();
+    list.forEach((h, i) => {
+      const live = this.hdrag && this.hdrag.i === i ? this.hdrag.val : void 0;
+      const [x, y] = this.view.project(this.handlePos(h, live));
+      const txt = this.handleLabel(h, live);
+      ctx.font = '700 13px "Atkinson Hyperlegible", system-ui, sans-serif';
+      const w = ctx.measureText(txt).width + 14;
+      const on = live !== void 0 || this.hoverHandle === i;
+      const lx = x + 18, ly = y + 14;
+      ctx.fillStyle = on ? "#c2410c" : "rgba(255,255,255,.95)";
+      ctx.strokeStyle = "#f28c28";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(lx, ly - 11, w, 22, 6) : ctx.rect(lx, ly - 11, w, 22);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = on ? "#fff" : "#7a3d00";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText(txt, lx + 7, ly + 0.5);
+    });
   }
   sketchVisible(f) {
     if (f.show === true) return true;
@@ -29433,6 +30010,18 @@ var App = class {
     return best;
   }
   partMove(x, y) {
+    if (this.dialog) {
+      const hi = this.view.pickHandle(x, y);
+      if (hi !== this.hoverHandle) {
+        this.hoverHandle = hi;
+        this.updateHandles();
+      }
+      if (hi != null) {
+        this.view.overlay.style.cursor = "grab";
+        this.view.clearHighlight();
+        return;
+      }
+    }
     if (this.dialog && this.dialog.move(x, y)) return;
     if (this.measure) {
       this.measureHover(x, y);
@@ -29926,6 +30515,7 @@ var App = class {
     if (this.picking) this.cancelPick();
     if (this.measure) this.toggleMeasure();
     this.dialog = new FeatureDialog(this, type, editId);
+    this.dialog.update(true);
     this.markTools();
   }
   closeDialog(commit) {
@@ -29946,7 +30536,7 @@ var App = class {
     this.markTools();
     this.setHint("");
   }
-  previewDialog(d) {
+  previewDialog(d, light) {
     let docUse = this.doc, override;
     if (d.editId) override = d.d;
     else {
@@ -29963,7 +30553,7 @@ var App = class {
       const m = t.tool.getMesh();
       return { pos: m.numProp === 3 ? m.vertProperties.slice() : strideCopy(m.vertProperties, m.numProp), idx: m.triVerts.slice(), color: col[t.op] || 2845908 };
     });
-    this.showResult({ preview: prev });
+    this.showResult({ preview: prev, light });
     if (old) freeResult(old);
     return this.res;
   }

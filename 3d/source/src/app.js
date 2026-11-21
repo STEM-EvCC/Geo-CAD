@@ -136,12 +136,131 @@ export class App {
     this.view.setBodies(list);
     if (opts.preview) this.view.setPreview(opts.preview); else this.view.setPreview(null);
     this.updatePlanes();
-    this.renderTree();
-    this.renderVars();
-    this.renderParts();
-    if (this.card === 'mass') this.renderMass();
-    this.view.setGrid(this.gridSize(), this.mode === 'part');
+    this.updateHandles();
+    if (!opts.light) {
+      this.renderTree();
+      this.renderVars();
+      this.renderParts();
+      if (this.card === 'mass') this.renderMass();
+      this.view.setGrid(this.gridSize(), this.mode === 'part');
+    }
     this.view.request();
+  }
+
+  // ---------- drag handles on feature previews ----------
+  handleList() {
+    if (!this.dialog || this.mode !== 'part' || !this.res || !this.res.handles) return [];
+    return this.res.handles[this.dialog.d.id] || [];
+  }
+  handlePos(h, live) {
+    if (h.k === 'lin') { const v = live ?? h.v; return [h.o[0] + h.d[0] * v, h.o[1] + h.d[1] * v, h.o[2] + h.d[2] * v]; }
+    const th = (live ?? h.th) * Math.PI / 180, c = Math.cos(th), sn = Math.sin(th);
+    return [0, 1, 2].map(i => h.org[i] + h.ez[i] * h.z + h.R * (c * h.ex[i] + sn * h.ey[i]));
+  }
+  updateHandles() {
+    const list = this.handleList();
+    this.view.setHandles(list.map((h, i) => {
+      const live = this.hdrag && this.hdrag.i === i ? this.hdrag.val : undefined;
+      const pos = this.handlePos(h, live);
+      if (h.k === 'lin') {
+        const v = live ?? h.v;
+        return { k: 'lin', pos, dir: v < 0 ? h.d.map(c => -c) : h.d, base: h.o, hover: this.hoverHandle === i, active: live !== undefined };
+      }
+      const th = live ?? h.th, a0 = h.mode === 'norm' ? 0 : h.mode === 'flip' ? th : -th, a1 = h.mode === 'norm' ? th : h.mode === 'flip' ? 0 : th;
+      const arc = [];
+      for (let k = 0; k <= 48; k++) { const t = (a0 + (a1 - a0) * k / 48) * Math.PI / 180; arc.push([0, 1, 2].map(j => h.org[j] + h.ez[j] * h.z + h.R * (Math.cos(t) * h.ex[j] + Math.sin(t) * h.ey[j]))); }
+      return { k: 'ang', pos, dir: h.ez, arc, hover: this.hoverHandle === i, active: live !== undefined };
+    }));
+  }
+  handleLabel(h, live) {
+    const v = live ?? (h.k === 'lin' ? h.v : h.th);
+    if (h.k === 'ang') { const ang = h.mode === 'sym' ? 2 * v : h.mode === 'flip' ? -v : v; return fmt(ang, 1) + '°'; }
+    if (h.mode === 'sym') return fmt(2 * Math.abs(v), 2) + ' mm';
+    if (h.mode === 'spacing') return fmt(v, 2) + ' mm apart';
+    return fmt(Math.abs(v), 2) + ' mm';
+  }
+  linStep() {
+    const px = this.view.pxSize();
+    return [0.1, 0.25, 0.5, 1, 2, 5, 10, 25, 50, 100].find(c => c / px >= 10) || 100;
+  }
+  rayOf(x, y) { const r = this.view.ray(x, y); return { o: [r.origin.x, r.origin.y, r.origin.z], d: [r.direction.x, r.direction.y, r.direction.z] }; }
+  linParam(h, x, y) {
+    const r = this.rayOf(x, y), D = h.d;
+    const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const w0 = [h.o[0] - r.o[0], h.o[1] - r.o[1], h.o[2] - r.o[2]];
+    const b = dot(D, r.d), dd = dot(D, w0), e = dot(r.d, w0), den = 1 - b * b;
+    if (den < 2e-3) return null;
+    return (b * e - dd) / den;
+  }
+  angParam(h, x, y) {
+    const r = this.rayOf(x, y);
+    const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const C = [0, 1, 2].map(i => h.org[i] + h.ez[i] * h.z);
+    const den = dot(r.d, h.ez);
+    if (Math.abs(den) < 0.05) return null;
+    const t = dot([C[0] - r.o[0], C[1] - r.o[1], C[2] - r.o[2]], h.ez) / den;
+    const P = [0, 1, 2].map(i => r.o[i] + r.d[i] * t - C[i]);
+    return Math.atan2(dot(P, h.ey), dot(P, h.ex)) * 180 / Math.PI;
+  }
+  startHandle(i, x, y, e) {
+    const h = this.handleList()[i];
+    if (!h) return;
+    const d = this.dialog.d;
+    const field = h.key;
+    this.hdrag = { i, h, x, y, val: h.k === 'lin' ? h.v : h.th, v0: h.k === 'lin' ? h.v : h.th, field, wasExpr: d[field] != null && !/^\s*-?(\d+\.?\d*|\.\d+)\s*$/.test(String(d[field])) };
+    if (h.k === 'lin') { const t = this.linParam(h, x, y); this.hdrag.t0 = t; this.hdrag.screen = t == null; }
+    else { const a = this.angParam(h, x, y); this.hdrag.last = a; this.hdrag.cum = 0; this.hdrag.screen = a == null; }
+    this.view.overlay.style.cursor = 'grabbing';
+    this.updateHandles();
+  }
+  dragHandle(x, y, e) {
+    const g = this.hdrag, h = g.h, d = this.dialog && this.dialog.d;
+    if (!d) return;
+    let val;
+    if (h.k === 'lin') {
+      const px = this.view.pxSize();
+      if (g.screen) val = g.v0 + (g.y - y) * px;
+      else { const t = this.linParam(h, x, y); if (t == null) return; val = g.v0 + (t - g.t0); }
+      const step = this.linStep();
+      if (!e.shiftKey) val = Math.round(val / step) * step;
+      const min = Math.min(step, 0.1);
+      if (h.mode === 'blind') { if (Math.abs(val) < min) val = (val < 0 ? -1 : 1) * min; d.flip = val < 0; d.depth = fmt(Math.abs(val), 3); }
+      else if (h.mode === 'sym') { val = Math.max(min / 2, Math.abs(val)); d.depth = fmt(2 * val, 3); }
+      else if (h.mode === 'plane') { d.flip = val < 0; d.off = fmt(Math.abs(val), 3); }
+      else { if (Math.abs(val) < min) val = (val < 0 ? -1 : 1) * min; d[h.key] = fmt(val, 3); }
+    } else {
+      if (g.screen) { val = g.v0 + (x - g.x) * 0.5; }
+      else {
+        const a = this.angParam(h, x, y); if (a == null) return;
+        let da = a - g.last; while (da > 180) da -= 360; while (da < -180) da += 360;
+        g.cum += da; g.last = a; val = g.v0 + g.cum;
+      }
+      const snap = e.shiftKey ? 1 : 5;
+      val = Math.round(val / snap) * snap;
+      let ang = h.mode === 'sym' ? 2 * val : h.mode === 'flip' ? -val : val;
+      ang = Math.max(snap, Math.min(360, ang));
+      val = h.mode === 'sym' ? ang / 2 : h.mode === 'flip' ? -ang : ang;
+      d.angle = fmt(ang, 2);
+    }
+    g.val = val;
+    if (g.wasExpr && !g.told) { g.told = true; this.toast('Dragging changed ' + (h.k === 'ang' ? 'the angle' : 'the size') + ' to a plain number. Type a #variable in the box to link it again.'); }
+    this.dialog.syncInputs();
+    this.updateHandles();
+    this.schedulePreview();
+    this.view.request();
+  }
+  endHandle() {
+    this.hdrag = null;
+    this.view.overlay.style.cursor = 'grab';
+    if (this._pv) { cancelAnimationFrame(this._pv); this._pv = 0; }
+    if (this.dialog) { this.previewDialog(this.dialog); this.dialog.render(); this.dialog.showErrors(); }
+  }
+  schedulePreview() {
+    if (this._pv) return;
+    this._pv = requestAnimationFrame(() => {
+      this._pv = 0;
+      if (this.dialog) { this.previewDialog(this.dialog, true); this.dialog.showErrors(); }
+    });
   }
   bbox(onlyVisible = true) {
     let mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
@@ -341,10 +460,11 @@ export class App {
     v.handlers = {
       down: (x, y, e) => {
         if (this.mode === 'sketch') return this.sk.down(x, y, e);
+        if (this.dialog && e.button === 0) { const i = this.view.pickHandle(x, y); if (i != null) { this.startHandle(i, x, y, e); return true; } }
         return false;
       },
-      drag: (x, y, e) => { if (this.mode === 'sketch') this.sk.drag(x, y, e); },
-      up: (x, y, e) => { if (this.mode === 'sketch') this.sk.up(x, y, e); },
+      drag: (x, y, e) => { if (this.mode === 'sketch') this.sk.drag(x, y, e); else if (this.hdrag) this.dragHandle(x, y, e); },
+      up: (x, y, e) => { if (this.mode === 'sketch') this.sk.up(x, y, e); else if (this.hdrag) this.endHandle(); },
       move: (x, y, e) => { if (this.mode === 'sketch') this.sk.move(x, y, e); else this.partMove(x, y, e); },
       click: (x, y, e) => { if (this.mode === 'sketch') this.sk.click(x, y, e); else this.partClick(x, y, e); },
       dbl: (x, y, e) => { if (this.mode === 'sketch') this.sk.dbl(x, y, e); else this.partDbl(x, y); },
@@ -391,7 +511,25 @@ export class App {
       }
     }
     if (this.dialog) this.dialog.drawOverlay(ctx);
+    if (this.dialog) this.drawHandleLabels(ctx);
     if (this.measure) this.drawMeasure(ctx);
+  }
+  drawHandleLabels(ctx) {
+    const list = this.handleList();
+    list.forEach((h, i) => {
+      const live = this.hdrag && this.hdrag.i === i ? this.hdrag.val : undefined;
+      const [x, y] = this.view.project(this.handlePos(h, live));
+      const txt = this.handleLabel(h, live);
+      ctx.font = '700 13px "Atkinson Hyperlegible", system-ui, sans-serif';
+      const w = ctx.measureText(txt).width + 14;
+      const on = live !== undefined || this.hoverHandle === i;
+      const lx = x + 18, ly = y + 14;
+      ctx.fillStyle = on ? '#c2410c' : 'rgba(255,255,255,.95)';
+      ctx.strokeStyle = '#f28c28'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(lx, ly - 11, w, 22, 6) : ctx.rect(lx, ly - 11, w, 22); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = on ? '#fff' : '#7a3d00'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText(txt, lx + 7, ly + 0.5);
+    });
   }
   sketchVisible(f) {
     if (f.show === true) return true;
@@ -426,6 +564,11 @@ export class App {
   }
 
   partMove(x, y) {
+    if (this.dialog) {
+      const hi = this.view.pickHandle(x, y);
+      if (hi !== this.hoverHandle) { this.hoverHandle = hi; this.updateHandles(); }
+      if (hi != null) { this.view.overlay.style.cursor = 'grab'; this.view.clearHighlight(); return; }
+    }
     if (this.dialog && this.dialog.move(x, y)) return;
     if (this.measure) { this.measureHover(x, y); return; }
     // hover planes when picking, else faces
@@ -782,6 +925,7 @@ export class App {
     if (this.picking) this.cancelPick();
     if (this.measure) this.toggleMeasure();
     this.dialog = new FeatureDialog(this, type, editId);
+    this.dialog.update(true);   // first live preview as soon as the dialog opens
     this.markTools();
   }
   closeDialog(commit) {
@@ -799,7 +943,7 @@ export class App {
     this.markTools();
     this.setHint('');
   }
-  previewDialog(d) {
+  previewDialog(d, light) {
     // regenerate with the draft feature in place
     let docUse = this.doc, override;
     if (d.editId) override = d.d;
@@ -814,7 +958,7 @@ export class App {
     const tools = this.res.tools[d.d.id] || [];
     const col = { new: 0x2b6cd4, add: 0x2f9e44, remove: 0xd63b3b, intersect: 0xd9a400 };
     const prev = tools.map(t => { const m = t.tool.getMesh(); return { pos: m.numProp === 3 ? m.vertProperties.slice() : strideCopy(m.vertProperties, m.numProp), idx: m.triVerts.slice(), color: col[t.op] || 0x2b6cd4 }; });
-    this.showResult({ preview: prev });
+    this.showResult({ preview: prev, light });
     if (old) freeResult(old);
     return this.res;
   }

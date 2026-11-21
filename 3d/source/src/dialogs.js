@@ -17,7 +17,6 @@ export class FeatureDialog {
     else this.d = this.defaults(type);
     this.active = this.firstField();
     this.render();
-    this.update(true);
   }
   defaults(type) {
     const app = this.app, doc = app.doc;
@@ -56,14 +55,14 @@ export class FeatureDialog {
   }
   firstField() {
     const t = this.type, d = this.d;
-    if (t === 'extrude' || t === 'revolve') return !d.sketch ? 'sketch' : (t === 'revolve' && !d.axis) ? 'axis' : 'sketch';
+    if (t === 'extrude' || t === 'revolve') return !d.sketch ? 'sketch' : (t === 'revolve' && !d.axis) ? 'axis' : null;
     if (t === 'plane') return d.ref ? null : 'ref';
     if (t === 'lpattern' || t === 'cpattern' || t === 'mirror') return d.feats.length ? null : 'feats';
     return null;
   }
   activeKind() {
     const a = this.active;
-    if (!a) return null;
+    if (!a) return (this.type === 'extrude' || this.type === 'revolve') ? 'sketch' : null;
     if (a === 'sketch') return 'sketch';
     if (a === 'axis' && this.type === 'revolve') return 'line';
     if (a === 'ref' || a === 'plane') return 'plane';
@@ -100,10 +99,11 @@ export class FeatureDialog {
         const picked = pickRegions(regs, d.regions).list;
         areaTxt = `<b>${esc(sk.name)}</b> · ${picked.length} of ${regs.length} area${regs.length === 1 ? '' : 's'}${d.regions.auto ? ' (auto)' : ''}`;
       }
-      h += field('sketch', 'Sketch areas', areaTxt, 'Click areas in the view to pick them (orange = picked). Click a sketch in the list to switch.');
+      h += field('sketch', 'Sketch areas', areaTxt + (this.active === 'sketch' ? '' : ' <span class="fsub">click to choose</span>'), 'Click areas in the view to pick them (orange = picked). Click a sketch in the list to switch.');
       if (t === 'extrude') {
         h += seg('end', [['blind', 'Depth', null], ['sym', 'Symmetric', null], ['through', 'Through all', null]]);
         if (d.end !== 'through') h += expr('depth', 'Depth (mm)');
+        if (d.end !== 'through') h += `<div class="dragtip">${icon('extrude')} Or drag the orange arrow in the view.</div>`;
         if (d.end === 'blind') h += `<button class="flip${d.flip ? ' on' : ''}" data-flip="flip">${icon('redo')} Flip direction</button>`;
         if (d.end === 'sym') h += `<div class="opnote">Half the depth goes each way from the sketch.</div>`;
         if (d.end === 'through') h += `<div class="opnote">Goes all the way through everything, both directions. If the part gets thicker later, it still goes through.</div>`;
@@ -118,6 +118,7 @@ export class FeatureDialog {
         h += `<label class="chk"><input type="checkbox" data-c="full" ${d.full !== false ? 'checked' : ''}> Full turn (360°)</label>`;
         if (d.full === false) {
           h += expr('angle', 'Angle (degrees)');
+          h += `<div class="dragtip">${icon('revolve')} Or drag the orange ball around the axis.</div>`;
           h += `<label class="chk"><input type="checkbox" data-c="sym" ${d.sym ? 'checked' : ''}> Symmetric (half each way)</label>`;
           if (!d.sym) h += `<button class="flip${d.flip ? ' on' : ''}" data-flip="flip">${icon('redo')} Flip direction</button>`;
         }
@@ -127,6 +128,7 @@ export class FeatureDialog {
       h += field('ref', 'Start from', d.ref ? `<b>${esc(this.refLabel(d.ref))}</b>` : 'Click a plane or flat face', 'Click a plane or a flat face of the part.');
       h += `<div class="row3"><button data-pq="Top">Top</button><button data-pq="Front">Front</button><button data-pq="Right">Right</button></div>`;
       h += expr('off', 'Offset distance (mm)');
+      if (d.ref) h += `<div class="dragtip">${icon('plane')} Or drag the orange arrow in the view.</div>`;
       h += `<button class="flip${d.flip ? ' on' : ''}" data-flip="flip">${icon('redo')} Flip side</button>`;
     }
     if (t === 'lpattern' || t === 'cpattern' || t === 'mirror') {
@@ -137,6 +139,7 @@ export class FeatureDialog {
       h += this.dirField('dir', 'Direction', d.dir);
       h += expr('count', 'How many (including the first)');
       h += expr('spacing', 'Spacing (mm)');
+      h += `<div class="dragtip">${icon('lpattern')} Or drag the orange arrow at the second copy.</div>`;
       h += `<button class="flip${d.flip ? ' on' : ''}" data-flip="flip">${icon('redo')} Flip direction</button>`;
       h += `<label class="chk"><input type="checkbox" data-c="two" ${d.dir2 ? 'checked' : ''}> Second direction (makes a grid)</label>`;
       if (d.dir2) {
@@ -204,7 +207,18 @@ export class FeatureDialog {
       };
       show();
       inp.oninput = () => { d[k] = inp.value; show(); this.update(); };
-      inp.onkeydown = (e) => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); this.ok(); } if (e.key === 'Escape') this.app.closeDialog(false); };
+      inp.onkeydown = (e) => {
+        e.stopPropagation();
+        if (e.key === 'Enter') { e.preventDefault(); this.ok(); }
+        if (e.key === 'Escape') this.app.closeDialog(false);
+        if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && /^\s*-?(\d+\.?\d*|\.\d+)\s*$/.test(inp.value)) {
+          e.preventDefault();
+          const step = e.shiftKey ? 10 : e.altKey ? 0.1 : 1;
+          let v = parseFloat(inp.value) + (e.key === 'ArrowUp' ? step : -step);
+          if (['depth', 'count', 'count2', 'angle'].includes(k)) v = Math.max(k === 'depth' ? 0.1 : 1, v);
+          inp.value = fmt(v, 3); d[k] = inp.value; show(); this.update();
+        }
+      };
     });
     el.querySelectorAll('[data-flip]').forEach(b => b.onclick = () => { d[b.dataset.flip] = !d[b.dataset.flip]; this.render(); this.update(); });
     el.querySelectorAll('[data-c]').forEach(c => c.onchange = () => {
@@ -228,6 +242,18 @@ export class FeatureDialog {
     if (help) help.onclick = () => this.app.toast(TOOLS[this.type].what + ' ' + TOOLS[this.type].steps.join(' '));
     $('#dCancel').onclick = () => this.app.closeDialog(false);
     $('#dOk').onclick = () => this.ok();
+  }
+  syncInputs() {
+    const el = $('#dlg'), d = this.d;
+    if (!el) return;
+    el.querySelectorAll('[data-x]').forEach(inp => {
+      const k = inp.dataset.x;
+      if (String(d[k] ?? '') === inp.value) return;
+      inp.value = d[k] ?? '';
+      const o = el.querySelector(`[data-xo="${k}"]`);
+      try { o.textContent = '= ' + fmt(evaluate(inp.value, this.app.res.values), 3); o.classList.remove('bad'); } catch (er) { o.textContent = er.message; o.classList.add('bad'); }
+    });
+    el.querySelectorAll('[data-flip]').forEach(b => b.classList.toggle('on', !!d[b.dataset.flip]));
   }
   update(now) {
     clearTimeout(this._t);
@@ -391,8 +417,10 @@ export class FeatureDialog {
     if (!s) return;
     const picked = new Set(pickRegions(s.regions, this.d.regions).list);
     const v = this.app.view;
+    const choosing = this.active === 'sketch';
     for (const r of s.regions) {
       const isP = picked.has(r), isH = this.hovRegion === r && this.activeKind() === 'sketch';
+      if (!choosing && !isH) continue;
       ctx.beginPath();
       for (const loop of [r.outer, ...r.holes]) loop.forEach((p, i) => { const [x, y] = v.project(toWorld(s.plane, p[0], p[1])); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
       ctx.closePath();
