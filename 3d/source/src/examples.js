@@ -4,7 +4,7 @@ import { SketchEditor } from './sketch.js';
 import { evalVariables } from './expr.js';
 import { solveSketch } from './solver.js';
 
-function builder(doc, plane, name) {
+export function builder(doc, plane, name) {
   const sk = newSketch(doc, plane);
   if (name) sk.name = name;
   doc.features.push(sk);
@@ -29,14 +29,14 @@ function builder(doc, plane, name) {
   };
   return B;
 }
-function fillet(doc, sk, pid, r, expr) {
+export function fillet(doc, sk, pid, r, expr) {
   const ed = Object.create(SketchEditor.prototype);
   ed.app = { doc, res: { values: evalVariables(doc.vars).values } };
   ed.id = sk.id;
   ed.consMode = false;
   return ed.filletCorner(pid, r, expr);
 }
-function finish(doc) {
+export function finish(doc) {
   const vals = evalVariables(doc.vars).values;
   for (const f of doc.features) if (f.t === 'sketch') solveSketch(f, vals);
   return doc;

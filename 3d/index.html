@@ -190,6 +190,10 @@ input[type=range]{width:100%;accent-color:var(--orange)}
 .chip.def{background:var(--ink);color:#fff}.chip.free{background:#e3eefc;color:var(--blue)}.chip.bad{background:#fde8e8;color:var(--red)}
 #status label{display:flex;align-items:center;gap:5px;white-space:nowrap}
 #status input{accent-color:var(--navy)}
+.units{display:flex;align-items:center;gap:0;white-space:nowrap}
+.units button{border:1px solid #c4d0dc;background:#fff;padding:2px 10px;font-size:12.5px;min-height:26px;margin-left:-1px}
+.units button:first-of-type{border-radius:6px 0 0 6px;margin-left:6px}.units button:last-of-type{border-radius:0 6px 6px 0}
+.units button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
 /* menus and modals */
 .menu{position:fixed;z-index:30;background:#fff;border:1px solid var(--line);border-radius:9px;box-shadow:0 12px 30px rgba(19,50,74,.22);padding:4px;min-width:230px;max-width:340px}
 .menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:7px 10px;border-radius:6px;font-size:13.5px}
@@ -197,7 +201,7 @@ input[type=range]{width:100%;accent-color:var(--orange)}
 .menu button:hover:not(:disabled){background:#eef3f8}
 .menu button:disabled{color:#9aa7b4;cursor:default}
 .menu button.danger{color:var(--red)}
-#modal{position:fixed;inset:0;background:rgba(15,30,45,.45);display:grid;place-items:center;z-index:40;padding:16px}
+#modal{position:fixed;inset:0;background:rgba(15,30,45,.45);display:grid;place-items:center;z-index:60;padding:16px}
 #modal[hidden]{display:none}
 .mbox{background:#fff;border-radius:12px;max-width:440px;width:100%;padding:18px 20px;box-shadow:0 20px 50px rgba(0,0,0,.3);max-height:calc(100vh - 32px);overflow:auto}
 .mbox.wide{max-width:760px}
@@ -209,8 +213,8 @@ input[type=range]{width:100%;accent-color:var(--orange)}
 .bun{width:150px;height:auto;border-radius:12px}
 .bun.sm{width:80px}
 .steps{padding-left:20px;margin:8px 0}.steps li{margin:4px 0}
-.guide .ghead{display:grid;grid-template-columns:80px minmax(0,1fr) auto;gap:14px;align-items:center;margin-bottom:6px}
-.guide .ghead .x{border:0;background:none;border-radius:6px;padding:4px;color:var(--muted)}
+.ghead{display:grid;grid-template-columns:80px minmax(0,1fr) auto;gap:14px;align-items:center;margin-bottom:6px}
+.ghead .x{border:0;background:none;border-radius:6px;padding:4px;color:var(--muted);align-self:start}.ghead .x svg.ic{width:20px;height:20px}
 .guide section{border-top:1px solid var(--line);padding:8px 0}
 .guide h4{margin:4px 0 6px;font-size:16px;color:var(--navy2)}
 .guide p{font-size:14px;margin:5px 0;max-width:68ch}
@@ -234,7 +238,60 @@ input[type=range]{width:100%;accent-color:var(--orange)}
   .welcome{grid-template-columns:minmax(0,1fr)}.bun{width:90px}
   #card{top:auto;bottom:10px;right:10px;left:10px;width:auto;max-height:45%}
 }
-@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+/* tutorials (same family as TS 82 CAD's lesson cards) */
+#top .tb .tuts{background:#fff4e6;color:#7a3d00;font-weight:700}
+#top .tb .tuts:hover{background:#ffe2c2;border-color:#ffe2c2}
+.btn.sm{min-height:30px;padding:3px 10px;font-size:13px;vertical-align:middle;margin-left:6px}
+.ii{display:inline-flex;vertical-align:-3px;margin:0 1px}.ii svg.ic{width:16px;height:16px}
+#tutRing{position:fixed;z-index:47;pointer-events:none;border:3px solid #f59e0b;border-radius:9px;box-shadow:0 0 0 4px rgba(245,158,11,.25),0 0 18px rgba(245,158,11,.55);animation:tutPulse 1.1s ease-in-out infinite}
+@keyframes tutPulse{50%{box-shadow:0 0 0 8px rgba(245,158,11,.12),0 0 26px rgba(245,158,11,.7)}}
+#tutDot{position:fixed;z-index:46;pointer-events:none;width:0;height:0}
+#tutDot::before{content:"";position:absolute;left:-11px;top:-11px;width:16px;height:16px;border:3px solid #1f9d45;border-radius:50%;background:rgba(31,157,69,.22)}
+#tutDot::after{content:"";position:absolute;left:-11px;top:-11px;width:16px;height:16px;border:3px solid #1f9d45;border-radius:50%;animation:tutRipple 1.3s ease-out infinite}
+@keyframes tutRipple{to{transform:scale(2.6);opacity:0}}
+#tutDot span{position:absolute;left:14px;top:6px;white-space:nowrap;color:#146c30;font-size:12.5px;font-weight:700;background:rgba(255,255,255,.9);border-radius:5px;padding:1px 5px}
+#tutCard{position:fixed;z-index:48;width:310px;background:#f7f3ea;color:#2a2f35;border:2px solid #e0b25c;border-radius:10px;box-shadow:0 12px 32px rgba(19,50,74,.28);font-size:13.5px;line-height:1.45}
+#tutCard .th{display:flex;align-items:center;gap:6px;padding:7px 7px 4px 12px;font-size:12px;color:#7a6a55}
+#tutCard .tl{font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tutCard .tn{white-space:nowrap}
+#tutCard .th button{width:26px;height:26px;padding:0;border:0;background:none;font-size:17px;line-height:24px;color:#7a6a55;border-radius:5px}
+#tutCard .th button:hover{background:#e9e0cf}
+#tutCard .tbar{height:4px;margin:0 12px;background:#e5dccb;border-radius:2px;overflow:hidden}
+#tutCard .tbar i{display:block;height:100%;background:#e0b25c;transition:width .3s}
+#tutCard .tbody{display:flex;gap:10px;align-items:flex-start;padding:9px 12px 0}
+#tutCard .tbun{width:64px;height:auto;border-radius:8px;flex:none}
+#tutCard .tsay{font-size:15px;font-weight:700;line-height:1.35}
+#tutCard .twhy{padding-top:4px;color:#4b5560}
+#tutCard .twhy:empty{display:none}
+#tutCard .thint{margin:8px 12px 0;padding:6px 9px;background:#fde4d4;color:#8a3b14;border-radius:6px;display:none}
+#tutCard code{background:#ebe3d3;color:#2a2f35;padding:0 4px;border-radius:4px;font-size:12.5px}
+#tutCard .tbtns{display:flex;gap:6px;align-items:center;padding:10px 12px 12px;flex-wrap:wrap}
+#tutCard .tbtns button{padding:6px 12px;background:#ebe3d3;border:1px solid #cdbfa6;color:#2a2f35;font-size:13px;border-radius:7px;min-height:34px}
+#tutCard .tbtns button:hover{background:#e2d8c5}
+#tutCard .tbtns .tsp{flex:1}
+#tutCard .tbtns button.pri{background:#13324a;border-color:#13324a;color:#fff;font-weight:700}
+#tutCard.ok{border-color:#2f9e44}
+#tutCard.ok .tsay{color:#21803a}
+#tutCard.ok .tsay::before{content:"\2713  Nice! ";font-weight:800}
+#tutCard.ok .tbtns{visibility:hidden}
+#tutCard.fin{border-color:#2f9e44}
+#tutCard .tarrow{position:absolute;width:14px;height:14px;background:#f7f3ea;border:2px solid #e0b25c;transform:rotate(45deg)}
+#tutCard.ok .tarrow{border-color:#2f9e44}
+#tutCard .tarrow.none{display:none}
+#tutCard .tarrow.below{top:-9px;margin-left:-7px;border-right:none;border-bottom:none}
+#tutCard .tarrow.above{bottom:-9px;margin-left:-7px;border-left:none;border-top:none}
+#tutCard .tarrow.right{left:-9px;margin-top:-7px;border-right:none;border-top:none}
+#tutCard .tarrow.left{right:-9px;margin-top:-7px;border-left:none;border-bottom:none}
+#tutPill{position:fixed;z-index:48;left:300px;bottom:44px;padding:7px 14px;background:#f7f3ea;color:#2a2f35;border:2px solid #e0b25c;border-radius:18px;font-size:13px;font-weight:700;box-shadow:0 4px 14px rgba(19,50,74,.25)}
+.tlist{display:flex;flex-direction:column;gap:6px;margin:6px 0 4px}
+.tlrow{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;min-height:56px}
+.tlrow:hover{background:#f6f9fc;border-color:#c4d0dc}
+.tlrow.star{border-color:#e0b25c;background:#fffaf0}
+.tlnum{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#13324a;color:#fff;font-weight:700}
+.tlt b{font-size:15px;color:var(--navy)}.tlt em{font-style:normal;font-size:11.5px;font-weight:700;color:#7a3d00;background:#ffe2c2;border-radius:10px;padding:1px 7px;margin-left:8px}
+.tlt small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.tltime{font-size:12px;color:var(--muted);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}#tutRing,#tutDot::after{animation:none}}
 </style>
 </head>
 <body>
@@ -250,6 +307,7 @@ input[type=range]{width:100%;accent-color:var(--orange)}
       <button data-act="undo" title="Undo (Ctrl+Z)" aria-label="Undo"><span class="lbl">Undo</span></button>
       <button data-act="redo" title="Redo (Ctrl+Y)" aria-label="Redo"><span class="lbl">Redo</span></button>
       <button data-act="export" aria-label="Export" title="Export"><span class="lbl">Export</span></button>
+      <button data-act="tutorials" aria-label="Tutorials" title="Tutorials" class="tuts"><span class="lbl">Tutorials</span></button>
       <button data-act="guide" aria-label="Guide" title="Guide" class="guide"><span class="lbl">Guide</span></button>
     </div>
   </header>
@@ -268,7 +326,7 @@ input[type=range]{width:100%;accent-color:var(--orange)}
       <div id="toasts" aria-live="polite"></div>
     </div>
   </main>
-  <footer id="status"><span id="hint"></span><span id="skStatus"></span><label><input type="checkbox" id="snapChk" checked> Snap to grid</label><span>Units: mm</span></footer>
+  <footer id="status"><span id="hint"></span><span id="skStatus"></span><label><input type="checkbox" id="snapChk" checked> Snap to grid</label><span class="units" id="unitsSeg" role="group" aria-label="Units">Units <button type="button" data-u="mm" class="on" aria-pressed="true">mm</button><button type="button" data-u="in" aria-pressed="false">in</button></span></footer>
 </div>
 <div id="tip" hidden></div>
 <div id="modal" hidden></div>
@@ -4470,18 +4528,18 @@ function regen(doc, M, opts = {}) {
     if (op === "add") {
       const hits = res.bodies.filter((b) => bbOverlap(b.man.boundingBox(), tb));
       const merged = [];
-      let cur = tool;
+      let cur2 = tool;
       for (const b of hits) {
-        const u = track(cur.add(b.man));
+        const u = track(cur2.add(b.man));
         const parts = u.decompose();
         const nu = parts.length;
         parts.forEach((p) => p.delete());
-        const pa = cur.decompose(), pb = b.man.decompose();
+        const pa = cur2.decompose(), pb = b.man.decompose();
         const ns = pa.length + pb.length;
         pa.forEach((p) => p.delete());
         pb.forEach((p) => p.delete());
         if (nu < ns) {
-          cur = u;
+          cur2 = u;
           merged.push(b);
         }
       }
@@ -4490,7 +4548,7 @@ function regen(doc, M, opts = {}) {
         return;
       }
       const keep = merged[0];
-      keep.man = cur;
+      keep.man = cur2;
       res.bodies = res.bodies.filter((b) => b === keep || !merged.includes(b));
       return;
     }
@@ -8752,19 +8810,19 @@ var Matrix4 = class _Matrix4 {
     scale.z = sz;
     return this;
   }
-  makePerspective(left, right, top, bottom, near, far, coordinateSystem = WebGLCoordinateSystem) {
+  makePerspective(left, right, top, bottom, near2, far, coordinateSystem = WebGLCoordinateSystem) {
     const te = this.elements;
-    const x = 2 * near / (right - left);
-    const y = 2 * near / (top - bottom);
+    const x = 2 * near2 / (right - left);
+    const y = 2 * near2 / (top - bottom);
     const a = (right + left) / (right - left);
     const b = (top + bottom) / (top - bottom);
     let c, d;
     if (coordinateSystem === WebGLCoordinateSystem) {
-      c = -(far + near) / (far - near);
-      d = -2 * far * near / (far - near);
+      c = -(far + near2) / (far - near2);
+      d = -2 * far * near2 / (far - near2);
     } else if (coordinateSystem === WebGPUCoordinateSystem) {
-      c = -far / (far - near);
-      d = -far * near / (far - near);
+      c = -far / (far - near2);
+      d = -far * near2 / (far - near2);
     } else {
       throw new Error("THREE.Matrix4.makePerspective(): Invalid coordinate system: " + coordinateSystem);
     }
@@ -8786,19 +8844,19 @@ var Matrix4 = class _Matrix4 {
     te[15] = 0;
     return this;
   }
-  makeOrthographic(left, right, top, bottom, near, far, coordinateSystem = WebGLCoordinateSystem) {
+  makeOrthographic(left, right, top, bottom, near2, far, coordinateSystem = WebGLCoordinateSystem) {
     const te = this.elements;
     const w = 1 / (right - left);
     const h = 1 / (top - bottom);
-    const p = 1 / (far - near);
+    const p = 1 / (far - near2);
     const x = (right + left) * w;
     const y = (top + bottom) * h;
     let z, zInv;
     if (coordinateSystem === WebGLCoordinateSystem) {
-      z = (far + near) * p;
+      z = (far + near2) * p;
       zInv = -2 * p;
     } else if (coordinateSystem === WebGPUCoordinateSystem) {
-      z = near * p;
+      z = near2 * p;
       zInv = -1 * p;
     } else {
       throw new Error("THREE.Matrix4.makeOrthographic(): Invalid coordinate system: " + coordinateSystem);
@@ -11989,13 +12047,13 @@ var _v3$1 = /* @__PURE__ */ new Vector3();
 var _minTarget = /* @__PURE__ */ new Vector2();
 var _maxTarget = /* @__PURE__ */ new Vector2();
 var PerspectiveCamera = class extends Camera {
-  constructor(fov2 = 50, aspect2 = 1, near = 0.1, far = 2e3) {
+  constructor(fov2 = 50, aspect2 = 1, near2 = 0.1, far = 2e3) {
     super();
     this.isPerspectiveCamera = true;
     this.type = "PerspectiveCamera";
     this.fov = fov2;
     this.zoom = 1;
-    this.near = near;
+    this.near = near2;
     this.far = far;
     this.focus = 10;
     this.aspect = aspect2;
@@ -12130,8 +12188,8 @@ var PerspectiveCamera = class extends Camera {
     this.updateProjectionMatrix();
   }
   updateProjectionMatrix() {
-    const near = this.near;
-    let top = near * Math.tan(DEG2RAD * 0.5 * this.fov) / this.zoom;
+    const near2 = this.near;
+    let top = near2 * Math.tan(DEG2RAD * 0.5 * this.fov) / this.zoom;
     let height = 2 * top;
     let width = this.aspect * height;
     let left = -0.5 * width;
@@ -12144,8 +12202,8 @@ var PerspectiveCamera = class extends Camera {
       height *= view.height / fullHeight;
     }
     const skew = this.filmOffset;
-    if (skew !== 0) left += near * skew / this.getFilmWidth();
-    this.projectionMatrix.makePerspective(left, left + width, top, top - height, near, this.far, this.coordinateSystem);
+    if (skew !== 0) left += near2 * skew / this.getFilmWidth();
+    this.projectionMatrix.makePerspective(left, left + width, top, top - height, near2, this.far, this.coordinateSystem);
     this.projectionMatrixInverse.copy(this.projectionMatrix).invert();
   }
   toJSON(meta) {
@@ -12165,28 +12223,28 @@ var PerspectiveCamera = class extends Camera {
 var fov = -90;
 var aspect = 1;
 var CubeCamera = class extends Object3D {
-  constructor(near, far, renderTarget) {
+  constructor(near2, far, renderTarget) {
     super();
     this.type = "CubeCamera";
     this.renderTarget = renderTarget;
     this.coordinateSystem = null;
     this.activeMipmapLevel = 0;
-    const cameraPX = new PerspectiveCamera(fov, aspect, near, far);
+    const cameraPX = new PerspectiveCamera(fov, aspect, near2, far);
     cameraPX.layers = this.layers;
     this.add(cameraPX);
-    const cameraNX = new PerspectiveCamera(fov, aspect, near, far);
+    const cameraNX = new PerspectiveCamera(fov, aspect, near2, far);
     cameraNX.layers = this.layers;
     this.add(cameraNX);
-    const cameraPY = new PerspectiveCamera(fov, aspect, near, far);
+    const cameraPY = new PerspectiveCamera(fov, aspect, near2, far);
     cameraPY.layers = this.layers;
     this.add(cameraPY);
-    const cameraNY = new PerspectiveCamera(fov, aspect, near, far);
+    const cameraNY = new PerspectiveCamera(fov, aspect, near2, far);
     cameraNY.layers = this.layers;
     this.add(cameraNY);
-    const cameraPZ = new PerspectiveCamera(fov, aspect, near, far);
+    const cameraPZ = new PerspectiveCamera(fov, aspect, near2, far);
     cameraPZ.layers = this.layers;
     this.add(cameraPZ);
-    const cameraNZ = new PerspectiveCamera(fov, aspect, near, far);
+    const cameraNZ = new PerspectiveCamera(fov, aspect, near2, far);
     cameraNZ.layers = this.layers;
     this.add(cameraNZ);
   }
@@ -14241,7 +14299,7 @@ function WebGLCubeMaps(renderer) {
   };
 }
 var OrthographicCamera = class extends Camera {
-  constructor(left = -1, right = 1, top = 1, bottom = -1, near = 0.1, far = 2e3) {
+  constructor(left = -1, right = 1, top = 1, bottom = -1, near2 = 0.1, far = 2e3) {
     super();
     this.isOrthographicCamera = true;
     this.type = "OrthographicCamera";
@@ -14251,7 +14309,7 @@ var OrthographicCamera = class extends Camera {
     this.right = right;
     this.top = top;
     this.bottom = bottom;
-    this.near = near;
+    this.near = near2;
     this.far = far;
     this.updateProjectionMatrix();
   }
@@ -14371,7 +14429,7 @@ var PMREMGenerator = class {
    * and far planes ensure the scene is rendered in its entirety (the cubeCamera
    * is placed at the origin).
    */
-  fromScene(scene, sigma = 0, near = 0.1, far = 100) {
+  fromScene(scene, sigma = 0, near2 = 0.1, far = 100) {
     _oldTarget = this._renderer.getRenderTarget();
     _oldActiveCubeFace = this._renderer.getActiveCubeFace();
     _oldActiveMipmapLevel = this._renderer.getActiveMipmapLevel();
@@ -14380,7 +14438,7 @@ var PMREMGenerator = class {
     this._setSize(256);
     const cubeUVRenderTarget = this._allocateTargets();
     cubeUVRenderTarget.depthBuffer = true;
-    this._sceneToCubeUV(scene, near, far, cubeUVRenderTarget);
+    this._sceneToCubeUV(scene, near2, far, cubeUVRenderTarget);
     if (sigma > 0) {
       this._blur(cubeUVRenderTarget, 0, 0, sigma);
     }
@@ -14499,10 +14557,10 @@ var PMREMGenerator = class {
     const tmpMesh = new Mesh(this._lodPlanes[0], material);
     this._renderer.compile(tmpMesh, _flatCamera);
   }
-  _sceneToCubeUV(scene, near, far, cubeUVRenderTarget) {
+  _sceneToCubeUV(scene, near2, far, cubeUVRenderTarget) {
     const fov2 = 90;
     const aspect2 = 1;
-    const cubeCamera = new PerspectiveCamera(fov2, aspect2, near, far);
+    const cubeCamera = new PerspectiveCamera(fov2, aspect2, near2, far);
     const upSign = [1, -1, 1, 1, 1, 1];
     const forwardSign = [1, 1, 1, -1, -1, -1];
     const renderer = this._renderer;
@@ -15884,49 +15942,49 @@ function setValueV4uiArray(gl, v) {
 function setValueT1Array(gl, v, textures) {
   const cache = this.cache;
   const n = v.length;
-  const units = allocTexUnits(textures, n);
-  if (!arraysEqual(cache, units)) {
-    gl.uniform1iv(this.addr, units);
-    copyArray(cache, units);
+  const units2 = allocTexUnits(textures, n);
+  if (!arraysEqual(cache, units2)) {
+    gl.uniform1iv(this.addr, units2);
+    copyArray(cache, units2);
   }
   for (let i = 0; i !== n; ++i) {
-    textures.setTexture2D(v[i] || emptyTexture, units[i]);
+    textures.setTexture2D(v[i] || emptyTexture, units2[i]);
   }
 }
 function setValueT3DArray(gl, v, textures) {
   const cache = this.cache;
   const n = v.length;
-  const units = allocTexUnits(textures, n);
-  if (!arraysEqual(cache, units)) {
-    gl.uniform1iv(this.addr, units);
-    copyArray(cache, units);
+  const units2 = allocTexUnits(textures, n);
+  if (!arraysEqual(cache, units2)) {
+    gl.uniform1iv(this.addr, units2);
+    copyArray(cache, units2);
   }
   for (let i = 0; i !== n; ++i) {
-    textures.setTexture3D(v[i] || empty3dTexture, units[i]);
+    textures.setTexture3D(v[i] || empty3dTexture, units2[i]);
   }
 }
 function setValueT6Array(gl, v, textures) {
   const cache = this.cache;
   const n = v.length;
-  const units = allocTexUnits(textures, n);
-  if (!arraysEqual(cache, units)) {
-    gl.uniform1iv(this.addr, units);
-    copyArray(cache, units);
+  const units2 = allocTexUnits(textures, n);
+  if (!arraysEqual(cache, units2)) {
+    gl.uniform1iv(this.addr, units2);
+    copyArray(cache, units2);
   }
   for (let i = 0; i !== n; ++i) {
-    textures.setTextureCube(v[i] || emptyCubeTexture, units[i]);
+    textures.setTextureCube(v[i] || emptyCubeTexture, units2[i]);
   }
 }
 function setValueT2DArrayArray(gl, v, textures) {
   const cache = this.cache;
   const n = v.length;
-  const units = allocTexUnits(textures, n);
-  if (!arraysEqual(cache, units)) {
-    gl.uniform1iv(this.addr, units);
-    copyArray(cache, units);
+  const units2 = allocTexUnits(textures, n);
+  if (!arraysEqual(cache, units2)) {
+    gl.uniform1iv(this.addr, units2);
+    copyArray(cache, units2);
   }
   for (let i = 0; i !== n; ++i) {
-    textures.setTexture2DArray(v[i] || emptyArrayTexture, units[i]);
+    textures.setTexture2DArray(v[i] || emptyArrayTexture, units2[i]);
   }
 }
 function getPureArraySetter(type) {
@@ -18641,13 +18699,13 @@ function WebGLState(gl, extensions) {
       currentLineWidth = width;
     }
   }
-  function setPolygonOffset(polygonOffset, factor, units) {
+  function setPolygonOffset(polygonOffset, factor, units2) {
     if (polygonOffset) {
       enable(gl.POLYGON_OFFSET_FILL);
-      if (currentPolygonOffsetFactor !== factor || currentPolygonOffsetUnits !== units) {
-        gl.polygonOffset(factor, units);
+      if (currentPolygonOffsetFactor !== factor || currentPolygonOffsetUnits !== units2) {
+        gl.polygonOffset(factor, units2);
         currentPolygonOffsetFactor = factor;
-        currentPolygonOffsetUnits = units;
+        currentPolygonOffsetUnits = units2;
       }
     } else {
       disable(gl.POLYGON_OFFSET_FILL);
@@ -20798,14 +20856,14 @@ var WebXRManager = class extends EventDispatcher {
       const ipd = cameraLPos.distanceTo(cameraRPos);
       const projL = cameraL2.projectionMatrix.elements;
       const projR = cameraR2.projectionMatrix.elements;
-      const near = projL[14] / (projL[10] - 1);
+      const near2 = projL[14] / (projL[10] - 1);
       const far = projL[14] / (projL[10] + 1);
       const topFov = (projL[9] + 1) / projL[5];
       const bottomFov = (projL[9] - 1) / projL[5];
       const leftFov = (projL[8] - 1) / projL[0];
       const rightFov = (projR[8] + 1) / projR[0];
-      const left = near * leftFov;
-      const right = near * rightFov;
+      const left = near2 * leftFov;
+      const right = near2 * rightFov;
       const zOffset = ipd / (-leftFov + rightFov);
       const xOffset = zOffset * -leftFov;
       cameraL2.matrixWorld.decompose(camera.position, camera.quaternion, camera.scale);
@@ -20817,13 +20875,13 @@ var WebXRManager = class extends EventDispatcher {
         camera.projectionMatrix.copy(cameraL2.projectionMatrix);
         camera.projectionMatrixInverse.copy(cameraL2.projectionMatrixInverse);
       } else {
-        const near2 = near + zOffset;
+        const near22 = near2 + zOffset;
         const far2 = far + zOffset;
         const left2 = left - xOffset;
         const right2 = right + (ipd - xOffset);
-        const top2 = topFov * far / far2 * near2;
-        const bottom2 = bottomFov * far / far2 * near2;
-        camera.projectionMatrix.makePerspective(left2, right2, top2, bottom2, near2, far2);
+        const top2 = topFov * far / far2 * near22;
+        const bottom2 = bottomFov * far / far2 * near22;
+        camera.projectionMatrix.makePerspective(left2, right2, top2, bottom2, near22, far2);
         camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
       }
     }
@@ -24816,9 +24874,9 @@ PropertyBinding.prototype.SetterByBindingTypeAndVersioning = [
 var _controlInterpolantsResultBuffer = new Float32Array(1);
 var _matrix = /* @__PURE__ */ new Matrix4();
 var Raycaster = class {
-  constructor(origin, direction, near = 0, far = Infinity) {
+  constructor(origin, direction, near2 = 0, far = Infinity) {
     this.ray = new Ray(origin, direction);
-    this.near = near;
+    this.near = near2;
     this.far = far;
     this.camera = null;
     this.layers = new Layers();
@@ -25330,19 +25388,20 @@ var View3D = class {
       ctx.fillText(p.label, x + 4, y + 14);
     }
   }
-  setGrid(size, show) {
+  setGrid(size, show, inch) {
     this.gGrid.clear();
     if (!show) {
       this.request();
       return;
     }
-    const step = size > 400 ? 50 : size > 150 ? 10 : 5;
+    const step = inch ? size > 400 ? 50.8 : size > 150 ? 12.7 : 6.35 : size > 400 ? 50 : size > 150 ? 10 : 5;
+    const every = inch ? size > 400 ? 5 : size > 150 ? 2 : 4 : 5;
     const n = Math.ceil(size / step / 2) * 2;
     const half = n * step / 2;
     const pts = [], major = [];
     for (let i = 0; i <= n; i++) {
       const t = -half + i * step;
-      const arr = Math.round(t / step) % 5 === 0 ? major : pts;
+      const arr = Math.round(t / step) % every === 0 ? major : pts;
       arr.push(new Vector3(t, -half, 0), new Vector3(t, half, 0), new Vector3(-half, t, 0), new Vector3(half, t, 0));
     }
     const mk = (a, op) => {
@@ -25657,7 +25716,51 @@ function groupLoops(pos, idx, grp) {
   return loops;
 }
 
+// src/units.js
+var UNITS_INFO = {
+  mm: { k: 1, suf: "mm", dec: 2, name: "millimeters" },
+  in: { k: 25.4, suf: "in", dec: 3, name: "inches" }
+};
+var cur = "mm";
+var setUnits = (u) => {
+  cur = UNITS_INFO[u] ? u : "mm";
+};
+var units = () => cur;
+var usuf = () => UNITS_INFO[cur].suf;
+var PLAIN = /^\s*(-?(?:\d+\.?\d*|\.\d+))\s*$/;
+var WITH_IN = /^\s*(-?(?:\d+\.?\d*|\.\d+))\s*(?:in|inch|inches|")\s*$/;
+function fmtLen(mm, withUnit = false, dec) {
+  const u = UNITS_INFO[cur];
+  const s = fmt(mm / u.k, dec ?? u.dec);
+  return withUnit ? s + " " + u.suf : s;
+}
+function lenLabel(mm, dec) {
+  return cur === "mm" ? fmt(mm, dec ?? 2) : fmt(mm / 25.4, dec ?? 3) + " in";
+}
+function stampLen(text) {
+  const t = String(text ?? "").trim();
+  if (cur === "in" && PLAIN.test(t)) return t + " in";
+  return t;
+}
+function showLen(stored) {
+  const t = String(stored ?? "").trim();
+  if (cur === "in") {
+    let m = PLAIN.exec(t);
+    if (m) return fmt(parseFloat(m[1]) / 25.4, 4);
+    m = WITH_IN.exec(t);
+    if (m) return m[1];
+  } else {
+    const m = WITH_IN.exec(t);
+    if (m) return fmt(parseFloat(m[1]) * 25.4, 3);
+  }
+  return t;
+}
+function niceSteps() {
+  return cur === "in" ? [1 / 64, 1 / 32, 1 / 16, 1 / 8, 1 / 4, 1 / 2, 1, 2, 4, 10].map((v) => v * 25.4) : [0.1, 0.25, 0.5, 1, 2, 5, 10, 20, 50, 100, 200];
+}
+
 // src/sketch.js
+var isNew_ = (ed) => ed.inputIsNew;
 var COL = { free: "#1f6fd1", def: "#141a21", sel: "#f28c28", hov: "#f59e0b", bad: "#d63b3b", dim: "#334e68", drv: "#7b8794", ref: "#4b5563" };
 var D2R2 = Math.PI / 180;
 var hyp = Math.hypot;
@@ -25727,8 +25830,8 @@ var SketchEditor = class {
   }
   gridStep() {
     const px = this.px();
-    const cands = [0.1, 0.25, 0.5, 1, 2, 5, 10, 20, 50, 100, 200];
-    return cands.find((s) => s / px >= 9) || 200;
+    const cands = niceSteps();
+    return cands.find((s) => s / px >= 9) || cands[cands.length - 1];
   }
   newPid() {
     return "p" + this.sk.nid++;
@@ -26584,7 +26687,7 @@ var SketchEditor = class {
     }
     let r;
     try {
-      r = evaluate(this.filletR, this.values);
+      r = evaluate(stampLen(this.filletR), this.values);
     } catch (e) {
       this.app.toast("Fillet radius: " + e.message, "bad");
       return;
@@ -26594,7 +26697,7 @@ var SketchEditor = class {
       return;
     }
     this.begin();
-    const res = this.filletCorner(h.id, r, this.filletR);
+    const res = this.filletCorner(h.id, r, stampLen(this.filletR));
     if (res !== true) {
       this.revert();
       this.app.toast(res, "bad");
@@ -26947,13 +27050,28 @@ var SketchEditor = class {
       this.hint();
       return;
     }
-    if (op.picks.some((p) => p.id === item.id)) return;
-    op.picks.push(item);
-    op.place = true;
-    if (!this.dimSpec()) {
-      this.app.toast("I can't dimension those two together. Try two points, a point and a line, or two lines.");
-      op.picks.pop();
+    if (op.picks.some((p) => p.id === item.id)) {
+      if (op.place) this.placeDim();
+      return;
     }
+    op.picks.push(item);
+    const spec = this.dimSpec();
+    const virt = item.k === "e" && getEnt(sk, item.id).virt;
+    let useless = !spec;
+    if (spec && spec.t === "ang") {
+      const d1 = this.dirOf(getEnt(sk, spec.e1)), d2 = this.dirOf(getEnt(sk, spec.e2));
+      if (Math.abs(d1[0] * d2[0] + d1[1] * d2[1]) < 1e-6) useless = true;
+    }
+    if (useless) {
+      op.picks.pop();
+      if (op.place) {
+        this.placeDim();
+        return;
+      }
+      if (!virt) this.app.toast("I can't dimension those two together. Try two points, a point and a line, or two lines.");
+      return;
+    }
+    op.place = true;
   }
   // Work out the dimension constraint from picks and mouse position
   dimSpec() {
@@ -27122,12 +27240,15 @@ var SketchEditor = class {
   }
   showInput(c, isNew) {
     this.hideInput();
+    this.inputIsNew = !!isNew;
     const el = document.createElement("div");
     el.className = "dimbox";
     el.innerHTML = `<input type="text" spellcheck="false" autocomplete="off" aria-label="Dimension value"><div class="dimmsg">Enter a number or a formula like #width/2. Press Enter.</div>`;
     this.view.host.appendChild(el);
     const inp = el.querySelector("input");
-    inp.value = c.v;
+    const isLen = c.t !== "ang";
+    inp.value = isLen ? showLen(c.v) : c.v;
+    this.inputInit = inp.value;
     this.inputEl = inp;
     this.inputBox = el;
     this.inputCon = c.id;
@@ -27159,8 +27280,10 @@ var SketchEditor = class {
       const t = inp.value.trim();
       const asg = /^#?([A-Za-z_]\w*)\s*=\s*(.+)$/.exec(t);
       try {
-        const v = evaluate(asg ? asg[2] : t, this.values);
-        m.textContent = asg ? `Makes #${asg[1]} = ${fmt(v, 3)} and uses it here` : `= ${fmt(v, 3)}${c.t === "ang" ? "\xB0" : " mm"}`;
+        const src = asg ? asg[2] : t;
+        const v = evaluate(isLen ? stampLen(src) : src, this.values);
+        const shown = isLen ? fmtLen(v, true, 3) : fmt(v, 3) + "\xB0";
+        m.textContent = asg ? `Makes #${asg[1]} = ${shown} and uses it here` : `= ${shown}`;
         m.classList.remove("bad");
       } catch (er) {
         m.textContent = er.message;
@@ -27188,7 +27311,12 @@ var SketchEditor = class {
       this.hideInput();
       return;
     }
-    let expr = t;
+    if (t === this.inputInit && !isNew_(this)) {
+      this.hideInput();
+      return;
+    }
+    const isLen = c.t !== "ang";
+    let expr = isLen ? stampLen(t) : t;
     const asg = /^#?([A-Za-z_]\w*)\s*=\s*(.+)$/.exec(t);
     const docBefore = JSON.stringify(this.app.doc.vars);
     if (asg) {
@@ -27197,9 +27325,10 @@ var SketchEditor = class {
         msg.classList.add("bad");
         return;
       }
+      const vx = isLen ? stampLen(asg[2]) : asg[2];
       const ex = this.app.doc.vars.find((v) => v.name === asg[1]);
-      if (ex) ex.expr = asg[2];
-      else this.app.doc.vars.push({ name: asg[1], expr: asg[2] });
+      if (ex) ex.expr = vx;
+      else this.app.doc.vars.push({ name: asg[1], expr: vx });
       this.app.reevalVars();
       expr = "#" + asg[1];
     }
@@ -27714,7 +27843,7 @@ var SketchEditor = class {
   }
   dimText(c) {
     const v = measureDim(this.sk, c);
-    let s = c.t === "ang" ? fmt(v) + "\xB0" : c.t === "dia" ? "\xD8" + fmt(v) : c.t === "rad" ? "R" + fmt(v) : fmt(Math.abs(v));
+    let s = c.t === "ang" ? fmt(v) + "\xB0" : c.t === "dia" ? "\xD8" + lenLabel(v) : c.t === "rad" ? "R" + lenLabel(v) : lenLabel(Math.abs(v));
     if (c.driven) return "(" + s + ")";
     if (!isPlainNumber(c.v)) s = s + " = " + c.v;
     return s;
@@ -28009,7 +28138,7 @@ var SketchEditor = class {
       ctx.font = "600 11px system-ui";
       ctx.fillStyle = "#475569";
       ctx.textAlign = "left";
-      ctx.fillText(`${fmt(s.u, 2)}, ${fmt(s.v, 2)}`, x + 12, y + 16);
+      ctx.fillText(`${fmtLen(s.u)}, ${fmtLen(s.v)} ${usuf()}`, x + 12, y + 16);
       ctx.textAlign = "center";
     }
     if (!op) {
@@ -28041,13 +28170,13 @@ var SketchEditor = class {
         ctx.fillStyle = "#475569";
         ctx.font = "600 11px system-ui";
         const [lx, ly] = S((x0 + x1) / 2, Math.max(y0, y1));
-        ctx.fillText(fmt(Math.abs(x1 - x0)) + " \xD7 " + fmt(Math.abs(y1 - y0)), lx, ly - 10);
+        ctx.fillText(fmtLen(Math.abs(x1 - x0)) + " \xD7 " + fmtLen(Math.abs(y1 - y0)) + " " + usuf(), lx, ly - 10);
         break;
       }
       case "circle": {
         const r = hyp(s.u - op.c[0], s.v - op.c[1]);
         circ(op.c, r);
-        this.lenLabel(ctx, op.c, [s.u, s.v], "\xD8" + fmt(2 * r));
+        this.lenLabel(ctx, op.c, [s.u, s.v], "\xD8" + lenLabel(2 * r));
         break;
       }
       case "arc3": {
@@ -28142,7 +28271,7 @@ var SketchEditor = class {
     const [x, y] = this.scr((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
     ctx.fillStyle = "#475569";
     ctx.font = "600 11px system-ui";
-    ctx.fillText(txt || fmt(hyp(b[0] - a[0], b[1] - a[1])), x, y - 10);
+    ctx.fillText(txt || lenLabel(hyp(b[0] - a[0], b[1] - a[1])), x, y - 10);
   }
 };
 
@@ -28203,7 +28332,9 @@ var ICONS = {
   eyeoff: "M3 3l18 18 M10.6 5.1A10 10 0 0 1 12 5c6 0 10 7 10 7a17 17 0 0 1-3.2 3.9 M6.6 6.6C3.8 8.5 2 12 2 12s4 7 10 7a9.6 9.6 0 0 0 4.4-1.1",
   trash: "M4 7h16 M9 7V4h6v3 M6 7l1 14h10l1-14",
   plus: "M12 5v14 M5 12h14",
-  grid: "M4 4h16v16H4z M4 9.3h16 M4 14.6h16 M9.3 4v16 M14.6 4v16"
+  grid: "M4 4h16v16H4z M4 9.3h16 M4 14.6h16 M9.3 4v16 M14.6 4v16",
+  tutorial: "M2 9l10-5 10 5-10 5z M6 11v5c3 2.5 9 2.5 12 0v-5 M22 9v6",
+  stl: "M7 9V3h10v6 M7 18H4v-8h16v8h-3 M7 14h10v7H7z M9 17h6"
 };
 function icon(name, cls = "ic") {
   return `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ""}"/></svg>`;
@@ -28217,6 +28348,7 @@ var TOOLS = {
   cpattern: { name: "Circular pattern", key: "", what: "Copy features around an axis, evenly spaced, like bolt holes or spokes.", steps: ["Click Circular pattern.", "Click the features to copy.", "Pick the axis (Z axis, or a sketch point or line).", "Type how many copies and the total angle (360 spreads them all the way around).", "Click the green check."], os: "Circular pattern" },
   mirror: { name: "Mirror", key: "", what: "Copy features across a plane, like a reflection. Build half, then mirror it.", steps: ["Click Mirror.", "Click the features to copy.", "Pick the mirror plane (Top, Front, Right or a flat face).", "Click the green check."], os: "Mirror" },
   measure: { name: "Measure", key: "M", what: "Click corners, points or flat faces to measure distance, angle and area.", steps: ["Click Measure.", "Click a corner or a face.", "Click a second one.", "Read the result in the box. Press Esc to stop."], os: "Measure tool" },
+  stl: { name: "Export STL", key: "", what: "Save the parts you can see as an STL file for the 3D printer. Open it in PrusaSlicer.", steps: ["Hide any part you don't want (the eye in the Parts list).", "Click Export STL.", "Open the file in PrusaSlicer.", "STL files are always in millimeters, which is what PrusaSlicer expects, even if you work in inches."], os: "Export (STL)" },
   mass: { name: "Mass and volume", key: "", what: "Volume, surface area, size and mass for a material like PLA, plywood or acrylic.", steps: ["Click Mass.", "Choose a material.", "Read volume (cm\xB3) and mass (g).", "For a 3D print, set infill to get a rough print mass."], os: "Mass properties" },
   vars: { name: "Variables", key: "", what: "Named numbers you can use in any size. Change one and the whole part updates.", steps: ["Click + in the Variables box.", "Give it a name, like thick.", "Type its value or a formula, like #width/2.", "Use it in a dimension by typing #thick."], os: "Variable / Variable Studio" },
   select: { name: "Select", key: "Esc", what: "Click to pick geometry. Drag blue geometry to see how it can still move. Drag a box to pick many.", steps: ["Click a line, point or circle.", "Shift+click to add more.", "Then click a constraint button, or press Delete."] },
@@ -28258,18 +28390,20 @@ function tipHTML(id) {
   ${t.os ? `<div class="tip-os">In Onshape: <b>${t.os}</b></div>` : ""}${t.tc ? `<div class="tip-os">${t.tc}</div>` : ""}`;
 }
 var GUIDE = [
+  { h: "Tutorials", p: ['Click <b>Tutorials</b> at the top. Each lesson has you make something while a card shows exactly where to click: an orange ring goes round the button to press, and a green "click here" spot marks the place in the view. The card waits until you do it. <b>Do it for me</b> helps if you get stuck. Start with <b>Your first part</b>, then <b>Design intent</b>.'] },
   { h: "The big idea: 2D first, then 3D", p: ["Every part starts as a flat <b>sketch</b> on a plane. You draw rough shapes, then make them exact with <b>dimensions</b> (sizes) and <b>constraints</b> (rules like horizontal, equal, tangent).", "Then a <b>feature</b> turns the sketch into 3D: <b>Extrude</b> pushes it straight out, <b>Revolve</b> spins it around a line. Features stack up in the list on the left, top to bottom, like steps in a recipe.", "You can go back and change any step. Double-click it in the list. Everything after it rebuilds."] },
   { h: "Design intent: blue, black and red", p: ['In a sketch, <b style="color:#1f6fd1">blue</b> geometry can still move. Drag it to see how. <b>Black</b> geometry is fully defined: every size and position is decided.', "The status bar counts what is left (degrees of freedom). A finished sketch should usually be all black.", '<b style="color:#d63b3b">Red</b> means two rules fight each other. Undo the last thing you added.', "Design intent means choosing rules that match what you mean. If a hole should stay centered, make it symmetric or dimension it with #width/2, so it stays centered when the width changes."] },
-  { h: "Variables: math that drives the part", p: ["Add a variable in the Variables box, like <code>width = 60</code>. Use it in any size by typing <code>#width</code>.", "Formulas work: <code>#width/2</code>, <code>sqrt(#run^2 + #rise^2)</code>, <code>atan(#rise/#run)</code>, <code>pi*#d</code>. Trig uses degrees.", "Units: sizes are millimeters. Type <code>2 in</code> for inches (it becomes 50.8 mm).", "Shortcut: in a dimension box, type <code>#thick = 3</code> to make a new variable and use it at the same time.", "A size in parentheses, like (44.72), is a reference dimension. It only measures, so you can check your math against it."] },
+  { h: "Variables: math that drives the part", p: ["Add a variable in the Variables box, like <code>width = 60</code>. Use it in any size by typing <code>#width</code>.", "Formulas work: <code>#width/2</code>, <code>sqrt(#run^2 + #rise^2)</code>, <code>atan(#rise/#run)</code>, <code>pi*#d</code>. Trig uses degrees.", "Units: sizes are millimeters unless you switch to inches with <b>mm | in</b> at the bottom right. Switching never changes the part's size. In inches, typing <code>2</code> in a size box means 2 inches; in a formula or a variable, write the unit, like <code>#width + 0.5 in</code> or <code>2 in</code>. In millimeters, <code>2 in</code> still works and becomes 50.8 mm.", "Shortcut: in a dimension box, type <code>#thick = 3</code> to make a new variable and use it at the same time.", "A size in parentheses, like (44.72), is a reference dimension. It only measures, so you can check your math against it."] },
   { h: "Mouse and keys", p: ["<b>Rotate</b>: right-drag, or left-drag on empty space. <b>Pan</b>: middle-drag or Shift+drag. <b>Zoom</b>: scroll wheel (it zooms toward the mouse).", "Click the cube in the corner for Top, Front, Right and corner views. <b>Fit</b> shows everything.", "Undo: Ctrl+Z. Redo: Ctrl+Y. Delete: Delete key. Stop a tool: Esc.", "Sketch keys: L line, R rectangle, C circle, A arc, D dimension, Q construction, F fillet, X trim."] },
   { h: "Live preview and drag handles", p: ["While a feature box is open, the part shows what it will look like. Every change updates it right away.", "Drag the orange arrow to set an Extrude depth or Plane offset, the orange ball to set a Revolve angle, or the arrows on a Linear pattern to set the spacing. Sizes snap to round numbers; hold Shift for any number. Dragging an Extrude back past the sketch flips it.", "In a number box, the up and down arrow keys add or subtract 1 (Shift: 10, Alt: 0.1)."] },
   { h: "New, Add, Remove, Intersect", p: ["<b>New</b> makes a separate part. <b>Add</b> joins onto the parts it touches. <b>Remove</b> cuts away (holes, pockets). <b>Intersect</b> keeps only where the new shape and the part overlap.", "Tip: for a hole all the way through, use Remove with <b>Through all</b>, so the hole stays through even if the part gets thicker."] },
-  { h: "Getting it to the makerspace", p: ["<b>3D printer (Prusa)</b>: Export STL, then open it in PrusaSlicer.", "<b>Laser, router or waterjet</b>: select a sketch in the list and choose Export sketch DXF or SVG. Cut lines come out red (red cuts), and the file opens in TS 82 CAD or AutoCAD. You can also export a flat face of the part.", "Mass: pick PLA in the Mass box and compare the estimate with the scale."] },
+  { h: "Getting it to the makerspace", p: ["<b>3D printer (Prusa)</b>: click <b>Export STL</b> in the toolbar, then open the file in PrusaSlicer. STL files are always in millimeters.", "<b>Laser, router or waterjet</b>: select a sketch in the list and choose Export sketch DXF or SVG. Cut lines come out red (red cuts), and the file opens in TS 82 CAD or AutoCAD. You can also export a flat face of the part.", "Mass: pick PLA in the Mass box and compare the estimate with the scale."] },
   { h: "About", p: ["Geo-CAD 3D was made for TS 82 at Everett Community College. It runs in your browser; your part is saved in this browser automatically, and Save gives you a file to keep.", "Built with three.js (MIT license) for drawing and Manifold (Apache 2.0 license) for the solid shapes."] },
   { h: "Words you will see in Onshape", p: ["Part Studio = this whole page. Feature list = the list on the left. Sketch, Extrude, Revolve, Fillet, Mirror, Linear and Circular pattern, Variable: same names here, so your skills carry over.", "Fully defined (black) and under defined (blue) work the same way in Onshape and SolidWorks."] }
 ];
 
 // src/dialogs.js
+var LEN_KEYS = /* @__PURE__ */ new Set(["depth", "off", "spacing", "spacing2"]);
 var $ = (s, r = document) => r.querySelector(s);
 var esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 var SOLID = /* @__PURE__ */ new Set(["extrude", "revolve", "lpattern", "cpattern", "mirror"]);
@@ -28355,7 +28489,7 @@ var FeatureDialog = class {
     const sk = d.sketch && this.app.doc.features.find((f) => f.id === d.sketch);
     const field = (key, label, value, hint) => `<div class="fld${this.active === key ? " act" : ""}" data-f="${key}"><div class="fl">${label}</div><div class="fv">${value}</div>${this.active === key && hint ? `<div class="fh">${hint}</div>` : ""}</div>`;
     const seg = (key, opts) => `<div class="seg" data-seg="${key}">${opts.map(([v, lab, ic]) => `<button class="${d[key] === v ? "on" : ""}" data-v="${v}">${ic ? icon(ic) : ""}${lab}</button>`).join("")}</div>`;
-    const expr = (key, label, unit) => `<label class="fl">${label}<div class="ex"><input data-x="${key}" value="${esc(d[key] ?? "")}" spellcheck="false" autocomplete="off"><output data-xo="${key}"></output></div></label>`;
+    const expr = (key, label, unit) => `<label class="fl">${label.replace("(mm)", "(" + usuf() + ")")}<div class="ex"><input data-x="${key}" value="${esc(LEN_KEYS.has(key) ? showLen(d[key]) : d[key] ?? "")}" spellcheck="false" autocomplete="off"><output data-xo="${key}"></output></div></label>`;
     if (t === "extrude" || t === "revolve") {
       h += seg("op", [["new", "New", null], ["add", "Add", null], ["remove", "Remove", null], ["intersect", "Intersect", null]]);
       h += `<div class="opnote">${{ new: "Makes a new, separate part.", add: "Joins onto the parts it touches.", remove: "Cuts away from the parts (holes, pockets).", intersect: "Keeps only where it overlaps the part." }[d.op]}</div>`;
@@ -28476,11 +28610,12 @@ var FeatureDialog = class {
     }));
     el.querySelectorAll("[data-x]").forEach((inp) => {
       const k = inp.dataset.x;
+      const isLen = LEN_KEYS.has(k);
       const show = () => {
         const o = el.querySelector(`[data-xo="${k}"]`);
         try {
-          const v = evaluate(inp.value, this.app.res.values);
-          o.textContent = "= " + fmt(v, 3);
+          const v = evaluate(isLen ? stampLen(inp.value) : inp.value, this.app.res.values);
+          o.textContent = "= " + (isLen ? fmtLen(v, true, 3) : fmt(v, 3));
           o.classList.remove("bad");
         } catch (er) {
           o.textContent = er.message;
@@ -28489,7 +28624,7 @@ var FeatureDialog = class {
       };
       show();
       inp.oninput = () => {
-        d[k] = inp.value;
+        d[k] = isLen ? stampLen(inp.value) : inp.value;
         show();
         this.update();
       };
@@ -28502,11 +28637,12 @@ var FeatureDialog = class {
         if (e.key === "Escape") this.app.closeDialog(false);
         if ((e.key === "ArrowUp" || e.key === "ArrowDown") && /^\s*-?(\d+\.?\d*|\.\d+)\s*$/.test(inp.value)) {
           e.preventDefault();
-          const step = e.shiftKey ? 10 : e.altKey ? 0.1 : 1;
+          const inch = isLen && units() === "in";
+          const step = inch ? e.shiftKey ? 1 : e.altKey ? 1 / 32 : 1 / 8 : e.shiftKey ? 10 : e.altKey ? 0.1 : 1;
           let v = parseFloat(inp.value) + (e.key === "ArrowUp" ? step : -step);
-          if (["depth", "count", "count2", "angle"].includes(k)) v = Math.max(k === "depth" ? 0.1 : 1, v);
-          inp.value = fmt(v, 3);
-          d[k] = inp.value;
+          if (["depth", "count", "count2", "angle"].includes(k)) v = Math.max(k === "depth" ? inch ? 1 / 64 : 0.1 : 1, v);
+          inp.value = fmt(v, inch ? 4 : 3);
+          d[k] = isLen ? stampLen(inp.value) : inp.value;
           show();
           this.update();
         }
@@ -28570,12 +28706,14 @@ var FeatureDialog = class {
     const el = $("#dlg"), d = this.d;
     if (!el) return;
     el.querySelectorAll("[data-x]").forEach((inp) => {
-      const k = inp.dataset.x;
-      if (String(d[k] ?? "") === inp.value) return;
-      inp.value = d[k] ?? "";
+      const k = inp.dataset.x, isLen = LEN_KEYS.has(k);
+      const disp = isLen ? showLen(d[k]) : String(d[k] ?? "");
+      if (disp === inp.value) return;
+      inp.value = disp;
       const o = el.querySelector(`[data-xo="${k}"]`);
       try {
-        o.textContent = "= " + fmt(evaluate(inp.value, this.app.res.values), 3);
+        const v = evaluate(isLen ? stampLen(inp.value) : inp.value, this.app.res.values);
+        o.textContent = "= " + (isLen ? fmtLen(v, true, 3) : fmt(v, 3));
         o.classList.remove("bad");
       } catch (er) {
         o.textContent = er.message;
@@ -28938,9 +29076,9 @@ function stlBinary(meshes) {
   dv.setUint32(80, nt, true);
   let o = 84;
   for (const m of meshes) {
-    const P = m.pos, I = m.idx;
-    for (let t = 0; t < I.length; t += 3) {
-      const a = I[t] * 3, b = I[t + 1] * 3, c = I[t + 2] * 3;
+    const P = m.pos, I2 = m.idx;
+    for (let t = 0; t < I2.length; t += 3) {
+      const a = I2[t] * 3, b = I2[t + 1] * 3, c = I2[t + 2] * 3;
       const ux = P[b] - P[a], uy = P[b + 1] - P[a + 1], uz = P[b + 2] - P[a + 2], vx = P[c] - P[a], vy = P[c + 1] - P[a + 1], vz = P[c + 2] - P[a + 2];
       let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
       const l = Math.hypot(nx, ny, nz) || 1;
@@ -29215,9 +29353,903 @@ var EXAMPLES = [
   }
 ];
 
-// src/app.js
+// src/tutorial.js
 var $2 = (s, r = document) => r.querySelector(s);
 var esc2 = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+var I = (n) => `<span class="ii">${icon(n)}</span>`;
+var near = (a, b, t = 1e-6) => Math.abs(a - b) <= t;
+function helpers(app) {
+  const H = {
+    app,
+    ed: app.sk,
+    sk: () => app.mode === "sketch" ? app.sk.sk : null,
+    P: (id) => getPt(app.sk.sk, id),
+    lines: () => {
+      const s = H.sk();
+      return s ? s.ents.filter((e) => e.t === "line" && !e.cons && !e.ref) : [];
+    },
+    circles: () => {
+      const s = H.sk();
+      return s ? s.ents.filter((e) => e.t === "circle" && !e.cons) : [];
+    },
+    mid: (l) => {
+      const a = H.P(l.a), b = H.P(l.b);
+      return [(a.x + b.x) / 2, (a.y + b.y) / 2];
+    },
+    edge: (which) => {
+      const ls = H.lines();
+      const horiz = ls.filter((l) => {
+        const a = H.P(l.a), b = H.P(l.b);
+        return Math.abs(a.y - b.y) < 1e-6;
+      });
+      const vert = ls.filter((l) => {
+        const a = H.P(l.a), b = H.P(l.b);
+        return Math.abs(a.x - b.x) < 1e-6;
+      });
+      const by = (arr, f, dir) => arr.sort((p, q) => dir * (f(H.mid(p)) - f(H.mid(q))))[0] || null;
+      if (which === "bottom") return by(horiz, (m) => m[1], 1);
+      if (which === "top") return by(horiz, (m) => m[1], -1);
+      if (which === "left") return by(vert, (m) => m[0], 1);
+      return by(vert, (m) => m[0], -1);
+    },
+    dims: () => {
+      const s = H.sk();
+      return s ? s.cons.filter((c) => isDim(c) && !c.driven) : [];
+    },
+    dimVal: (v) => H.dims().find((c) => {
+      try {
+        return near(evaluate(c.v, app.res.values), v, 1e-6);
+      } catch (e) {
+        return false;
+      }
+    }),
+    val: (name) => app.res && app.res.values ? app.res.values[name] : void 0,
+    feats: (t) => app.doc.features.filter((f) => f.t === t && !f.suppressed),
+    num: (src) => {
+      try {
+        return evaluate(src, app.res.values);
+      } catch (e) {
+        return NaN;
+      }
+    },
+    bbox: () => app.bbox(),
+    // simulated input for "Do it for me"
+    tool: (id) => app.toolClick(id),
+    click: (u, v) => {
+      const [x, y] = app.sk.scr(u, v);
+      app.sk.mouse = [x, y];
+      app.sk.move(x, y, {});
+      app.sk.click(x, y, { shiftKey: false });
+      app.view.request();
+    },
+    type: (txt) => {
+      if (app.sk.inputEl) {
+        app.sk.inputEl.value = txt;
+        app.sk.applyInput();
+      }
+    },
+    dimLine: (l, off, txt) => {
+      if (app.sk.tool !== "dimension") app.sk.setTool("dimension");
+      const m = H.mid(l);
+      H.click(m[0], m[1]);
+      H.click(m[0] + off[0], m[1] + off[1]);
+      if (txt != null) H.type(txt);
+    },
+    setVar: (name, expr) => {
+      const v = app.doc.vars.find((x) => x.name === name);
+      if (v) {
+        v.expr = expr;
+        app.varsChanged();
+      }
+    },
+    varInput: (name, cls = ".vexpr") => {
+      const i = app.doc.vars.findIndex((v) => v.name === name);
+      return i < 0 ? null : $2(`.vrow[data-i="${i}"] ${cls}`);
+    },
+    dlgInput: (key, txt) => {
+      const i = $2(`[data-x="${key}"]`);
+      if (!i) return;
+      i.value = txt;
+      i.dispatchEvent(new Event("input"));
+    },
+    treeRow: (name) => {
+      const f = app.doc.features.find((x) => x.name === name);
+      return f ? $2(`.trow[data-id="${f.id}"]`) : null;
+    },
+    menuItem: (txt) => [...document.querySelectorAll("#menu button")].find((b) => b.textContent.includes(txt)) || null
+  };
+  return H;
+}
+function plateDoc(name, withHole) {
+  const doc = newDoc(name);
+  const B = builder(doc, { k: "std", name: "Top" }, "Plate sketch");
+  B.centerRect(60, 40, "60", "40");
+  doc.features.push({ id: newId(doc), t: "extrude", name: "Extrude 1", sketch: B.sk.id, regions: { auto: true }, op: "new", end: "blind", depth: "5", flip: false });
+  if (withHole) {
+    const ext = doc.features[1].id;
+    const H = builder(doc, { k: "face", f: ext, role: "end" }, "Hole sketch");
+    const c = H.p(-20, 0), k = H.circle(c, 3);
+    H.con({ t: "on", p: c, e: "XAX" });
+    H.con({ t: "dist", p: c, q: "O", dir: "h", s: 1, v: "20", lab: [0, -8] });
+    H.con({ t: "dia", e: k, v: "6", lab: [6, 6] });
+    doc.features.push({ id: newId(doc), t: "extrude", name: "Hole cut", sketch: H.sk.id, regions: { auto: true }, op: "remove", end: "through", depth: "10", flip: false });
+  }
+  return finish(doc);
+}
+function tagDoc() {
+  const doc = newDoc("Name tag");
+  doc.vars.push({ name: "width", expr: "60" }, { name: "height", expr: "30" }, { name: "thick", expr: "3" }, { name: "hole", expr: "6" });
+  const B = builder(doc, { k: "std", name: "Top" }, "Tag outline");
+  const { L } = B.centerRect(60, 30, "#width", "#height");
+  const c = B.p(0, 0), k = B.circle(c, 3);
+  B.con({ t: "on", p: c, e: "XAX" });
+  B.con({ t: "pldist", p: c, e: L[3], v: "30", s: 1, lab: [0, 9] });
+  B.con({ t: "dia", e: k, v: "#hole", lab: [7, -7] });
+  doc.features.push({ id: newId(doc), t: "extrude", name: "Extrude 1", sketch: B.sk.id, regions: { auto: true }, op: "new", end: "blind", depth: "#thick", flip: false });
+  return finish(doc);
+}
+function lessons() {
+  const SK = (H) => H.app.mode === "sketch";
+  const PART = (H) => H.app.mode === "part";
+  const DLG = (t) => (H) => H.app.dialog && H.app.dialog.type === t;
+  const finishStep = {
+    say: `Click ${I("finish")} <b>Finish sketch</b>.`,
+    why: "It's at the right end of the blue bar. This closes the sketch and goes back to 3D.",
+    ring: () => $2("#optbar [data-tool=finish]"),
+    done: PART,
+    auto: (H) => H.app.exitSketch()
+  };
+  return [
+    // ---------------------------------------------------------------- 1
+    {
+      id: "first",
+      title: "Your first part",
+      time: "5 min",
+      learn: "Sketch a rectangle, give it exact sizes, and extrude it into a 3D plate.",
+      start: () => newDoc("My first part"),
+      steps: [
+        { intro: true, say: "Let's make a plate 60 mm by 40 mm, 5 mm thick.", why: "Every part starts as a flat drawing called a <b>sketch</b>. You draw rough shapes first, then make them exact. Then you turn the sketch into 3D. This card will show you where to click and wait for you." },
+        { say: `Click ${I("sketch")} <b>Sketch</b>.`, why: "It's the first button in the toolbar at the top.", ring: "[data-tool=sketch]", done: (H) => H.app.picking === "plane" || SK(H), auto: (H) => H.tool("sketch") },
+        { say: "Click <b>Top</b>.", why: "A sketch needs a flat surface to draw on. The Top plane is like a sheet of paper lying on the table.", ring: () => $2("[data-p=Top]"), need: (H) => H.app.picking === "plane" || SK(H), done: SK, auto: (H) => {
+          H.app.cancelPick();
+          H.app.createSketch({ k: "std", name: "Top" });
+        } },
+        { say: `Click ${I("rectc")} <b>Ctr rect</b> (center rectangle).`, why: "It draws a rectangle from its middle out, so the plate is centered on the origin.", ring: "[data-tool=rectc]", need: SK, done: (H) => H.ed.tool === "rectc", auto: (H) => H.ed.setTool("rectc") },
+        { say: "Click the <b>origin</b>: the dark dot where the red and green dashed lines cross.", why: "The origin is the 0, 0 point. Starting there keeps the plate centered.", dot: (H) => [0, 0], need: SK, done: (H) => H.ed.tool === "rectc" && H.ed.op && H.ed.op.s0, check: (H) => H.ed.op && H.ed.op.s0 && H.ed.op.s0.id !== "O" ? "That wasn't quite on the origin. Press Esc and click right on the dot." : null, auto: (H) => H.click(0, 0) },
+        { say: "Click up and to the right to set a corner.", why: "Don't worry about the size yet. You'll make it exact next.", dot: (H) => [30, 20], need: (H) => SK(H) && (H.ed.op && H.ed.op.s0 || H.lines().length >= 4), done: (H) => H.lines().length >= 4, auto: (H) => H.click(30, 20) },
+        { say: "See the blue? Blue means it can still change.", why: "The bar at the bottom says how many sizes or rules are still missing. Right now the width and height are not decided.", manual: true, need: SK },
+        { say: `Click ${I("dimension")} <b>Dimension</b>.`, why: "A dimension sets an exact size.", ring: "[data-tool=dimension]", need: SK, done: (H) => H.ed.tool === "dimension", auto: (H) => H.ed.setTool("dimension") },
+        { say: "Click the <b>bottom edge</b> of the rectangle.", why: "That picks the line you want to measure.", dot: (H) => {
+          const l = H.edge("bottom");
+          const m = l && H.mid(l);
+          return m && [m[0] + 8, m[1]];
+        }, need: SK, done: (H) => H.ed.op && H.ed.op.place && H.ed.op.picks.length === 1, auto: (H) => {
+          const m = H.mid(H.edge("bottom"));
+          H.click(m[0] + 8, m[1]);
+        } },
+        { say: "Click below the rectangle to place the number.", why: "The number can go anywhere that's easy to read.", dot: (H) => {
+          const l = H.edge("bottom");
+          const m = l && H.mid(l);
+          return m && [m[0] + 8, m[1] - 10];
+        }, need: (H) => SK(H) && (H.ed.op && H.ed.op.place || H.ed.inputCon), done: (H) => !!H.ed.inputCon, auto: (H) => {
+          const m = H.mid(H.edge("bottom"));
+          H.click(m[0] + 8, m[1] - 10);
+        } },
+        { say: "Type <code>60</code> and press <b>Enter</b>.", why: "All sizes are in millimeters.", ring: () => $2(".dimbox input"), need: (H) => SK(H) && (H.ed.inputCon || H.dimVal(60)), done: (H) => !H.ed.inputCon && !!H.dimVal(60), auto: (H) => H.type("60") },
+        { say: "Click the <b>right edge</b>.", why: "The Dimension tool is still on, so you can keep going.", dot: (H) => {
+          const l = H.edge("right");
+          const m = l && H.mid(l);
+          return m && [m[0], m[1] + 6];
+        }, need: SK, done: (H) => H.ed.tool === "dimension" && H.ed.op && H.ed.op.place && H.ed.op.picks.length === 1, auto: (H) => {
+          if (H.ed.tool !== "dimension") H.ed.setTool("dimension");
+          const m = H.mid(H.edge("right"));
+          H.click(m[0], m[1] + 6);
+        } },
+        { say: "Click to the right of it to place the number.", dot: (H) => {
+          const l = H.edge("right");
+          const m = l && H.mid(l);
+          return m && [m[0] + 10, m[1] + 6];
+        }, need: (H) => SK(H) && (H.ed.op && H.ed.op.place || H.ed.inputCon), done: (H) => !!H.ed.inputCon, auto: (H) => {
+          const m = H.mid(H.edge("right"));
+          H.click(m[0] + 10, m[1] + 6);
+        } },
+        { say: "Type <code>40</code> and press <b>Enter</b>.", ring: () => $2(".dimbox input"), need: (H) => SK(H) && (H.ed.inputCon || H.dimVal(40)), done: (H) => !H.ed.inputCon && !!H.dimVal(40), auto: (H) => H.type("40") },
+        { say: "It turned <b>black</b>. That means fully defined.", why: "Every size and position is decided. The bar at the bottom says Fully defined. Engineers aim for this before they build.", manual: true, need: SK, check: (H) => H.ed.status && H.ed.status.dof > 0 ? "Some of it is still blue. Make sure the rectangle started at the origin." : null },
+        finishStep,
+        { say: `Click ${I("extrude")} <b>Extrude</b>.`, why: "Extrude pushes the sketch straight up to make it 3D.", ring: "[data-tool=extrude]", need: PART, done: DLG("extrude"), auto: (H) => H.tool("extrude") },
+        { say: "In <b>Depth</b>, type <code>5</code>.", why: "Watch the preview change. You can also drag the orange arrow in the view.", ring: () => $2("[data-x=depth]"), need: DLG("extrude"), done: (H) => near(H.num(H.app.dialog.d.depth), 5), auto: (H) => H.dlgInput("depth", "5") },
+        { say: `Click ${I("finish")} <b>OK</b>.`, ring: "#dOk", need: (H) => !!H.app.dialog || H.feats("extrude").length, done: (H) => !H.app.dialog && H.feats("extrude").length > 0, auto: (H) => H.app.dialog.ok() },
+        { say: "<b>Right-drag</b> in the view to spin your part around.", why: "Hold the right mouse button and move. On a touchpad, left-drag on empty space works too. Scroll to zoom.", dot: () => null, manual: true, done: (H, s) => s.q0 && H.app.view.camera.quaternion.angleTo(s.q0) > 0.35, enter: (H, s) => {
+          s.q0 = H.app.view.camera.quaternion.clone();
+        } },
+        { outro: true, say: "You made a part!", why: "Sketch, make it exact, extrude: that's how every part in Onshape and SolidWorks starts too. Next, try <b>Design intent</b>." }
+      ]
+    },
+    // ---------------------------------------------------------------- 2
+    {
+      id: "intent",
+      title: "Design intent: make it change the right way",
+      time: "10 min",
+      star: true,
+      learn: "Why a part should change the way you mean, and how to choose rules (centered, from an edge, same size) that say it.",
+      start: tagDoc,
+      steps: [
+        { intro: true, say: "This name tag needs its bolt hole in the exact middle.", why: "Right now it looks centered. But a part has to keep working when sizes change. <b>Design intent</b> means building in the rules you really mean, so changes go the right way. Let's test it." },
+        { say: "In the <b>Variables</b> box, change <code>#width</code> to <code>90</code>, then press <b>Enter</b>.", why: "#width controls how wide the tag is.", ring: (H) => H.varInput("width"), need: PART, done: (H) => near(H.val("width"), 90) && H.bbox() && near(H.bbox().min[0], -45, 1e-3), auto: (H) => H.setVar("width", "90") },
+        { say: "Look: the hole is <b>not</b> in the middle anymore.", why: "It was dimensioned <b>30 mm from the left edge</b>. When the tag got wider, it stayed 30 mm from the left edge. The part did what we told it, not what we meant.", manual: true },
+        { say: "Double-click <b>Tag outline</b> in the Feature list.", why: "That opens the sketch so you can change its rules.", ring: (H) => H.treeRow("Tag outline"), need: (H) => true, done: SK, auto: (H) => H.app.editFeature(H.app.doc.features[0].id) },
+        { say: "Click the <b>30</b> dimension.", why: "This is the rule that's wrong: it measures from the left edge.", dot: (H) => {
+          const c = H.dims().find((c2) => c2.t === "pldist");
+          return c && c._lab;
+        }, need: SK, done: (H) => {
+          const c = H.dims().find((c2) => c2.t === "pldist");
+          return !c || H.ed.sel.has("c:" + c.id);
+        }, auto: (H) => {
+          const c = H.dims().find((c2) => c2.t === "pldist");
+          H.ed.sel.clear();
+          H.ed.sel.add("c:" + c.id);
+          H.app.view.request();
+        } },
+        { say: "Press <b>Delete</b> on the keyboard.", why: "Removing the rule lets the hole move again.", need: SK, done: (H) => !H.dims().some((c) => c.t === "pldist"), auto: (H) => H.ed.deleteSel() },
+        { say: "Drag the hole's <b>center dot</b> left and right.", why: "It's blue now: nothing decides where it goes left to right. Blue geometry can be dragged. Black can't.", dot: (H) => {
+          const k = H.circles()[0];
+          if (!k) return null;
+          const c = H.P(k.c);
+          return [c.x, c.y];
+        }, need: SK, manual: true, enter: (H, s) => {
+          const k = H.circles()[0];
+          s.x0 = k ? H.P(k.c).x : 0;
+        }, done: (H, s) => {
+          const k = H.circles()[0];
+          return k && Math.abs(H.P(k.c).x - s.x0) > 3;
+        } },
+        { say: `Click ${I("coin")} <b>Coincident</b>.`, why: "It's in the <b>Rules</b> group. Coincident puts a point on another point or on a line.", ring: "[data-tool=coin]", need: SK, done: (H) => H.ed.pick && H.ed.pick.type === "coin", auto: (H) => H.ed.applyConstraint("coin") },
+        { say: "Click the hole's <b>center dot</b>.", dot: (H) => {
+          const k = H.circles()[0];
+          if (!k) return null;
+          const c = H.P(k.c);
+          return [c.x, c.y];
+        }, need: (H) => SK(H) && (H.ed.pick && H.ed.pick.type === "coin"), done: (H) => {
+          const k = H.circles()[0];
+          return H.ed.pick && k && H.ed.pick.items.some((i) => i.id === k.c);
+        }, auto: (H) => {
+          const k = H.circles()[0];
+          const c = H.P(k.c);
+          H.click(c.x, c.y);
+        } },
+        { say: "Click the <b>green dashed line</b> above the tag.", why: "That's the Y axis: the up-and-down centerline of the sketch. The tag is centered on it, so the hole will be too.", dot: (H) => [0, H.val("height") / 2 + 10], need: (H) => SK(H) && (H.ed.pick && H.ed.pick.type === "coin" || H.sk().cons.some((c) => c.t === "on" && c.e === "YAX")), done: (H) => H.sk().cons.some((c) => c.t === "on" && c.e === "YAX"), auto: (H) => H.click(0, H.val("height") / 2 + 10) },
+        { say: "Black again, and now the rule says what we mean: <b>on the centerline</b>.", why: `Same picture, better rule. Before, the hole was "30 from the left". Now it's "in the middle".`, manual: true, need: SK },
+        finishStep,
+        { say: "Change <code>#width</code> to <code>40</code> and press <b>Enter</b>.", ring: (H) => H.varInput("width"), need: PART, done: (H) => near(H.val("width"), 40) && H.bbox() && near(H.bbox().min[0], -20, 1e-3), auto: (H) => H.setVar("width", "40") },
+        { say: "The hole stayed in the middle.", why: "That's design intent: the part changed the way we meant. Now a second hole, with a different intent.", manual: true },
+        { say: "Double-click <b>Tag outline</b> again.", ring: (H) => H.treeRow("Tag outline"), done: SK, auto: (H) => H.app.editFeature(H.app.doc.features[0].id) },
+        { say: `Click ${I("circle")} <b>Circle</b>.`, why: "This hole is for hanging the tag. It should always sit <b>6 mm from the right edge</b>, however wide the tag is.", ring: "[data-tool=circle]", need: SK, done: (H) => H.ed.tool === "circle", auto: (H) => H.ed.setTool("circle") },
+        { say: "Click on the <b>red dashed line</b> near the right end.", why: "The red line is the X axis. Clicking on it keeps the hole level with the first one.", dot: (H) => [H.val("width") / 2 - 6, 0], need: (H) => SK(H) && (H.ed.tool === "circle" || H.circles().length > 1), done: (H) => H.ed.op && H.ed.op.cid || H.circles().length > 1, auto: (H) => H.click(H.val("width") / 2 - 6, 0) },
+        { say: "Click a little to the right to set its size.", dot: (H) => [H.val("width") / 2 - 6 + 2.5, 1.2], need: (H) => SK(H) && (H.ed.op && H.ed.op.cid || H.circles().length > 1), done: (H) => H.circles().length > 1, check: (H) => null, auto: (H) => H.click(H.val("width") / 2 - 3.5, 1.2) },
+        { say: `Click ${I("dimension")} <b>Dimension</b>.`, ring: "[data-tool=dimension]", need: SK, done: (H) => H.ed.tool === "dimension", check: (H) => {
+          const k = H.circles()[1];
+          return k && !H.sk().cons.some((c) => c.t === "on" && c.p === k.c && c.e === "XAX") ? "The new hole's center isn't on the red line. Press Ctrl+Z, then click Circle and click right on the red dashed line." : null;
+        }, auto: (H) => H.ed.setTool("dimension") },
+        { say: "Click the <b>new hole's center dot</b>.", dot: (H) => {
+          const k = H.circles()[1];
+          if (!k) return null;
+          const c = H.P(k.c);
+          return [c.x, c.y];
+        }, need: SK, done: (H) => {
+          const k = H.circles()[1];
+          return H.ed.op && k && H.ed.op.picks.some((p) => p.id === k.c);
+        }, auto: (H) => {
+          if (H.ed.tool !== "dimension") H.ed.setTool("dimension");
+          const k = H.circles()[1];
+          const c = H.P(k.c);
+          H.click(c.x, c.y);
+        } },
+        { say: "Click the <b>right edge</b> of the tag.", dot: (H) => {
+          const l = H.edge("right");
+          return l && [H.mid(l)[0], H.val("height") / 4];
+        }, need: (H) => SK(H) && (H.ed.op && H.ed.op.picks || H.ed.inputCon), done: (H) => H.ed.op && H.ed.op.picks.length === 2 || H.ed.inputCon, auto: (H) => {
+          const l = H.edge("right");
+          H.click(H.mid(l)[0], H.val("height") / 4);
+        } },
+        { say: "Click above the tag to place the number.", dot: (H) => [H.val("width") / 2 - 3, H.val("height") / 2 + 8], need: (H) => SK(H) && (H.ed.op && H.ed.op.picks && H.ed.op.picks.length === 2 || H.ed.inputCon), done: (H) => !!H.ed.inputCon, auto: (H) => H.click(H.val("width") / 2 - 3, H.val("height") / 2 + 8) },
+        { say: "Type <code>6</code> and press <b>Enter</b>.", why: 'Now the rule is "6 mm from the right edge".', ring: () => $2(".dimbox input"), need: (H) => SK(H) && (H.ed.inputCon || H.dimVal(6)), done: (H) => !H.ed.inputCon && H.dims().some((c) => c.t === "pldist" && near(H.num(c.v), 6)), auto: (H) => H.type("6") },
+        { say: `Click ${I("eq")} <b>Equal</b>.`, why: "Both holes take the same bolt, so they should always be the same size. Equal says that.", ring: "[data-tool=eq]", need: SK, done: (H) => H.ed.pick && H.ed.pick.type === "eq" || H.sk().cons.some((c) => c.t === "eq"), auto: (H) => {
+          H.ed.setTool("select");
+          H.ed.applyConstraint("eq");
+        } },
+        { say: "Click the edge of the <b>first hole</b>.", dot: (H) => {
+          const k = H.circles()[0];
+          if (!k) return null;
+          const c = H.P(k.c);
+          return [c.x + k.r * 0.7071, c.y + k.r * 0.7071];
+        }, need: (H) => SK(H) && (H.ed.pick && H.ed.pick.type === "eq" || H.sk().cons.some((c) => c.t === "eq")), done: (H) => {
+          const k = H.circles()[0];
+          return H.ed.pick && k && H.ed.pick.items.some((i) => i.id === k.id) || H.sk().cons.some((c) => c.t === "eq");
+        }, auto: (H) => {
+          const k = H.circles()[0];
+          const c = H.P(k.c);
+          H.click(c.x + k.r * 0.7071, c.y + k.r * 0.7071);
+        } },
+        { say: "Click the edge of the <b>new hole</b>.", dot: (H) => {
+          const k = H.circles()[1];
+          if (!k) return null;
+          const c = H.P(k.c);
+          return [c.x + k.r * 0.7071, c.y + k.r * 0.7071];
+        }, need: SK, done: (H) => H.sk().cons.some((c) => c.t === "eq"), auto: (H) => {
+          const k = H.circles()[1];
+          const c = H.P(k.c);
+          H.click(c.x + k.r * 0.7071, c.y + k.r * 0.7071);
+        } },
+        { say: "All black: fully defined, with three different intents.", why: "<b>Centered</b> (on the centerline), <b>measured from an edge</b> (6 mm from the right), and <b>the same size</b> (Equal).", manual: true, need: SK, check: (H) => H.ed.status && H.ed.status.dof > 0 ? "Something is still blue. Check that the new hole's center sits on the red line." : null },
+        finishStep,
+        { say: "Change <code>#width</code> to <code>100</code> and press <b>Enter</b>.", ring: (H) => H.varInput("width"), need: PART, done: (H) => near(H.val("width"), 100) && H.bbox() && near(H.bbox().min[0], -50, 1e-3), auto: (H) => H.setVar("width", "100") },
+        { say: "Each hole followed its own rule.", why: "The first stayed in the middle, the second stayed 6 mm from the right edge, and they stayed the same size. Try <code>#hole</code> = 8 too.", manual: true },
+        { outro: true, say: "That's design intent.", why: "Before you add a dimension, ask three questions: <b>What must stay the same?</b> <b>What is allowed to change?</b> <b>What should it be measured from?</b> Then pick the rule that says it: symmetric or on a centerline, a distance from an edge, Equal, or a #variable." }
+      ]
+    },
+    // ---------------------------------------------------------------- 3
+    {
+      id: "vars",
+      title: "Variables: let math drive the part",
+      time: "7 min",
+      learn: "Name a size, link another size to it with a formula, and check the Pythagorean theorem with Measure.",
+      start: () => plateDoc("Variables plate", false),
+      steps: [
+        { intro: true, say: "A variable is a named number, like <code>#width</code>.", why: "Use it in any size. Change it once and every size that uses it updates. Formulas work too, so the part follows your math." },
+        { say: "Double-click <b>Plate sketch</b> in the Feature list.", ring: (H) => H.treeRow("Plate sketch"), done: SK, auto: (H) => H.app.editFeature(H.app.doc.features[0].id) },
+        { say: "Double-click the <b>60</b> dimension.", why: "Double-clicking a dimension lets you change it.", dot: (H) => {
+          const c = H.dimVal(60);
+          return c && c._lab;
+        }, need: SK, done: (H) => {
+          const c = H.dimVal(60);
+          return H.ed.inputCon && c && H.ed.inputCon === c.id;
+        }, auto: (H) => H.ed.editDim(H.dimVal(60).id) },
+        { say: "Type <code>#width = 60</code> and press <b>Enter</b>.", why: "This makes a variable named width, sets it to 60, and uses it here, all at once.", ring: () => $2(".dimbox input"), need: (H) => SK(H) && (H.ed.inputCon || H.app.doc.vars.some((v) => v.name === "width")), done: (H) => !H.ed.inputCon && H.dims().some((c) => /#width\b/.test(c.v)) && H.app.doc.vars.some((v) => v.name === "width"), auto: (H) => H.type("#width = 60") },
+        { say: "Double-click the <b>40</b> dimension.", dot: (H) => {
+          const c = H.dimVal(40);
+          return c && c._lab;
+        }, need: SK, done: (H) => {
+          const c = H.dimVal(40);
+          return H.ed.inputCon && c && H.ed.inputCon === c.id;
+        }, auto: (H) => H.ed.editDim(H.dimVal(40).id) },
+        { say: "Type <code>#width / 2</code> and press <b>Enter</b>.", why: "Now the height is always half the width.", ring: () => $2(".dimbox input"), need: (H) => SK(H) && (H.ed.inputCon || H.dims().some((c) => /#width\s*\/\s*2/.test(c.v))), done: (H) => !H.ed.inputCon && H.dims().some((c) => /#width\s*\/\s*2/.test(c.v)), auto: (H) => H.type("#width / 2") },
+        finishStep,
+        { say: "In the <b>Variables</b> box, change <code>width</code> to <code>80</code>, then press <b>Enter</b>.", ring: (H) => H.varInput("width"), need: PART, done: (H) => near(H.val("width"), 80) && H.bbox() && near(H.bbox().max[1] - H.bbox().min[1], 40, 1e-3), auto: (H) => H.setVar("width", "80") },
+        { say: "The height followed: 80 \xF7 2 = 40.", why: "One number now controls two sizes. That's how real products come in small, medium and large.", manual: true },
+        { say: `Click ${I("plus")} <b>Add</b> in the Variables box.`, ring: "#addVar", need: PART, done: (H) => H.app.doc.vars.length >= 2, auto: (H) => H.app.addVariable() },
+        { say: "Rename the new variable to <code>diag</code>, then press <b>Enter</b>.", why: "Click its name (it says size) and type over it.", ring: (H) => {
+          const v = H.app.doc.vars[H.app.doc.vars.length - 1];
+          return v ? H.varInput(v.name, ".vname") : null;
+        }, done: (H) => H.app.doc.vars.some((v) => v.name === "diag"), auto: (H) => {
+          const i = H.app.doc.vars.length - 1;
+          H.app.renameVar(i, "diag");
+        } },
+        { say: "For its value, type <code>sqrt(#width^2 + (#width/2)^2)</code> and press <b>Enter</b>.", why: "That's the Pythagorean theorem: the diagonal is the square root of width\xB2 plus height\xB2.", ring: (H) => H.varInput("diag"), done: (H) => near(H.val("diag"), Math.hypot(80, 40), 1e-6), auto: (H) => H.setVar("diag", "sqrt(#width^2 + (#width/2)^2)") },
+        { say: "The diagonal is 89.44 mm. Let's check it.", why: "Engineers check math against the model.", manual: true },
+        { say: `Click ${I("measure")} <b>Measure</b>.`, ring: "[data-tool=measure]", need: PART, done: (H) => !!H.app.measure, auto: (H) => H.tool("measure") },
+        { say: "Click one <b>top corner</b> of the plate.", dot: (H) => {
+          const b = H.bbox();
+          return b && { w: [b.min[0], b.min[1], b.max[2]] };
+        }, need: (H) => !!H.app.measure, done: (H) => H.app.measure && H.app.measure.picks.length >= 1, auto: (H) => {
+          const b = H.bbox();
+          H.app.measure.picks = [{ k: "pt", p: [b.min[0], b.min[1], b.max[2]] }];
+          H.app.renderMeasure();
+        } },
+        { say: "Click the <b>opposite top corner</b>.", dot: (H) => {
+          const b = H.bbox();
+          return b && { w: [b.max[0], b.max[1], b.max[2]] };
+        }, need: (H) => !!H.app.measure, done: (H) => H.app.measure && H.app.measure.picks.length === 2, auto: (H) => {
+          const b = H.bbox();
+          H.app.measure.picks.push({ k: "pt", p: [b.max[0], b.max[1], b.max[2]] });
+          H.app.renderMeasure();
+        } },
+        { say: "Measure says 89.44 mm too.", why: "The math and the model agree. If you change #width, #diag changes with it.", manual: true, check: (H) => {
+          const P = H.app.measure && H.app.measure.picks;
+          if (!P || P.length < 2) return null;
+          const d = Math.hypot(...P[1].p.map((v, i) => v - P[0].p[i]));
+          return Math.abs(d - H.val("diag")) > 0.05 ? "Those weren't opposite corners. Click two corners across from each other." : null;
+        } },
+        { outro: true, say: "Math is driving your part now.", why: "Trig works too: <code>atan(#rise / #run)</code> gives an angle in degrees, and <code>2 in</code> turns inches into millimeters.", exit: (H) => {
+          if (H.app.measure) H.app.toggleMeasure();
+        } }
+      ]
+    },
+    // ---------------------------------------------------------------- 4
+    {
+      id: "holes",
+      title: "Holes: sketch on a face and cut",
+      time: "5 min",
+      learn: "Sketch right on the top of a part, center a hole, and cut it all the way through.",
+      start: () => plateDoc("Plate for a hole", false),
+      steps: [
+        { intro: true, say: "Let's put a hole in the middle of this plate.", why: "You can sketch on any flat face of a part, then use Extrude to cut." },
+        { say: `Click ${I("sketch")} <b>Sketch</b>.`, ring: "[data-tool=sketch]", done: (H) => H.app.picking === "plane" || SK(H), auto: (H) => H.tool("sketch") },
+        { say: "Click the <b>top face</b> of the plate.", why: "The face turns orange when you point at it.", dot: (H) => {
+          const b = H.bbox();
+          return b && { w: [b.max[0] * 0.5, b.max[1] * 0.4, b.max[2]] };
+        }, need: (H) => H.app.picking === "plane" || SK(H), done: (H) => SK(H) && H.sk().plane.k === "face", check: (H) => SK(H) && H.sk().plane.k !== "face" ? "That made a sketch on a plane, not the face. Click Cancel in the blue bar and try again." : null, auto: (H) => {
+          H.app.cancelPick();
+          H.app.createSketch({ k: "face", f: H.app.doc.features[1].id, role: "end" });
+        } },
+        { say: `Click ${I("circle")} <b>Circle</b>.`, ring: "[data-tool=circle]", need: SK, done: (H) => H.ed.tool === "circle", auto: (H) => H.ed.setTool("circle") },
+        { say: "Click somewhere on the plate for the center.", why: "Not in the exact middle on purpose: you'll center it with a rule.", dot: (H) => [10, 8], need: SK, done: (H) => H.ed.op && H.ed.op.cid || H.circles().length, auto: (H) => H.click(10, 8) },
+        { say: "Click to set the size.", dot: (H) => [14, 8], need: (H) => SK(H) && (H.ed.op && H.ed.op.cid || H.circles().length), done: (H) => H.circles().length > 0, auto: (H) => H.click(14, 8) },
+        { say: `Click ${I("dimension")} <b>Dimension</b>.`, ring: "[data-tool=dimension]", need: SK, done: (H) => H.ed.tool === "dimension", auto: (H) => H.ed.setTool("dimension") },
+        { say: "Click the <b>edge of the circle</b>.", dot: (H) => {
+          const k = H.circles()[0];
+          if (!k) return null;
+          const c = H.P(k.c);
+          return [c.x + k.r * 0.7071, c.y + k.r * 0.7071];
+        }, need: SK, done: (H) => H.ed.op && H.ed.op.place && H.ed.op.picks.length === 1, auto: (H) => {
+          const k = H.circles()[0];
+          const c = H.P(k.c);
+          H.click(c.x + k.r * 0.7071, c.y + k.r * 0.7071);
+        } },
+        { say: "Click outside the circle to place the number.", dot: (H) => {
+          const k = H.circles()[0];
+          if (!k) return null;
+          const c = H.P(k.c);
+          return [c.x + k.r + 8, c.y + k.r + 6];
+        }, need: (H) => SK(H) && (H.ed.op && H.ed.op.place || H.ed.inputCon), done: (H) => !!H.ed.inputCon, auto: (H) => {
+          const k = H.circles()[0];
+          const c = H.P(k.c);
+          H.click(c.x + k.r + 8, c.y + k.r + 6);
+        } },
+        { say: "Type <code>8</code> and press <b>Enter</b>.", why: "\xD8 means diameter: all the way across.", ring: () => $2(".dimbox input"), need: (H) => SK(H) && (H.ed.inputCon || H.dimVal(8)), done: (H) => !H.ed.inputCon && !!H.dimVal(8), auto: (H) => H.type("8") },
+        { say: `Click ${I("coin")} <b>Coincident</b>.`, why: "Next you'll put the circle's center right on the origin, which is the middle of the plate.", ring: "[data-tool=coin]", need: SK, done: (H) => H.ed.pick && H.ed.pick.type === "coin" || H.circles()[0] && H.circles()[0].c === "O", auto: (H) => {
+          H.ed.setTool("select");
+          H.ed.applyConstraint("coin");
+        } },
+        { say: "Click the circle's <b>center dot</b>.", dot: (H) => {
+          const k = H.circles()[0];
+          if (!k) return null;
+          const c = H.P(k.c);
+          return [c.x, c.y];
+        }, need: (H) => SK(H) && (H.ed.pick && H.ed.pick.type === "coin" || H.circles()[0] && H.circles()[0].c === "O"), done: (H) => {
+          const k = H.circles()[0];
+          return H.ed.pick && k && H.ed.pick.items.some((i) => i.id === k.c) || k && k.c === "O";
+        }, auto: (H) => {
+          const k = H.circles()[0];
+          const c = H.P(k.c);
+          H.click(c.x, c.y);
+        } },
+        { say: "Click the <b>origin</b> (the dark dot where the dashed lines cross).", dot: () => [0, 0], need: SK, done: (H) => H.circles()[0] && H.circles()[0].c === "O", auto: (H) => H.click(0, 0) },
+        finishStep,
+        { say: `Click ${I("extrude")} <b>Extrude</b>.`, ring: "[data-tool=extrude]", need: PART, done: DLG("extrude"), auto: (H) => H.tool("extrude") },
+        { say: "Click <b>Remove</b>.", why: "Remove cuts the shape away instead of adding it. The preview turns red.", ring: () => $2("[data-seg=op] [data-v=remove]"), need: DLG("extrude"), done: (H) => H.app.dialog.d.op === "remove", auto: (H) => {
+          H.app.dialog.d.op = "remove";
+          H.app.dialog.render();
+          H.app.dialog.update(true);
+        } },
+        { say: "Click <b>Through all</b>.", why: "The hole goes all the way through, even if the plate gets thicker later. That's design intent too.", ring: () => $2("[data-seg=end] [data-v=through]"), need: DLG("extrude"), done: (H) => H.app.dialog.d.end === "through", auto: (H) => {
+          H.app.dialog.d.end = "through";
+          H.app.dialog.render();
+          H.app.dialog.update(true);
+        } },
+        { say: `Click ${I("finish")} <b>OK</b>.`, ring: "#dOk", need: (H) => !!H.app.dialog || H.feats("extrude").length > 1, done: (H) => !H.app.dialog && H.feats("extrude").some((f) => f.op === "remove"), auto: (H) => H.app.dialog.ok() },
+        { outro: true, say: "A centered hole, all the way through.", why: "Change the plate's size and the hole stays in the middle. Change its thickness and the hole still goes through." }
+      ]
+    },
+    // ---------------------------------------------------------------- 5
+    {
+      id: "revolve",
+      title: "Revolve: make a round part",
+      time: "5 min",
+      learn: "Draw half of a shape beside an axis and spin it into a ring, then sweep only part of the way.",
+      start: () => newDoc("Revolved ring"),
+      steps: [
+        { intro: true, say: "Round parts, like a cup, a knob or a washer, are made by spinning a flat shape.", why: "You draw what you'd see if you cut the part in half, next to the line it spins around." },
+        { say: `Click ${I("sketch")} <b>Sketch</b>.`, ring: "[data-tool=sketch]", done: (H) => H.app.picking === "plane" || SK(H), auto: (H) => H.tool("sketch") },
+        { say: "Click <b>Front</b>.", why: "The Front plane stands up like a wall facing you.", ring: () => $2("[data-p=Front]"), need: (H) => H.app.picking === "plane" || SK(H), done: SK, auto: (H) => {
+          H.app.cancelPick();
+          H.app.createSketch({ k: "std", name: "Front" });
+        } },
+        { say: `Click ${I("rect")} <b>Rect</b> (rectangle).`, ring: "[data-tool=rect]", need: SK, done: (H) => H.ed.tool === "rect", auto: (H) => H.ed.setTool("rect") },
+        { say: "Click on the <b>red dashed line</b>, to the right of the green one.", why: "The green dashed line is the axis you'll spin around. The gap becomes the hole in the middle.", dot: () => [10, 0], need: SK, done: (H) => H.ed.op && H.ed.op.s0 || H.lines().length >= 4, auto: (H) => H.click(10, 0) },
+        { say: "Click up and to the right.", dot: () => [20, 15], need: (H) => SK(H) && (H.ed.op && H.ed.op.s0 || H.lines().length >= 4), done: (H) => H.lines().length >= 4, auto: (H) => H.click(20, 15) },
+        finishStep,
+        { say: `Click ${I("revolve")} <b>Revolve</b>.`, ring: "[data-tool=revolve]", need: PART, done: DLG("revolve"), auto: (H) => H.tool("revolve") },
+        { say: "Click <b>Sketch Y axis</b>.", why: "That tells Revolve to spin around the green dashed line.", ring: () => $2("[data-axq=YAX]"), need: DLG("revolve"), done: (H) => H.app.dialog.d.axis && H.app.dialog.d.axis.e === "YAX", auto: (H) => {
+          H.app.dialog.d.axis = { e: "YAX" };
+          H.app.dialog.active = null;
+          H.app.dialog.render();
+          H.app.dialog.update(true);
+        } },
+        { say: "Look at the preview: a ring, like a washer.", why: "The rectangle swept all the way around.", manual: true, need: DLG("revolve") },
+        { say: "Uncheck <b>Full turn (360\xB0)</b>.", ring: () => $2("[data-c=full]"), need: DLG("revolve"), done: (H) => H.app.dialog.d.full === false, auto: (H) => {
+          H.app.dialog.d.full = false;
+          H.app.dialog.render();
+          H.app.dialog.update(true);
+        } },
+        { say: "Drag the <b>orange ball</b> around the axis.", why: "It sets how far the shape sweeps. It snaps every 5\xB0; hold Shift for any angle.", dot: (H) => {
+          const h = H.app.handleList()[0];
+          return h && { w: H.app.handlePos(h) };
+        }, need: DLG("revolve"), enter: (H, s) => {
+          s.a0 = H.app.dialog && H.app.dialog.d.angle;
+        }, done: (H, s) => H.app.dialog && H.app.dialog.d.angle !== s.a0 && !H.app.hdrag, auto: (H) => {
+          H.app.dialog.d.angle = "270";
+          H.app.dialog.render();
+          H.app.dialog.update(true);
+        } },
+        { say: `Click ${I("finish")} <b>OK</b>.`, ring: "#dOk", need: (H) => !!H.app.dialog || H.feats("revolve").length, done: (H) => !H.app.dialog && H.feats("revolve").length > 0, auto: (H) => H.app.dialog.ok() },
+        { outro: true, say: "You spun a shape into a part.", why: "Open the <b>Tea light lantern</b> example to see a cup made this way, with windows cut around it." }
+      ]
+    },
+    // ---------------------------------------------------------------- 6
+    {
+      id: "pattern",
+      title: "Patterns: copy a hole in a row",
+      time: "4 min",
+      learn: "Copy a feature several times with even spacing, and see the spacing math.",
+      start: () => plateDoc("Hole row", true),
+      steps: [
+        { intro: true, say: "This plate has one hole. Let's make it five, evenly spaced.", why: "A pattern copies a feature. Change the count or spacing any time and the copies update." },
+        { say: `Click ${I("lpattern")} <b>Lin. pattern</b> (linear pattern).`, ring: "[data-tool=lpattern]", need: PART, done: DLG("lpattern"), auto: (H) => H.tool("lpattern") },
+        { say: "Click <b>Hole cut</b> in the Feature list.", why: "That's the feature to copy.", ring: (H) => H.treeRow("Hole cut"), need: DLG("lpattern"), done: (H) => H.app.dialog.d.feats.length > 0, auto: (H) => H.app.dialog.toggleFeat(H.app.doc.features.find((f) => f.name === "Hole cut").id) },
+        { say: "In <b>How many</b>, type <code>5</code>.", ring: () => $2("[data-x=count]"), need: DLG("lpattern"), done: (H) => near(H.num(H.app.dialog.d.count), 5), auto: (H) => H.dlgInput("count", "5") },
+        { say: "In <b>Spacing</b>, type <code>10</code>.", why: "You can also drag the orange arrow at the second hole.", ring: () => $2("[data-x=spacing]"), need: DLG("lpattern"), done: (H) => near(H.num(H.app.dialog.d.spacing), 10), auto: (H) => H.dlgInput("spacing", "10") },
+        { say: `Click ${I("finish")} <b>OK</b>.`, ring: "#dOk", need: (H) => !!H.app.dialog || H.feats("lpattern").length, done: (H) => !H.app.dialog && H.feats("lpattern").length > 0, auto: (H) => H.app.dialog.ok() },
+        { say: "Five holes, 10 mm apart.", why: "From the first to the last is (5 \u2212 1) \xD7 10 = 40 mm: there are 4 gaps between 5 holes. The first hole is at \u221220, so the last is at +20.", manual: true },
+        { outro: true, say: "Patterns save a lot of clicking.", why: "Try Circular pattern for bolt circles, and Mirror to build half a part and copy the other half." }
+      ]
+    },
+    // ---------------------------------------------------------------- 7
+    {
+      id: "make",
+      title: "Get it to the makerspace",
+      time: "4 min",
+      learn: "Predict a print's mass, export an STL for the Prusa, and export a sketch as a DXF for the laser.",
+      start: () => plateDoc("Makerspace plate", true),
+      steps: [
+        { intro: true, say: "Let's get this plate ready for the machines.", why: "The 3D printer takes an STL file. The laser, router and waterjet take a flat drawing (DXF)." },
+        { say: `Click ${I("mass")} <b>Mass</b>.`, ring: "[data-tool=mass]", need: PART, done: (H) => H.app.card === "mass", auto: (H) => H.tool("mass") },
+        { say: "Set <b>Infill</b> to <code>20%</code>.", why: "A print isn't solid inside. Infill is how full the inside is.", ring: () => $2("#infill"), need: (H) => H.app.card === "mass", done: (H) => H.app.doc.infill === 20, auto: (H) => {
+          H.app.doc.infill = 20;
+          H.app.renderMass();
+        } },
+        { say: "Write down the print estimate.", why: "After it prints, weigh it on the gram scale and compare. The slicer gives a closer number, and the scale is the real answer.", manual: true },
+        { say: `Click ${I("stl")} <b>Export STL</b> in the toolbar.`, why: "It saves every part you can see. Open the file in PrusaSlicer to print it. STL files are always in millimeters, even if you work in inches.", ring: "#toolbar [data-tool=stl]", done: (H) => H.app.lastExport === "stl", auto: (H) => H.app.exportSTL() },
+        { say: "Right-click <b>Plate sketch</b> in the Feature list.", why: "Sketches have their own menu.", ring: (H) => H.treeRow("Plate sketch"), done: (H) => !!H.menuItem("Export sketch as DXF") || H.app.lastExport === "dxf", auto: (H) => {
+          const f = H.app.doc.features[0];
+          const r = H.treeRow("Plate sketch").getBoundingClientRect();
+          H.app.featureMenu(f.id, r.left + 40, r.top + 10);
+        } },
+        { say: "Click <b>Export sketch as DXF</b>.", why: "Its lines come out red, and red means cut. It opens in TS 82 CAD or AutoCAD.", ring: (H) => H.menuItem("Export sketch as DXF"), need: (H) => !!H.menuItem("Export sketch as DXF") || H.app.lastExport === "dxf", done: (H) => H.app.lastExport === "dxf", auto: (H) => {
+          const m = $2("#menu");
+          if (m) m.remove();
+          H.app.exportSketch(H.app.doc.features[0].id, "dxf");
+        } },
+        { outro: true, say: "Files ready for the printer and the laser.", why: "To cut a flat face of a 3D part instead, right-click that face and pick Export this flat face.", exit: (H) => {
+          if (H.app.card === "mass") H.app.closeCard();
+        } }
+      ]
+    }
+  ];
+}
+var Tutor = class {
+  constructor(app) {
+    this.app = app;
+    this.H = helpers(app);
+    this.list = lessons();
+    this.lesson = null;
+    this.i = 0;
+    this.state = {};
+    try {
+      this.doneSet = new Set(JSON.parse(localStorage.getItem("geocad3d-tut-done") || "[]"));
+    } catch (e) {
+      this.doneSet = /* @__PURE__ */ new Set();
+    }
+    this.build();
+  }
+  build() {
+    const card = document.createElement("div");
+    card.id = "tutCard";
+    card.setAttribute("role", "dialog");
+    card.setAttribute("aria-label", "Tutorial");
+    card.setAttribute("aria-live", "polite");
+    card.innerHTML = `<div class="th"><span class="tl"></span><span class="tn"></span><button type="button" class="tmin" title="Make the card small" aria-label="Make the card small">&ndash;</button><button type="button" class="tx" title="Stop the tutorial" aria-label="Stop the tutorial">&times;</button></div>
+      <div class="tbar"><i></i></div><div class="tbody"><img class="tbun" alt=""><div><div class="tsay"></div><div class="twhy"></div></div></div><div class="thint"></div>
+      <div class="tbtns"><button type="button" class="tback">Back</button><button type="button" class="tdo">Do it for me</button><span class="tsp"></span><button type="button" class="tnext pri">Next</button></div><div class="tarrow"></div>`;
+    document.body.appendChild(card);
+    const ring = document.createElement("div");
+    ring.id = "tutRing";
+    ring.setAttribute("aria-hidden", "true");
+    document.body.appendChild(ring);
+    const dot2 = document.createElement("div");
+    dot2.id = "tutDot";
+    dot2.setAttribute("aria-hidden", "true");
+    dot2.innerHTML = "<span>click here</span>";
+    document.body.appendChild(dot2);
+    const pill = document.createElement("button");
+    pill.id = "tutPill";
+    pill.type = "button";
+    document.body.appendChild(pill);
+    Object.assign(this, { card, ring, dot: dot2, pill });
+    card.querySelector(".tx").onclick = () => this.stop();
+    card.querySelector(".tmin").onclick = () => {
+      this.min = true;
+      this.render();
+    };
+    pill.onclick = () => {
+      this.min = false;
+      this.render();
+    };
+    card.querySelector(".tback").onclick = () => this.go(this.i - 1, true);
+    card.querySelector(".tnext").onclick = () => this.next();
+    card.querySelector(".tdo").onclick = () => this.doIt();
+    [card, ring, dot2, pill].forEach((el) => el.style.display = "none");
+  }
+  // lesson picker
+  openPicker() {
+    const app = this.app;
+    const rows = this.list.map((L, k) => `<button class="tlrow${L.star ? " star" : ""}" data-k="${k}">
+      <span class="tlnum">${this.doneSet.has(L.id) ? "\u2713" : k + 1}</span>
+      <span class="tlt"><b>${esc2(L.title)}</b>${L.star ? "<em>Big idea</em>" : ""}<small>${esc2(L.learn)}</small></span><span class="tltime">${L.time}</span></button>`).join("");
+    const b = app.modal(`<div class="ghead"><img src="${window.BUNNY && window.BUNNY.peek || ""}" alt="" class="bun sm"><div><h3>Tutorials</h3><p class="dp">Each lesson has you make something while a card shows exactly where to click. It waits for you, and <b>Do it for me</b> helps if you get stuck.</p></div><button class="x" aria-label="Close">${icon("cancel")}</button></div><div class="tlist">${rows}</div><p class="dp">Starting a lesson puts its own part on screen. Your part is kept, and you can go back to it at the end.</p>`, true);
+    b.querySelector(".x").onclick = () => app.closeModal();
+    b.querySelectorAll(".tlrow").forEach((r) => r.onclick = () => {
+      app.closeModal();
+      this.start(+r.dataset.k);
+    });
+  }
+  start(k) {
+    const app = this.app;
+    const L = this.list[k];
+    if (!L) return;
+    if (this.lesson) this.cleanupStep();
+    if (!this.saved) this.saved = app.snapshot();
+    this.lesson = L;
+    this.k = k;
+    this.min = false;
+    this.state = {};
+    if (app.mode === "sketch") app.exitSketch(true);
+    if (app.dialog) app.closeDialog(false);
+    if (app.measure) app.toggleMeasure();
+    if (app.card) app.closeCard();
+    app.loadDoc(L.start());
+    this.go(0);
+    clearInterval(this.timer);
+    this.timer = setInterval(() => this.tick(), 220);
+    const loop = () => {
+      if (!this.lesson) return;
+      this.position();
+      this.raf = requestAnimationFrame(loop);
+    };
+    cancelAnimationFrame(this.raf);
+    this.raf = requestAnimationFrame(loop);
+  }
+  get step() {
+    return this.lesson && this.lesson.steps[this.i];
+  }
+  go(i, manualBack) {
+    const L = this.lesson;
+    if (!L) return;
+    this.cleanupStep();
+    this.i = Math.max(0, Math.min(L.steps.length - 1, i));
+    this.okUntil = 0;
+    this.hint = manualBack ? "" : this.hint;
+    this.stepState = {};
+    const s = this.step;
+    try {
+      if (s.enter) s.enter(this.H, this.stepState);
+    } catch (e) {
+    }
+    if (s.outro) this.markDone();
+    this.render();
+    this.app.view.request();
+  }
+  cleanupStep() {
+    const s = this.step;
+    if (s && s.exit) {
+      try {
+        s.exit(this.H);
+      } catch (e) {
+      }
+    }
+  }
+  next() {
+    const s = this.step;
+    if (s.outro) {
+      const nx = this.k + 1 < this.list.length ? this.k + 1 : null;
+      if (nx != null) this.start(nx);
+      else this.stop();
+      return;
+    }
+    this.hint = "";
+    this.go(this.i + 1);
+  }
+  async doIt() {
+    const s = this.step;
+    if (!s || !s.auto) return;
+    try {
+      await s.auto(this.H, this.stepState);
+    } catch (e) {
+      this.hint = "That didn't work from here. Try Back, then Do it for me again.";
+      this.render();
+    }
+    this.app.view.request();
+    setTimeout(() => this.tick(), 60);
+  }
+  safe(fn, d) {
+    try {
+      return fn ? fn(this.H, this.stepState) : d;
+    } catch (e) {
+      return d;
+    }
+  }
+  tick() {
+    const s = this.step;
+    if (!s || this.okUntil) return;
+    if (!s.intro && !s.outro && s.need && !this.safe(s.need, true) && this.i > 0) {
+      this.hint = "That closed, so we went back a step.";
+      this.go(this.i - 1);
+      return;
+    }
+    if (s.done && this.safe(s.done, false)) {
+      this.okUntil = 1;
+      this.card.classList.add("ok");
+      this.hint = "";
+      this.render();
+      setTimeout(() => {
+        this.card.classList.remove("ok");
+        this.okUntil = 0;
+        if (this.step === s) this.go(this.i + 1);
+      }, 650);
+      return;
+    }
+    const h = s.check ? this.safe(s.check, null) : null;
+    if (h !== (this.checkHint || null)) {
+      this.checkHint = h;
+      this.render();
+    }
+  }
+  markDone() {
+    this.doneSet.add(this.lesson.id);
+    try {
+      localStorage.setItem("geocad3d-tut-done", JSON.stringify([...this.doneSet]));
+    } catch (e) {
+    }
+  }
+  stop() {
+    this.cleanupStep();
+    clearInterval(this.timer);
+    cancelAnimationFrame(this.raf);
+    const saved = this.saved;
+    this.lesson = null;
+    this.saved = null;
+    [this.card, this.ring, this.dot, this.pill].forEach((el) => el.style.display = "none");
+    this.app.view.request();
+    if (saved) {
+      const b = this.app.modal(`<h3>Tutorial closed</h3><p>Keep the tutorial's part, or go back to the part you had before?</p><div class="mfoot"><button class="btn" data-a="keep">Keep this part</button><button class="btn primary" data-a="back">Back to my part</button></div>`);
+      b.querySelector("[data-a=keep]").onclick = () => this.app.closeModal();
+      b.querySelector("[data-a=back]").onclick = () => {
+        this.app.closeModal();
+        this.app.loadDoc(JSON.parse(saved));
+      };
+    }
+  }
+  render() {
+    const L = this.lesson, s = this.step, card = this.card;
+    if (!L) return;
+    if (this.min) {
+      card.style.display = "none";
+      this.ring.style.display = "none";
+      this.dot.style.display = "none";
+      this.pill.style.display = "block";
+      this.pill.textContent = `${L.title}: step ${this.i + 1} of ${L.steps.length}`;
+      return;
+    }
+    this.pill.style.display = "none";
+    card.style.display = "block";
+    card.querySelector(".tl").textContent = L.title;
+    card.querySelector(".tn").textContent = `${this.i + 1} / ${L.steps.length}`;
+    card.querySelector(".tbar i").style.width = 100 * (this.i + (s.outro ? 1 : 0)) / L.steps.length + "%";
+    card.querySelector(".tsay").innerHTML = s.say;
+    card.querySelector(".twhy").innerHTML = s.why || "";
+    const bun = card.querySelector(".tbun");
+    bun.style.display = s.intro || s.outro ? "block" : "none";
+    if (s.intro || s.outro) bun.src = window.BUNNY && (s.outro ? window.BUNNY.flop : window.BUNNY.peek) || "";
+    const hint = this.checkHint || this.hint;
+    const th = card.querySelector(".thint");
+    th.textContent = hint || "";
+    th.style.display = hint ? "block" : "none";
+    card.querySelector(".tback").style.visibility = this.i > 0 && !s.outro ? "visible" : "hidden";
+    const tdo = card.querySelector(".tdo");
+    tdo.style.display = s.auto ? "" : "none";
+    const nx = card.querySelector(".tnext");
+    nx.style.display = s.intro || s.manual || s.outro ? "" : "none";
+    nx.textContent = s.intro ? "Start" : s.outro ? this.k + 1 < this.list.length ? "Next lesson" : "Finish" : "Next";
+    card.classList.toggle("fin", !!s.outro);
+    this.position();
+  }
+  // where the step points: {el} or {pt:[x,y] page coords} or null
+  target() {
+    const s = this.step, H = this.H, app = this.app;
+    if (!s) return null;
+    if (s.ring) {
+      const el = typeof s.ring === "string" ? $2(s.ring) : this.safe(s.ring, null);
+      if (el && el.getClientRects().length) return { el };
+      return null;
+    }
+    if (s.dot) {
+      const p = this.safe(s.dot, null);
+      if (!p) return null;
+      const r = app.view.overlay.getBoundingClientRect();
+      let sx, sy;
+      if (p.w) [sx, sy] = app.view.project(p.w);
+      else if (app.mode === "sketch" && app.sk.plane) [sx, sy] = app.sk.scr(p[0], p[1]);
+      else return null;
+      if (sx < 0 || sy < 0 || sx > r.width || sy > r.height) return null;
+      return { pt: [sx + r.left, sy + r.top] };
+    }
+    return null;
+  }
+  position() {
+    if (!this.lesson || this.min) return;
+    const t = this.target();
+    const card = this.card, ring = this.ring, dot2 = this.dot;
+    const arrow = card.querySelector(".tarrow");
+    ring.style.display = "none";
+    dot2.style.display = "none";
+    const cw = card.offsetWidth, ch = card.offsetHeight, W = innerWidth, Hh = innerHeight;
+    let x, y, side = "none", ax = 0, ay = 0;
+    if (t && t.el) {
+      const r = t.el.getBoundingClientRect();
+      Object.assign(ring.style, { display: "block", left: r.left - 5 + "px", top: r.top - 5 + "px", width: r.width + 10 + "px", height: r.height + 10 + "px" });
+      const inLeft = r.right < 300, inTop = r.bottom < 120, inDlg = !!t.el.closest("#dlg"), inMenu = !!t.el.closest("#menu");
+      if (inTop) {
+        side = "below";
+        x = r.left + r.width / 2 - cw / 2;
+        y = r.bottom + 16;
+      } else if (inLeft || inDlg || inMenu) {
+        side = "right";
+        x = r.right + 18;
+        y = r.top + r.height / 2 - ch / 2;
+      } else {
+        side = "above";
+        x = r.left + r.width / 2 - cw / 2;
+        y = r.top - ch - 16;
+      }
+      if (side === "above" && y < 8) {
+        side = "below";
+        y = r.bottom + 16;
+      }
+      if (side === "right" && x + cw > W - 8) {
+        side = "left";
+        x = r.left - cw - 18;
+      }
+      ax = r.left + r.width / 2;
+      ay = r.top + r.height / 2;
+    } else if (t && t.pt) {
+      const [px, py] = t.pt;
+      Object.assign(dot2.style, { display: "block", left: px + "px", top: py + "px" });
+      side = "right";
+      x = px + 46;
+      y = py - ch / 2;
+      if (x + cw > W - 8) {
+        side = "left";
+        x = px - cw - 46;
+      }
+      ax = px;
+      ay = py;
+    } else {
+      const v = $2("#view").getBoundingClientRect();
+      x = v.right - cw - 16;
+      y = v.bottom - ch - 16;
+    }
+    x = Math.max(8, Math.min(W - cw - 8, x));
+    y = Math.max(8, Math.min(Hh - ch - 8, y));
+    card.style.left = x + "px";
+    card.style.top = y + "px";
+    arrow.className = "tarrow " + side;
+    if (side === "below" || side === "above") arrow.style.left = Math.max(14, Math.min(cw - 14, ax - x)) + "px", arrow.style.top = "";
+    if (side === "right" || side === "left") arrow.style.top = Math.max(14, Math.min(ch - 14, ay - y)) + "px", arrow.style.left = "";
+  }
+};
+
+// src/app.js
+var $3 = (s, r = document) => r.querySelector(s);
+var esc3 = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 var strip = (k, v) => k[0] === "_" ? void 0 : v;
 var MATERIALS = [
   { id: "PLA", name: "PLA (3D print)", rho: 1.24, print: true },
@@ -29229,10 +30261,10 @@ var MATERIALS = [
   { id: "ST", name: "Steel", rho: 7.85 },
   { id: "H2O", name: "Water (to compare)", rho: 1 }
 ];
-var PART_TOOLS = [["sketch"], ["extrude", "revolve"], ["plane"], ["lpattern", "cpattern", "mirror"], ["measure", "mass"]];
+var PART_TOOLS = [["sketch"], ["extrude", "revolve"], ["plane"], ["lpattern", "cpattern", "mirror"], ["measure", "mass"], ["stl"]];
 var SK_TOOLS = [["select"], ["line", "rect", "rectc", "circle", "arc3", "arcc", "arct", "polygon", "slot", "point"], ["fillet", "trim", "smirror", "construction", "use"], ["dimension"], ["coin", "h", "v", "par", "perp", "tan", "eq", "mid", "conc", "sym", "fix"]];
 var RULES = /* @__PURE__ */ new Set(["coin", "h", "v", "par", "perp", "tan", "eq", "mid", "conc", "sym", "fix"]);
-var SHORT = { lpattern: "Lin. pattern", cpattern: "Circ. pattern", rect: "Rect", rectc: "Ctr rect", arc3: "Arc", arcc: "Ctr arc", arct: "Tan arc", smirror: "Mirror", construction: "Constr.", dimension: "Dimension", use: "Use", mass: "Mass" };
+var SHORT = { lpattern: "Lin. pattern", cpattern: "Circ. pattern", rect: "Rect", rectc: "Ctr rect", stl: "Export STL", arc3: "Arc", arcc: "Ctr arc", arct: "Tan arc", smirror: "Mirror", construction: "Constr.", dimension: "Dimension", use: "Use", mass: "Mass" };
 var App = class {
   constructor(M) {
     this.M = M;
@@ -29245,13 +30277,14 @@ var App = class {
     this.showGlyphs = true;
     this.selFeature = null;
     this.hidden = /* @__PURE__ */ new Set();
-    this.view = new View3D($2("#view"));
+    this.view = new View3D($3("#view"));
     this.sk = new SketchEditor(this);
     this.dialog = null;
     this.measure = null;
     this.buildToolbar();
     this.bindUI();
     this.bindView();
+    this.tutor = new Tutor(this);
     let loaded = false;
     try {
       const s = localStorage.getItem("geocad3d-autosave");
@@ -29265,7 +30298,8 @@ var App = class {
     } catch (e) {
     }
     if (!loaded) this.doc = EXAMPLES[0].build();
-    $2("#docName").value = this.doc.name || "My part";
+    $3("#docName").value = this.doc.name || "My part";
+    this.applyDocUnits();
     this.pushUndo(true);
     this.regenNow();
     this.view.viewTo([1, -1, 0.75], [0, 0, 1], { instant: true });
@@ -29315,6 +30349,7 @@ var App = class {
   }
   restore(s) {
     this.doc = JSON.parse(s);
+    this.applyDocUnits();
     if (this.mode === "sketch") {
       if (!this.doc.features.find((f) => f.id === this.sk.id)) {
         this.exitSketch(true);
@@ -29331,9 +30366,34 @@ var App = class {
     this.updateUndoBtns();
   }
   updateUndoBtns() {
-    const u = $2("[data-act=undo]"), r = $2("[data-act=redo]");
+    const u = $3("[data-act=undo]"), r = $3("[data-act=redo]");
     if (u) u.disabled = this.undoStack.length < 2;
     if (r) r.disabled = !this.redoStack.length;
+  }
+  // ---------- units ----------
+  applyDocUnits() {
+    setUnits(this.doc.units || "mm");
+    document.querySelectorAll("#unitsSeg [data-u]").forEach((b) => {
+      b.classList.toggle("on", b.dataset.u === units());
+      b.setAttribute("aria-pressed", b.dataset.u === units());
+    });
+  }
+  setUnitSystem(u) {
+    if ((this.doc.units || "mm") === u) return;
+    this.doc.units = u;
+    this.applyDocUnits();
+    this.pushUndo();
+    if (this.mode === "sketch") {
+      this.sk.hideInput();
+      this.sk.refresh();
+      this.renderOptBar();
+    }
+    if (this.dialog) this.dialog.render();
+    this.showResult();
+    if (this.card === "mass") this.renderMass();
+    if (this.measure) this.renderMeasure();
+    this.view.request();
+    this.toast(u === "in" ? "Now showing inches. Your part stays the same size. Type 2 to mean 2 inches. In a formula, write the unit, like #width + 0.5 in." : "Now showing millimeters. Your part stays the same size.");
   }
   // ---------- regeneration ----------
   reevalVars() {
@@ -29377,7 +30437,7 @@ var App = class {
       this.renderVars();
       this.renderParts();
       if (this.card === "mass") this.renderMass();
-      this.view.setGrid(this.gridSize(), this.mode === "part");
+      this.view.setGrid(this.gridSize(), this.mode === "part", units() === "in");
     }
     this.view.request();
   }
@@ -29418,13 +30478,13 @@ var App = class {
       const ang = h.mode === "sym" ? 2 * v : h.mode === "flip" ? -v : v;
       return fmt(ang, 1) + "\xB0";
     }
-    if (h.mode === "sym") return fmt(2 * Math.abs(v), 2) + " mm";
-    if (h.mode === "spacing") return fmt(v, 2) + " mm apart";
-    return fmt(Math.abs(v), 2) + " mm";
+    if (h.mode === "sym") return fmtLen(2 * Math.abs(v), true);
+    if (h.mode === "spacing") return fmtLen(v, true) + " apart";
+    return fmtLen(Math.abs(v), true);
   }
   linStep() {
-    const px = this.view.pxSize();
-    return [0.1, 0.25, 0.5, 1, 2, 5, 10, 25, 50, 100].find((c) => c / px >= 10) || 100;
+    const px = this.view.pxSize(), c = niceSteps();
+    return c.find((v) => v / px >= 10) || c[c.length - 1];
   }
   rayOf(x, y) {
     const r = this.view.ray(x, y);
@@ -29482,19 +30542,20 @@ var App = class {
       const step = this.linStep();
       if (!e.shiftKey) val = Math.round(val / step) * step;
       const min = Math.min(step, 0.1);
+      const L = (mm) => units() === "in" ? fmt(mm / 25.4, 4) + " in" : fmt(mm, 3);
       if (h.mode === "blind") {
         if (Math.abs(val) < min) val = (val < 0 ? -1 : 1) * min;
         d.flip = val < 0;
-        d.depth = fmt(Math.abs(val), 3);
+        d.depth = L(Math.abs(val));
       } else if (h.mode === "sym") {
         val = Math.max(min / 2, Math.abs(val));
-        d.depth = fmt(2 * val, 3);
+        d.depth = L(2 * val);
       } else if (h.mode === "plane") {
         d.flip = val < 0;
-        d.off = fmt(Math.abs(val), 3);
+        d.off = L(Math.abs(val));
       } else {
         if (Math.abs(val) < min) val = (val < 0 ? -1 : 1) * min;
-        d[h.key] = fmt(val, 3);
+        d[h.key] = L(val);
       }
     } else {
       if (g.screen) {
@@ -29610,12 +30671,12 @@ var App = class {
   }
   // ---------- toolbar ----------
   buildToolbar() {
-    const tb = $2("#toolbar");
+    const tb = $3("#toolbar");
     const groups = this.mode === "sketch" ? SK_TOOLS : PART_TOOLS;
     tb.innerHTML = groups.map((g) => `<div class="tg${RULES.has(g[0]) ? " rules" : ""}">` + (RULES.has(g[0]) ? '<span class="tgcap">Rules</span>' : "") + g.map((id) => {
       const t = TOOLS[id];
-      const lab = RULES.has(id) ? "" : `<span>${esc2(SHORT[id] || t.name)}</span>`;
-      return `<button class="tool${RULES.has(id) ? " ico" : ""}" data-tool="${id}" aria-label="${esc2(t.name)}">${icon(id)}${lab}</button>`;
+      const lab = RULES.has(id) ? "" : `<span>${esc3(SHORT[id] || t.name)}</span>`;
+      return `<button class="tool${RULES.has(id) ? " ico" : ""}" data-tool="${id}" aria-label="${esc3(t.name)}">${icon(id)}${lab}</button>`;
     }).join("") + "</div>").join("");
     tb.classList.toggle("sk", this.mode === "sketch");
     if (this.mode === "part") {
@@ -29624,7 +30685,7 @@ var App = class {
     this.renderOptBar();
   }
   renderOptBar() {
-    const ob = $2("#optbar");
+    const ob = $3("#optbar");
     if (this.mode !== "sketch") {
       ob.hidden = true;
       return;
@@ -29633,26 +30694,26 @@ var App = class {
     const t = this.sk.tool;
     let h = "";
     if (t === "polygon") h += `<label>Sides <input id="optSides" type="number" min="3" max="24" value="${this.sk.polySides}"></label>`;
-    if (t === "fillet") h += `<label>Fillet radius <input id="optFillet" type="text" value="${esc2(this.sk.filletR)}" spellcheck="false"></label>`;
+    if (t === "fillet") h += `<label>Fillet radius (${usuf()}) <input id="optFillet" type="text" value="${esc3(this.sk.filletR)}" spellcheck="false"></label>`;
     h += `<label class="chk"><input id="optCons" type="checkbox" ${this.sk.consMode ? "checked" : ""}> New lines are construction (dashed)</label>`;
     h += `<label class="chk"><input id="optGlyph" type="checkbox" ${this.showGlyphs ? "checked" : ""}> Show rule symbols</label>`;
     h += `<span class="obr"><button class="obtn" data-view="normal" title="Look straight at the sketch">${icon("normal")} Normal to</button><button class="obtn no" data-tool="cancel">${icon("cancel")} Cancel</button><button class="obtn ok" data-tool="finish">${icon("finish")} Finish sketch</button></span>`;
     ob.innerHTML = h;
     ob.querySelectorAll("[data-view]").forEach((b) => b.onclick = () => this.viewCmd(b.dataset.view));
     ob.querySelectorAll("[data-tool]").forEach((b) => b.onclick = () => this.toolClick(b.dataset.tool));
-    const sides = $2("#optSides");
+    const sides = $3("#optSides");
     if (sides) sides.oninput = () => {
       this.sk.polySides = Math.max(3, Math.min(24, +sides.value || 6));
       this.view.request();
     };
-    const fr = $2("#optFillet");
+    const fr = $3("#optFillet");
     if (fr) fr.oninput = () => {
       this.sk.filletR = fr.value;
     };
-    $2("#optCons").onchange = (e) => {
+    $3("#optCons").onchange = (e) => {
       this.sk.consMode = e.target.checked;
     };
-    $2("#optGlyph").onchange = (e) => {
+    $3("#optGlyph").onchange = (e) => {
       this.showGlyphs = e.target.checked;
       this.view.request();
     };
@@ -29668,7 +30729,7 @@ var App = class {
   }
   // ---------- UI wiring ----------
   bindUI() {
-    $2("#toolbar").addEventListener("click", (e) => {
+    $3("#toolbar").addEventListener("click", (e) => {
       const b = e.target.closest("button");
       if (!b) return;
       if (b.dataset.view) {
@@ -29678,7 +30739,7 @@ var App = class {
       this.toolClick(b.dataset.tool);
     });
     let tipT = null;
-    const tip = $2("#tip");
+    const tip = $3("#tip");
     document.addEventListener("pointerover", (e) => {
       const b = e.target.closest && e.target.closest("[data-tool]");
       clearTimeout(tipT);
@@ -29702,21 +30763,22 @@ var App = class {
     });
     document.querySelectorAll("#top [data-act]").forEach((b) => {
       const act = b.dataset.act;
-      if (["undo", "redo", "new", "open", "save", "export", "examples", "guide"].includes(act)) b.insertAdjacentHTML("afterbegin", icon(act === "guide" ? "help" : act === "new" ? "newdoc" : act));
+      if (["undo", "redo", "new", "open", "save", "export", "examples", "guide", "tutorials"].includes(act)) b.insertAdjacentHTML("afterbegin", icon(act === "guide" ? "help" : act === "new" ? "newdoc" : act === "tutorials" ? "tutorial" : act));
       b.addEventListener("click", (e) => this.topAct(act, b));
     });
-    $2("#docName").addEventListener("change", (e) => {
+    $3("#docName").addEventListener("change", (e) => {
       this.doc.name = e.target.value.trim() || "My part";
       this.pushUndo();
     });
-    $2("#addVar").addEventListener("click", () => this.addVariable());
-    $2("#snapChk").addEventListener("change", (e) => {
+    $3("#addVar").addEventListener("click", () => this.addVariable());
+    $3("#snapChk").addEventListener("change", (e) => {
       this.snapGrid = e.target.checked;
     });
-    $2("#fileIn").addEventListener("change", (e) => this.openFile(e.target.files[0]));
+    document.querySelectorAll("#unitsSeg [data-u]").forEach((b) => b.addEventListener("click", () => this.setUnitSystem(b.dataset.u)));
+    $3("#fileIn").addEventListener("change", (e) => this.openFile(e.target.files[0]));
     window.addEventListener("keydown", (e) => this.key(e));
-    $2("#view").addEventListener("dragover", (e) => e.preventDefault());
-    $2("#view").addEventListener("drop", (e) => {
+    $3("#view").addEventListener("dragover", (e) => e.preventDefault());
+    $3("#view").addEventListener("drop", (e) => {
       e.preventDefault();
       const f = e.dataTransfer.files[0];
       if (f) this.openFile(f);
@@ -29749,6 +30811,7 @@ var App = class {
     }
     if (id === "sketch") return this.startSketchPick();
     if (id === "measure") return this.toggleMeasure();
+    if (id === "stl") return this.exportSTL();
     if (id === "mass") return this.toggleMass();
     if (["extrude", "revolve", "plane", "lpattern", "cpattern", "mirror"].includes(id)) this.openDialog(id);
   }
@@ -29756,10 +30819,11 @@ var App = class {
     if (act === "undo") return this.undo();
     if (act === "redo") return this.redo();
     if (act === "guide") return this.showGuide();
+    if (act === "tutorials") return this.tutor.openPicker();
     if (act === "new") return this.confirm("Start a new part?", "Your current part is kept in the undo history until you close the page. Save it first if you want to keep it.", "Start new", () => {
       this.loadDoc(newDoc());
     });
-    if (act === "open") return $2("#fileIn").click();
+    if (act === "open") return $3("#fileIn").click();
     if (act === "save") return this.saveProject();
     if (act === "examples") return this.menu(btn, EXAMPLES.map((ex, i) => ({ label: ex.name, sub: ex.desc, act: () => this.confirm('Open "' + ex.name + '"?', "This replaces the part on screen. You can Undo to get it back.", "Open example", () => this.loadDoc(ex.build())) })));
     if (act === "export") return this.exportMenu(btn);
@@ -29770,7 +30834,8 @@ var App = class {
     this.doc = d;
     this.selFeature = null;
     this.hidden.clear();
-    $2("#docName").value = d.name || "My part";
+    $3("#docName").value = d.name || "My part";
+    this.applyDocUnits();
     this.pushUndo();
     this.regenNow();
     this.view.viewTo([1, -1, 0.75], [0, 0, 1], { instant: true });
@@ -29780,7 +30845,7 @@ var App = class {
   key(e) {
     const tag = (e.target.tagName || "").toLowerCase();
     if (tag === "input" || tag === "textarea" || tag === "select") return;
-    if (!$2("#modal").hidden) {
+    if (!$3("#modal").hidden) {
       if (e.key === "Escape") this.closeModal();
       return;
     }
@@ -30170,7 +31235,7 @@ var App = class {
     this.showPickBar();
   }
   showPickBar() {
-    const d = $2("#dlg");
+    const d = $3("#dlg");
     d.hidden = false;
     d.innerHTML = `<div class="dh">${icon("sketch")}<b>New sketch</b></div><p class="dp">Click a plane or a flat face of your part. Or pick one:</p>
     <div class="row3"><button data-p="Top">Top</button><button data-p="Front">Front</button><button data-p="Right">Right</button></div>
@@ -30179,11 +31244,11 @@ var App = class {
       this.cancelPick();
       this.createSketch({ k: "std", name: b.dataset.p });
     });
-    $2("#pickCancel").onclick = () => this.cancelPick();
+    $3("#pickCancel").onclick = () => this.cancelPick();
   }
   cancelPick() {
     this.picking = null;
-    $2("#dlg").hidden = true;
+    $3("#dlg").hidden = true;
     this.updatePlanes();
     this.markTools();
     this.setHint("");
@@ -30222,7 +31287,7 @@ var App = class {
     this.sk.start(id, s.plane);
     this.selFeature = id;
     this.buildToolbar();
-    $2("#app").classList.add("sketching");
+    $3("#app").classList.add("sketching");
     this.updatePlanes();
     this.renderTree();
     this.lookAtSketch(isNew);
@@ -30250,12 +31315,12 @@ var App = class {
     this.sk.cancelOp();
     const id = this.sk.id;
     this.mode = "part";
-    $2("#app").classList.remove("sketching");
+    $3("#app").classList.remove("sketching");
     this.buildToolbar();
     this.regenNow();
     this.markTools();
     this.setHint("");
-    $2("#skStatus").innerHTML = "";
+    $3("#skStatus").innerHTML = "";
     if (!silent) {
       this.pushUndo();
       const s = this.res.sketches[id];
@@ -30273,7 +31338,7 @@ var App = class {
     const entry = this.sketchEntry;
     this.mode = "part";
     this.sk.hideInput();
-    $2("#app").classList.remove("sketching");
+    $3("#app").classList.remove("sketching");
     this.doc = JSON.parse(entry);
     const f = this.doc.features.find((x) => x.id === this.sk.id);
     if (f && !f.ents.length && !Object.keys(f.pts).length) {
@@ -30285,11 +31350,11 @@ var App = class {
     this.regenNow();
     this.markTools();
     this.setHint("");
-    $2("#skStatus").innerHTML = "";
+    $3("#skStatus").innerHTML = "";
     this.view.viewTo([1, -1, 0.75], [0, 0, 1]);
   }
   onSketchStatus(st) {
-    const el = $2("#skStatus");
+    const el = $3("#skStatus");
     if (this.mode !== "sketch" || !st) {
       el.innerHTML = "";
       return;
@@ -30311,7 +31376,7 @@ var App = class {
     this.markTools();
   }
   setHint(t) {
-    $2("#hint").textContent = t || (this.mode === "part" ? "Right-drag or left-drag empty space to rotate. Scroll to zoom. Shift-drag to pan." : "");
+    $3("#hint").textContent = t || (this.mode === "part" ? "Right-drag or left-drag empty space to rotate. Scroll to zoom. Shift-drag to pan." : "");
   }
   hoverFace(x, y) {
     const hit = this.view.pickFace(x, y, { ghost: true });
@@ -30334,7 +31399,7 @@ var App = class {
   }
   // ---------- feature list ----------
   renderTree() {
-    const t = $2("#tree");
+    const t = $3("#tree");
     const d = this.doc, res = this.res || { errors: {}, warn: {}, sketches: {} };
     const rb = d.rollback == null ? d.features.length : d.rollback;
     const pickFeats = this.dialog && this.dialog.activeKind() === "feats";
@@ -30349,8 +31414,8 @@ var App = class {
       const iconName = f.t === "sketch" ? "sketch" : f.t;
       const cls = ["trow", this.selFeature === f.id ? "sel" : "", i >= rb ? "rolled" : "", f.suppressed ? "supp" : "", err ? "err" : "", pickFeats && ["extrude", "revolve", "lpattern", "cpattern", "mirror"].includes(f.t) || pickPlane && f.t === "plane" ? "pickable" : "", this.dialog && this.dialog.featPicked(f.id) ? "picked" : "", this.mode === "sketch" && this.sk.id === f.id ? "editing" : ""].filter(Boolean).join(" ");
       const vis = f.t === "sketch" ? this.sketchVisible(f) : f.t === "plane" ? f.show !== false : null;
-      h += `<div class="${cls}" data-id="${f.id}" title="${esc2(err || warn || (under ? "Under-defined: " + s.dof.dof + " degrees of freedom left" : "Double-click to edit"))}">
-        <span class="ti">${icon(iconName)}</span><span class="tn">${under ? '<i class="ud">(\u2212)</i> ' : ""}${esc2(f.name)}</span>
+      h += `<div class="${cls}" data-id="${f.id}" title="${esc3(err || warn || (under ? "Under-defined: " + s.dof.dof + " degrees of freedom left" : "Double-click to edit"))}">
+        <span class="ti">${icon(iconName)}</span><span class="tn">${under ? '<i class="ud">(\u2212)</i> ' : ""}${esc3(f.name)}</span>
         ${err ? '<span class="tbad">!</span>' : warn ? '<span class="twarn">!</span>' : ""}
         ${vis !== null ? `<button class="teye" data-eye="${f.id}" aria-label="Show or hide">${icon(vis ? "eye" : "eyeoff")}</button>` : ""}
       </div>`;
@@ -30416,7 +31481,7 @@ var App = class {
       e.preventDefault();
       bar.setPointerCapture(e.pointerId);
       bar.classList.add("drag");
-      const rows = [...$2("#tree").querySelectorAll(".trow[data-id]")];
+      const rows = [...$3("#tree").querySelectorAll(".trow[data-id]")];
       const move = (ev) => {
         bar.style.transform = `translateY(${ev.clientY - e.clientY}px)`;
       };
@@ -30505,7 +31570,7 @@ var App = class {
       this.pushUndo();
       this.regenNow();
     };
-    if (deps.length) this.confirm("Delete " + f.name + "?", "These use it and will be deleted too: <b>" + deps.map((d) => esc2(this.featName(d))).join(", ") + "</b>. You can Undo.", "Delete all", doIt, true);
+    if (deps.length) this.confirm("Delete " + f.name + "?", "These use it and will be deleted too: <b>" + deps.map((d) => esc3(this.featName(d))).join(", ") + "</b>. You can Undo.", "Delete all", doIt, true);
     else doIt();
   }
   // ---------- dialogs ----------
@@ -30522,8 +31587,8 @@ var App = class {
     const d = this.dialog;
     if (!d) return;
     this.dialog = null;
-    $2("#dlg").hidden = true;
-    $2("#dlg").innerHTML = "";
+    $3("#dlg").hidden = true;
+    $3("#dlg").innerHTML = "";
     this.view.setPreview(null);
     if (commit) {
       if (d.editId) {
@@ -30559,15 +31624,16 @@ var App = class {
   }
   // ---------- variables ----------
   renderVars() {
-    const el = $2("#vars");
+    const el = $3("#vars");
     const vals = this.res ? this.res.values : {}, errs = this.res ? this.res.varErrors : {};
+    const inchHint = units() === "in" ? `<div class="vempty">Showing inches: a plain number here is millimeters. For inches, type the unit, like <code>2 in</code>.</div>` : "";
     if (!this.doc.vars.length) {
-      el.innerHTML = `<div class="vempty">Variables are named numbers, like <code>#width</code>. Click + to add one.</div>`;
+      el.innerHTML = `<div class="vempty">Variables are named numbers, like <code>#width</code>. Click + to add one.</div>` + inchHint;
       return;
     }
     if (el.contains(document.activeElement) && document.activeElement.tagName === "INPUT") {
-      el.querySelectorAll(".vrow").forEach((r, i) => {
-        const v = this.doc.vars[i];
+      el.querySelectorAll(".vrow").forEach((r) => {
+        const v = this.doc.vars[+r.dataset.i];
         if (!v) return;
         const o = r.querySelector(".vval");
         o.textContent = errs[v.name] ? "!" : fmt(vals[v.name], 3);
@@ -30576,10 +31642,11 @@ var App = class {
       });
       return;
     }
-    el.innerHTML = this.doc.vars.map((v, i) => `<div class="vrow${errs[v.name] ? " bad" : ""}" data-i="${i}">
-      <span class="vh">#</span><input class="vname" value="${esc2(v.name)}" aria-label="Variable name" spellcheck="false">
-      <output class="vval" title="${esc2(errs[v.name] || "")}">${errs[v.name] ? "!" : fmt(vals[v.name], 3)}</output>
-      <input class="vexpr" value="${esc2(v.expr)}" title="${esc2(v.expr)}" aria-label="Value or formula for ${esc2(v.name)}" spellcheck="false">
+    const vshow = (v) => errs[v.name] ? "!" : units() === "in" && /(\d|\))\s*(in|inch|inches|mm|cm|m|ft|")\b/.test(v.expr) ? fmtLen(vals[v.name], true, 4) : fmt(vals[v.name], 3);
+    el.innerHTML = inchHint + this.doc.vars.map((v, i) => `<div class="vrow${errs[v.name] ? " bad" : ""}" data-i="${i}">
+      <span class="vh">#</span><input class="vname" value="${esc3(v.name)}" aria-label="Variable name" spellcheck="false">
+      <output class="vval" title="${esc3(errs[v.name] || "")}">${vshow(v)}</output>
+      <input class="vexpr" value="${esc3(v.expr)}" title="${esc3(v.expr)}" aria-label="Value or formula for ${esc3(v.name)}" spellcheck="false">
       <button class="vdel" aria-label="Delete variable">${icon("trash")}</button></div>`).join("");
     el.querySelectorAll(".vrow").forEach((r) => {
       const i = +r.dataset.i;
@@ -30604,7 +31671,7 @@ var App = class {
           this.doc.vars.splice(i, 1);
           this.varsChanged();
         };
-        if (used.length) this.confirm("Delete #" + name + "?", "It is used in: " + used.map(esc2).join(", ") + ". Those will show an error until you fix them.", "Delete", go, true);
+        if (used.length) this.confirm("Delete #" + name + "?", "It is used in: " + used.map(esc3).join(", ") + ". Those will show an error until you fix them.", "Delete", go, true);
         else go();
       };
     });
@@ -30637,7 +31704,7 @@ var App = class {
     this.doc.vars.push({ name, expr: "10" });
     this.varsChanged();
     setTimeout(() => {
-      const r = $2("#vars").lastElementChild;
+      const r = $3("#vars").lastElementChild;
       if (r) {
         const i = r.querySelector(".vname");
         i.focus();
@@ -30673,7 +31740,7 @@ var App = class {
   }
   // ---------- parts ----------
   renderParts() {
-    const el = $2("#parts");
+    const el = $3("#parts");
     const bodies = this.res ? this.res.bodies : [];
     if (!bodies.length) {
       el.innerHTML = `<div class="vempty">No solid parts yet.</div>`;
@@ -30681,7 +31748,7 @@ var App = class {
     }
     el.innerHTML = bodies.map((b) => {
       const color = this.doc.colors && this.doc.colors[b.id] || PALETTE[b.idx % PALETTE.length];
-      return `<div class="prow" data-id="${b.id}"><input type="color" class="pcol" value="${color}" aria-label="Part color"><span class="pn">${esc2(b.name)}</span><span class="pv">${fmt(b.man.volume() / 1e3, 2)} cm\xB3</span>
+      return `<div class="prow" data-id="${b.id}"><input type="color" class="pcol" value="${color}" aria-label="Part color"><span class="pn">${esc3(b.name)}</span><span class="pv">${fmt(b.man.volume() / 1e3, 2)} cm\xB3</span>
       <button class="teye" data-hide="${b.id}" aria-label="Show or hide part">${icon(this.hidden.has(b.id) ? "eyeoff" : "eye")}</button>
       <button class="teye" data-stl="${b.id}" aria-label="Export this part as STL" title="Export STL">${icon("export")}</button></div>`;
     }).join("");
@@ -30710,11 +31777,11 @@ var App = class {
   }
   closeCard() {
     this.card = null;
-    $2("#card").hidden = true;
+    $3("#card").hidden = true;
     this.markTools();
   }
   renderMass() {
-    const el = $2("#card");
+    const el = $3("#card");
     el.hidden = false;
     const mat = MATERIALS.find((m) => m.id === this.doc.material) || MATERIALS[0];
     const infill = this.doc.infill ?? 15;
@@ -30735,19 +31802,20 @@ var App = class {
       <label class="fl">Material <select id="matSel">${MATERIALS.map((m) => `<option value="${m.id}"${m.id === mat.id ? " selected" : ""}>${m.name} \xB7 ${m.rho} g/cm\xB3</option>`).join("")}</select></label>
       ${bodies.length ? `<div class="big"><span>${fmt(g, 1)} g</span><small>if solid ${mat.name.split(" (")[0]}</small></div>
       <table class="mt"><tr><td>Volume</td><td>${fmt(cm3, 2)} cm\xB3</td></tr><tr><td>Surface area</td><td>${fmt(A / 100, 2)} cm\xB2</td></tr>
-      <tr><td>Size (X \xD7 Y \xD7 Z)</td><td>${fmt(size[0], 1)} \xD7 ${fmt(size[1], 1)} \xD7 ${fmt(size[2], 1)} mm</td></tr>
-      <tr><td></td><td>${fmt(size[0] / 25.4, 2)} \xD7 ${fmt(size[1] / 25.4, 2)} \xD7 ${fmt(size[2] / 25.4, 2)} in</td></tr></table>
+      ${units() === "in" ? `<tr><td>Size (X \xD7 Y \xD7 Z)</td><td>${fmt(size[0] / 25.4, 3)} \xD7 ${fmt(size[1] / 25.4, 3)} \xD7 ${fmt(size[2] / 25.4, 3)} in</td></tr>
+      <tr><td></td><td>${fmt(size[0], 1)} \xD7 ${fmt(size[1], 1)} \xD7 ${fmt(size[2], 1)} mm</td></tr><tr><td></td><td>${fmt(V / 16387.064, 3)} in\xB3</td></tr>` : `<tr><td>Size (X \xD7 Y \xD7 Z)</td><td>${fmt(size[0], 1)} \xD7 ${fmt(size[1], 1)} \xD7 ${fmt(size[2], 1)} mm</td></tr>
+      <tr><td></td><td>${fmt(size[0] / 25.4, 2)} \xD7 ${fmt(size[1] / 25.4, 2)} \xD7 ${fmt(size[2] / 25.4, 2)} in</td></tr>`}</table>
       ${mat.print ? `<label class="fl">Infill for a 3D print: <b id="infV">${infill}%</b><input id="infill" type="range" min="0" max="100" step="5" value="${infill}"></label>
       <div class="note">Rough print estimate: <b>${fmt(printG, 1)} g</b> (2 walls of 0.45 mm, ${infill}% infill). The slicer's number is better, and the scale is best.</div>` : ""}
-      ${rows.length > 1 ? `<table class="mt sm">${rows.map((r) => `<tr><td>${esc2(r.b.name)}</td><td>${fmt(r.v / 1e3, 2)} cm\xB3 \xB7 ${fmt(r.v / 1e3 * mat.rho, 1)} g</td></tr>`).join("")}</table>` : ""}
+      ${rows.length > 1 ? `<table class="mt sm">${rows.map((r) => `<tr><td>${esc3(r.b.name)}</td><td>${fmt(r.v / 1e3, 2)} cm\xB3 \xB7 ${fmt(r.v / 1e3 * mat.rho, 1)} g</td></tr>`).join("")}</table>` : ""}
       <div class="note">Mass = volume \xD7 density. ${fmt(cm3, 2)} cm\xB3 \xD7 ${mat.rho} g/cm\xB3 = ${fmt(g, 1)} g</div>` : '<p class="dp">Make a solid part first.</p>'}`;
     el.querySelector(".x").onclick = () => this.closeCard();
-    $2("#matSel").onchange = (e) => {
+    $3("#matSel").onchange = (e) => {
       this.doc.material = e.target.value;
       this.autosave();
       this.renderMass();
     };
-    const inf = $2("#infill");
+    const inf = $3("#infill");
     if (inf) inf.oninput = () => {
       this.doc.infill = +inf.value;
       this.renderMass();
@@ -30757,7 +31825,7 @@ var App = class {
   toggleMeasure() {
     if (this.measure) {
       this.measure = null;
-      $2("#card").hidden = true;
+      $3("#card").hidden = true;
       this.card = null;
       this.view.request();
       this.setHint("");
@@ -30817,18 +31885,18 @@ var App = class {
     this.view.request();
   }
   renderMeasure() {
-    const el = $2("#card");
+    const el = $3("#card");
     el.hidden = false;
     const P = this.measure.picks;
     const len2 = (a) => Math.hypot(a[0], a[1], a[2]);
     let body = '<p class="dp">Click a corner or a flat face.</p>';
     if (P.length === 1) {
       const a = P[0];
-      if (a.k === "pt") body = `<table class="mt"><tr><td>Point</td><td>${a.p.map((v) => fmt(v, 2)).join(", ")}</td></tr></table><p class="dp">Click a second corner or face.</p>`;
+      if (a.k === "pt") body = `<table class="mt"><tr><td>Point</td><td>${a.p.map((v) => fmtLen(v)).join(", ")} ${usuf()}</td></tr></table><p class="dp">Click a second corner or face.</p>`;
       else {
         let per = 0;
         for (const L of a.loops) for (let i = 0; i < L.length; i++) per += len2(L[i].map((v, k) => v - L[(i + 1) % L.length][k]));
-        body = `<table class="mt"><tr><td>Face area</td><td>${fmt(a.area, 2)} mm\xB2 (${fmt(a.area / 100, 2)} cm\xB2)</td></tr><tr><td>Perimeter</td><td>${fmt(per, 2)} mm</td></tr></table><p class="dp">Click a second corner or face.</p>`;
+        body = units() === "in" ? `<table class="mt"><tr><td>Face area</td><td>${fmt(a.area / 645.16, 3)} in\xB2 (${fmt(a.area / 100, 2)} cm\xB2)</td></tr><tr><td>Perimeter</td><td>${fmtLen(per, true)}</td></tr></table><p class="dp">Click a second corner or face.</p>` : `<table class="mt"><tr><td>Face area</td><td>${fmt(a.area, 2)} mm\xB2 (${fmt(a.area / 100, 2)} cm\xB2)</td></tr><tr><td>Perimeter</td><td>${fmt(per, 2)} mm</td></tr></table><p class="dp">Click a second corner or face.</p>`;
       }
     }
     if (P.length === 2) {
@@ -30836,12 +31904,13 @@ var App = class {
       let rows = "";
       if (a.k === "pt" && b.k === "pt") {
         const d = b.p.map((v, i) => v - a.p[i]);
-        rows = `<tr><td>Distance</td><td><b>${fmt(len2(d), 2)} mm</b></td></tr><tr><td>\u0394X, \u0394Y, \u0394Z</td><td>${d.map((v) => fmt(Math.abs(v), 2)).join(", ")}</td></tr><tr><td></td><td>${fmt(len2(d) / 25.4, 3)} in</td></tr>`;
+        const other = units() === "in" ? fmt(len2(d), 2) + " mm" : fmt(len2(d) / 25.4, 3) + " in";
+        rows = `<tr><td>Distance</td><td><b>${fmtLen(len2(d), true)}</b></td></tr><tr><td>\u0394X, \u0394Y, \u0394Z</td><td>${d.map((v) => fmtLen(Math.abs(v))).join(", ")} ${usuf()}</td></tr><tr><td></td><td>${other}</td></tr>`;
       } else if (a.k === "face" && b.k === "face") {
         const c = Math.abs(a.n[0] * b.n[0] + a.n[1] * b.n[1] + a.n[2] * b.n[2]);
         if (c > 0.9999) {
           const d = Math.abs((b.p[0] - a.p[0]) * a.n[0] + (b.p[1] - a.p[1]) * a.n[1] + (b.p[2] - a.p[2]) * a.n[2]);
-          rows = `<tr><td>Distance between faces</td><td><b>${fmt(d, 2)} mm</b></td></tr><tr><td></td><td>${fmt(d / 25.4, 3)} in</td></tr>`;
+          rows = `<tr><td>Distance between faces</td><td><b>${fmtLen(d, true)}</b></td></tr><tr><td></td><td>${units() === "in" ? fmt(d, 2) + " mm" : fmt(d / 25.4, 3) + " in"}</td></tr>`;
         } else {
           const ang = Math.acos(Math.max(-1, Math.min(1, a.n[0] * b.n[0] + a.n[1] * b.n[1] + a.n[2] * b.n[2]))) * 180 / Math.PI;
           rows = `<tr><td>Angle between faces</td><td><b>${fmt(180 - ang, 2)}\xB0</b></td></tr><tr><td>Angle between normals</td><td>${fmt(ang, 2)}\xB0</td></tr>`;
@@ -30849,7 +31918,7 @@ var App = class {
       } else {
         const f = a.k === "face" ? a : b, p = a.k === "pt" ? a : b;
         const d = Math.abs((p.p[0] - f.p[0]) * f.n[0] + (p.p[1] - f.p[1]) * f.n[1] + (p.p[2] - f.p[2]) * f.n[2]);
-        rows = `<tr><td>Point to face</td><td><b>${fmt(d, 2)} mm</b></td></tr>`;
+        rows = `<tr><td>Point to face</td><td><b>${fmtLen(d, true)}</b></td></tr>`;
       }
       body = `<table class="mt">${rows}</table><p class="dp">Click again to start a new measurement.</p>`;
     }
@@ -30918,6 +31987,7 @@ var App = class {
       return;
     }
     const data = stlBinary(bodies.map((b) => b.mesh));
+    this.lastExport = "stl";
     const name = safeName(this.doc.name) + (ids && ids.length === 1 ? "-" + safeName(bodies[0].name) : "") + ".stl";
     download(name, data, (m, k) => this.toast(m, k));
   }
@@ -30929,6 +31999,7 @@ var App = class {
       return;
     }
     const name = safeName(this.doc.name) + "-" + safeName(f.name) + "." + fmtName;
+    this.lastExport = fmtName;
     download(name, fmtName === "dxf" ? toDXF(shapes) : toSVG(shapes, f.name), (m, k) => this.toast(m, k));
   }
   exportFace(hit, fmtName) {
@@ -30974,13 +32045,13 @@ var App = class {
       } catch (e) {
         this.toast("That file is not a Geo-CAD 3D part (.json). For drawings, use TS 82 CAD.", "bad");
       }
-      $2("#fileIn").value = "";
+      $3("#fileIn").value = "";
     };
     r.readAsText(file);
   }
   // ---------- small UI helpers ----------
   toast(msg, kind) {
-    const host = $2("#toasts");
+    const host = $3("#toasts");
     const el = document.createElement("div");
     el.className = "toast" + (kind === "bad" ? " bad" : "");
     el.textContent = msg;
@@ -30990,12 +32061,12 @@ var App = class {
     setTimeout(() => el.remove(), 4700);
   }
   menu(anchor, items) {
-    const old = $2("#menu");
+    const old = $3("#menu");
     if (old) old.remove();
     const m = document.createElement("div");
     m.id = "menu";
     m.className = "menu";
-    m.innerHTML = items.map((it, i) => `<button data-i="${i}" ${it.disabled ? "disabled" : ""} class="${it.danger ? "danger" : ""}">${esc2(it.label)}${it.sub ? `<small>${esc2(it.sub)}</small>` : ""}</button>`).join("");
+    m.innerHTML = items.map((it, i) => `<button data-i="${i}" ${it.disabled ? "disabled" : ""} class="${it.danger ? "danger" : ""}">${esc3(it.label)}${it.sub ? `<small>${esc3(it.sub)}</small>` : ""}</button>`).join("");
     document.body.appendChild(m);
     let x, y;
     if (anchor.getBoundingClientRect) {
@@ -31024,7 +32095,7 @@ var App = class {
     }, 0);
   }
   modal(html, wide) {
-    const md = $2("#modal");
+    const md = $3("#modal");
     md.innerHTML = `<div class="mbox${wide ? " wide" : ""}" role="dialog">${html}</div>`;
     md.hidden = false;
     md.onclick = (e) => {
@@ -31033,11 +32104,11 @@ var App = class {
     return md.firstChild;
   }
   closeModal() {
-    $2("#modal").hidden = true;
-    $2("#modal").innerHTML = "";
+    $3("#modal").hidden = true;
+    $3("#modal").innerHTML = "";
   }
   confirm(title, body, okLabel, fn, danger) {
-    const b = this.modal(`<h3>${esc2(title)}</h3><p>${body}</p><div class="mfoot"><button class="btn" data-a="no">Cancel</button><button class="btn ${danger ? "danger" : "primary"}" data-a="ok">${esc2(okLabel)}</button></div>`);
+    const b = this.modal(`<h3>${esc3(title)}</h3><p>${body}</p><div class="mfoot"><button class="btn" data-a="no">Cancel</button><button class="btn ${danger ? "danger" : "primary"}" data-a="ok">${esc3(okLabel)}</button></div>`);
     b.querySelector("[data-a=no]").onclick = () => this.closeModal();
     b.querySelector("[data-a=ok]").onclick = () => {
       this.closeModal();
@@ -31046,7 +32117,7 @@ var App = class {
     setTimeout(() => b.querySelector("[data-a=ok]").focus(), 0);
   }
   prompt(title, val, fn) {
-    const b = this.modal(`<h3>${esc2(title)}</h3><input class="minput" value="${esc2(val)}" spellcheck="false"><div class="mfoot"><button class="btn" data-a="no">Cancel</button><button class="btn primary" data-a="ok">OK</button></div>`);
+    const b = this.modal(`<h3>${esc3(title)}</h3><input class="minput" value="${esc3(val)}" spellcheck="false"><div class="mfoot"><button class="btn" data-a="no">Cancel</button><button class="btn primary" data-a="ok">OK</button></div>`);
     const inp = b.querySelector("input");
     const ok = () => {
       this.closeModal();
@@ -31067,9 +32138,13 @@ var App = class {
       <div><h3>Welcome to Geo-CAD 3D</h3>
       <p>This is a Part Studio, like Onshape. Every part starts as a <b>2D sketch</b> that you make exact with sizes and rules, then <b>Extrude</b> or <b>Revolve</b> turns it 3D.</p>
       <ol class="steps"><li>Click <b>Sketch</b>, then click the <b>Top</b> plane.</li><li>Draw a rectangle. It turns <b style="color:#1f6fd1">blue</b>: it can still move.</li><li>Click <b>Dimension</b>, click a side, and type <code>40</code> or <code>#width</code>.</li><li>When it's all <b>black</b>, it's fully defined. Click the green check.</li><li>Click <b>Extrude</b>, type a depth, click the green check. That's a part!</li></ol>
-      <p class="dp">The plate on screen is an example. Try changing <code>#width</code> in the Variables box and watch it update.</p></div></div>
-      <div class="mfoot"><button class="btn" data-a="guide">Open the guide</button><button class="btn primary" data-a="ok">Let's go</button></div>`, true);
+      <p class="dp">The plate on screen is an example. Try changing <code>#width</code> in the Variables box and watch it update. Or let a tutorial walk you through it, one click at a time.</p></div></div>
+      <div class="mfoot"><button class="btn" data-a="guide">Open the guide</button><button class="btn" data-a="ok">Explore on my own</button><button class="btn primary" data-a="tut">${icon("tutorial")} Start the first tutorial</button></div>`, true);
     b.querySelector("[data-a=ok]").onclick = () => this.closeModal();
+    b.querySelector("[data-a=tut]").onclick = () => {
+      this.closeModal();
+      this.tutor.start(0);
+    };
     b.querySelector("[data-a=guide]").onclick = () => {
       this.closeModal();
       this.showGuide();
@@ -31077,11 +32152,15 @@ var App = class {
   }
   showGuide() {
     const groups = [["Part tools", ["sketch", "extrude", "revolve", "plane", "lpattern", "cpattern", "mirror", "measure", "mass", "vars"]], ["Sketch drawing tools", ["select", "line", "rect", "rectc", "circle", "arc3", "arcc", "arct", "polygon", "slot", "point", "fillet", "trim", "smirror", "construction", "use"]], ["Sizes and rules", ["dimension", "coin", "h", "v", "par", "perp", "tan", "eq", "mid", "conc", "sym", "fix"]]];
-    const b = this.modal(`<div class="guide"><div class="ghead"><img src="${window.BUNNY && window.BUNNY.loaf || ""}" alt="" class="bun sm"><div><h3>Geo-CAD 3D guide</h3><p class="dp">How it works, then every button.</p></div><button class="x" aria-label="Close">${icon("cancel")}</button></div>
+    const b = this.modal(`<div class="guide"><div class="ghead"><img src="${window.BUNNY && window.BUNNY.loaf || ""}" alt="" class="bun sm"><div><h3>Geo-CAD 3D guide</h3><p class="dp">How it works, then every button. <button class="btn sm" data-a="tuts">${icon("tutorial")} Tutorials</button></p></div><button class="x" aria-label="Close">${icon("cancel")}</button></div>
       ${GUIDE.map((s) => `<section><h4>${s.h}</h4>${s.p.map((p) => `<p>${p}</p>`).join("")}</section>`).join("")}
       ${groups.map(([h, ids]) => `<section><h4>${h}</h4><div class="tgrid">${ids.map((id) => `<div class="tcard">${tipHTML(id)}</div>`).join("")}</div></section>`).join("")}
       </div>`, true);
     b.querySelector(".x").onclick = () => this.closeModal();
+    b.querySelector("[data-a=tuts]").onclick = () => {
+      this.closeModal();
+      this.tutor.openPicker();
+    };
   }
 };
 function strideCopy(src, np) {

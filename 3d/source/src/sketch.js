@@ -3,7 +3,9 @@ import { solveSketch, dofStatus, testAdd, buildSystem, solveRows, measureDim, ge
 import { computeRegions, entPolyline, arcAngles, regionContains } from './regions.js';
 import { toWorld, toLocal } from './model.js';
 import { evaluate, isPlainNumber, fmt, VAR_NAME_RE } from './expr.js';
+import { lenLabel as LL, stampLen, showLen, niceSteps, fmtLen, usuf } from './units.js';
 
+const isNew_ = (ed) => ed.inputIsNew;
 const COL = { free: '#1f6fd1', def: '#141a21', sel: '#f28c28', hov: '#f59e0b', bad: '#d63b3b', dim: '#334e68', drv: '#7b8794', ref: '#4b5563' };
 const D2R = Math.PI / 180;
 const hyp = Math.hypot;
@@ -48,8 +50,8 @@ export class SketchEditor {
   px() { const n = this.plane.n, vd = this.view.viewDir(); const c = Math.abs(n[0] * vd.x + n[1] * vd.y + n[2] * vd.z); return this.view.pxSize() / Math.max(0.25, c); }
   gridStep() {
     const px = this.px();
-    const cands = [0.1, 0.25, 0.5, 1, 2, 5, 10, 20, 50, 100, 200];
-    return cands.find(s => s / px >= 9) || 200;
+    const cands = niceSteps();
+    return cands.find(s => s / px >= 9) || cands[cands.length - 1];
   }
   newPid() { return 'p' + (this.sk.nid++); }
   newEid() { return 'e' + (this.sk.nid++); }
@@ -681,10 +683,10 @@ export class SketchEditor {
     const h = this.hitTest(x, y, { ents: false, dims: false, glyphs: false });
     if (!h || h.kind !== 'p') { this.app.toast('Click right on a corner point.'); return; }
     let r;
-    try { r = evaluate(this.filletR, this.values); } catch (e) { this.app.toast('Fillet radius: ' + e.message, 'bad'); return; }
+    try { r = evaluate(stampLen(this.filletR), this.values); } catch (e) { this.app.toast('Fillet radius: ' + e.message, 'bad'); return; }
     if (!(r > 0)) { this.app.toast('The radius must be more than 0.', 'bad'); return; }
     this.begin();
-    const res = this.filletCorner(h.id, r, this.filletR);
+    const res = this.filletCorner(h.id, r, stampLen(this.filletR));
     if (res !== true) { this.revert(); this.app.toast(res, 'bad'); return; }
     this.commit();
   }
@@ -938,10 +940,22 @@ export class SketchEditor {
       this.hint();
       return;
     }
-    if (op.picks.some(p => p.id === item.id)) return;
+    if (op.picks.some(p => p.id === item.id)) { if (op.place) this.placeDim(); return; }
     op.picks.push(item);
+    const spec = this.dimSpec();
+    const virt = item.k === 'e' && getEnt(sk, item.id).virt;
+    let useless = !spec;
+    if (spec && spec.t === 'ang') {
+      const d1 = this.dirOf(getEnt(sk, spec.e1)), d2 = this.dirOf(getEnt(sk, spec.e2));
+      if (Math.abs(d1[0] * d2[0] + d1[1] * d2[1]) < 1e-6) useless = true;   // already square: nothing to size
+    }
+    if (useless) {
+      op.picks.pop();
+      if (op.place) { this.placeDim(); return; }   // it was a click to place the number
+      if (!virt) this.app.toast('I can\'t dimension those two together. Try two points, a point and a line, or two lines.');
+      return;
+    }
     op.place = true;
-    if (!this.dimSpec()) { this.app.toast('I can\'t dimension those two together. Try two points, a point and a line, or two lines.'); op.picks.pop(); }
   }
   // Work out the dimension constraint from picks and mouse position
   dimSpec() {
@@ -1075,12 +1089,15 @@ export class SketchEditor {
   }
   showInput(c, isNew) {
     this.hideInput();
+    this.inputIsNew = !!isNew;
     const el = document.createElement('div');
     el.className = 'dimbox';
     el.innerHTML = `<input type="text" spellcheck="false" autocomplete="off" aria-label="Dimension value"><div class="dimmsg">Enter a number or a formula like #width/2. Press Enter.</div>`;
     this.view.host.appendChild(el);
     const inp = el.querySelector('input');
-    inp.value = c.v;
+    const isLen = c.t !== 'ang';
+    inp.value = isLen ? showLen(c.v) : c.v;
+    this.inputInit = inp.value;
     this.inputEl = inp; this.inputBox = el; this.inputCon = c.id;
     const pos = () => { const L = c._lab || this.dimAnchor(c); const [x, y] = this.scr(L[0], L[1]); el.style.left = Math.round(x - 60) + 'px'; el.style.top = Math.round(y - 16) + 'px'; };
     pos();
@@ -1096,8 +1113,10 @@ export class SketchEditor {
       const t = inp.value.trim();
       const asg = /^#?([A-Za-z_]\w*)\s*=\s*(.+)$/.exec(t);
       try {
-        const v = evaluate(asg ? asg[2] : t, this.values);
-        m.textContent = asg ? `Makes #${asg[1]} = ${fmt(v, 3)} and uses it here` : `= ${fmt(v, 3)}${c.t === 'ang' ? '°' : ' mm'}`;
+        const src = asg ? asg[2] : t;
+        const v = evaluate(isLen ? stampLen(src) : src, this.values);
+        const shown = isLen ? fmtLen(v, true, 3) : fmt(v, 3) + '°';
+        m.textContent = asg ? `Makes #${asg[1]} = ${shown} and uses it here` : `= ${shown}`;
         m.classList.remove('bad');
       } catch (er) { m.textContent = er.message; m.classList.add('bad'); }
     });
@@ -1111,13 +1130,16 @@ export class SketchEditor {
     const sk = this.sk;
     const c = sk.cons.find(k => k.id === id);
     if (!c) { this.hideInput(); return; }
-    let expr = t;
+    if (t === this.inputInit && !isNew_(this)) { this.hideInput(); return; }
+    const isLen = c.t !== 'ang';
+    let expr = isLen ? stampLen(t) : t;
     const asg = /^#?([A-Za-z_]\w*)\s*=\s*(.+)$/.exec(t);
     const docBefore = JSON.stringify(this.app.doc.vars);
     if (asg) {
       if (!VAR_NAME_RE.test(asg[1])) { msg.textContent = 'Names use letters, numbers and _'; msg.classList.add('bad'); return; }
+      const vx = isLen ? stampLen(asg[2]) : asg[2];
       const ex = this.app.doc.vars.find(v => v.name === asg[1]);
-      if (ex) ex.expr = asg[2]; else this.app.doc.vars.push({ name: asg[1], expr: asg[2] });
+      if (ex) ex.expr = vx; else this.app.doc.vars.push({ name: asg[1], expr: vx });
       this.app.reevalVars();
       expr = '#' + asg[1];
     }
@@ -1479,7 +1501,7 @@ export class SketchEditor {
   }
   dimText(c) {
     const v = measureDim(this.sk, c);
-    let s = c.t === 'ang' ? fmt(v) + '°' : c.t === 'dia' ? 'Ø' + fmt(v) : c.t === 'rad' ? 'R' + fmt(v) : fmt(Math.abs(v));
+    let s = c.t === 'ang' ? fmt(v) + '°' : c.t === 'dia' ? 'Ø' + LL(v) : c.t === 'rad' ? 'R' + LL(v) : LL(Math.abs(v));
     if (c.driven) return '(' + s + ')';
     if (!isPlainNumber(c.v)) s = s + ' = ' + c.v;
     return s;
@@ -1629,7 +1651,7 @@ export class SketchEditor {
       if (s.hv) { ctx.fillStyle = COL.sel; ctx.font = '700 11px system-ui'; ctx.fillText(s.hv === 'h' ? 'H' : 'V', x + 14, y - 12); }
       ctx.restore();
       ctx.font = '600 11px system-ui'; ctx.fillStyle = '#475569'; ctx.textAlign = 'left';
-      ctx.fillText(`${fmt(s.u, 2)}, ${fmt(s.v, 2)}`, x + 12, y + 16);
+      ctx.fillText(`${fmtLen(s.u)}, ${fmtLen(s.v)} ${usuf()}`, x + 12, y + 16);
       ctx.textAlign = 'center';
     }
     if (!op) { ctx.setLineDash([]); return; }
@@ -1641,10 +1663,10 @@ export class SketchEditor {
         else { x0 = s0.u; y0 = s0.v; x1 = s.u; y1 = s.v; }
         poly([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], true);
         ctx.fillStyle = '#475569'; ctx.font = '600 11px system-ui';
-        const [lx, ly] = S((x0 + x1) / 2, Math.max(y0, y1)); ctx.fillText(fmt(Math.abs(x1 - x0)) + ' × ' + fmt(Math.abs(y1 - y0)), lx, ly - 10);
+        const [lx, ly] = S((x0 + x1) / 2, Math.max(y0, y1)); ctx.fillText(fmtLen(Math.abs(x1 - x0)) + ' × ' + fmtLen(Math.abs(y1 - y0)) + ' ' + usuf(), lx, ly - 10);
         break;
       }
-      case 'circle': { const r = hyp(s.u - op.c[0], s.v - op.c[1]); circ(op.c, r); this.lenLabel(ctx, op.c, [s.u, s.v], 'Ø' + fmt(2 * r)); break; }
+      case 'circle': { const r = hyp(s.u - op.c[0], s.v - op.c[1]); circ(op.c, r); this.lenLabel(ctx, op.c, [s.u, s.v], 'Ø' + LL(2 * r)); break; }
       case 'arc3': {
         if (op.step === 1) { poly([[op.s0.u, op.s0.v], [s.u, s.v]]); break; }
         const P = this.loc(mx, my), a = [op.s0.u, op.s0.v], b = [op.s1.u, op.s1.v];
@@ -1698,6 +1720,6 @@ export class SketchEditor {
   lenLabel(ctx, a, b, txt) {
     const [x, y] = this.scr((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
     ctx.fillStyle = '#475569'; ctx.font = '600 11px system-ui';
-    ctx.fillText(txt || fmt(hyp(b[0] - a[0], b[1] - a[1])), x, y - 10);
+    ctx.fillText(txt || LL(hyp(b[0] - a[0], b[1] - a[1])), x, y - 10);
   }
 }

@@ -4,6 +4,8 @@ import { pickRegions, regionContains } from './regions.js';
 import { evaluate, fmt } from './expr.js';
 import { icon, TOOLS } from './help.js';
 import { getPt } from './solver.js';
+import { stampLen, showLen, fmtLen, usuf, units } from './units.js';
+const LEN_KEYS = new Set(['depth', 'off', 'spacing', 'spacing2']);
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -88,7 +90,7 @@ export class FeatureDialog {
     const sk = d.sketch && this.app.doc.features.find(f => f.id === d.sketch);
     const field = (key, label, value, hint) => `<div class="fld${this.active === key ? ' act' : ''}" data-f="${key}"><div class="fl">${label}</div><div class="fv">${value}</div>${this.active === key && hint ? `<div class="fh">${hint}</div>` : ''}</div>`;
     const seg = (key, opts) => `<div class="seg" data-seg="${key}">${opts.map(([v, lab, ic]) => `<button class="${d[key] === v ? 'on' : ''}" data-v="${v}">${ic ? icon(ic) : ''}${lab}</button>`).join('')}</div>`;
-    const expr = (key, label, unit) => `<label class="fl">${label}<div class="ex"><input data-x="${key}" value="${esc(d[key] ?? '')}" spellcheck="false" autocomplete="off"><output data-xo="${key}"></output></div></label>`;
+    const expr = (key, label, unit) => `<label class="fl">${label.replace('(mm)', '(' + usuf() + ')')}<div class="ex"><input data-x="${key}" value="${esc(LEN_KEYS.has(key) ? showLen(d[key]) : (d[key] ?? ''))}" spellcheck="false" autocomplete="off"><output data-xo="${key}"></output></div></label>`;
     if (t === 'extrude' || t === 'revolve') {
       h += seg('op', [['new', 'New', null], ['add', 'Add', null], ['remove', 'Remove', null], ['intersect', 'Intersect', null]]);
       h += `<div class="opnote">${{ new: 'Makes a new, separate part.', add: 'Joins onto the parts it touches.', remove: 'Cuts away from the parts (holes, pockets).', intersect: 'Keeps only where it overlaps the part.' }[d.op]}</div>`;
@@ -200,23 +202,25 @@ export class FeatureDialog {
     el.querySelectorAll('[data-seg]').forEach(s => s.querySelectorAll('button').forEach(b => b.onclick = () => { d[s.dataset.seg] = b.dataset.v; this.render(); this.update(); }));
     el.querySelectorAll('[data-x]').forEach(inp => {
       const k = inp.dataset.x;
+      const isLen = LEN_KEYS.has(k);
       const show = () => {
         const o = el.querySelector(`[data-xo="${k}"]`);
-        try { const v = evaluate(inp.value, this.app.res.values); o.textContent = '= ' + fmt(v, 3); o.classList.remove('bad'); }
+        try { const v = evaluate(isLen ? stampLen(inp.value) : inp.value, this.app.res.values); o.textContent = '= ' + (isLen ? fmtLen(v, true, 3) : fmt(v, 3)); o.classList.remove('bad'); }
         catch (er) { o.textContent = er.message; o.classList.add('bad'); }
       };
       show();
-      inp.oninput = () => { d[k] = inp.value; show(); this.update(); };
+      inp.oninput = () => { d[k] = isLen ? stampLen(inp.value) : inp.value; show(); this.update(); };
       inp.onkeydown = (e) => {
         e.stopPropagation();
         if (e.key === 'Enter') { e.preventDefault(); this.ok(); }
         if (e.key === 'Escape') this.app.closeDialog(false);
         if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && /^\s*-?(\d+\.?\d*|\.\d+)\s*$/.test(inp.value)) {
           e.preventDefault();
-          const step = e.shiftKey ? 10 : e.altKey ? 0.1 : 1;
+          const inch = isLen && units() === 'in';
+          const step = inch ? (e.shiftKey ? 1 : e.altKey ? 1 / 32 : 1 / 8) : (e.shiftKey ? 10 : e.altKey ? 0.1 : 1);
           let v = parseFloat(inp.value) + (e.key === 'ArrowUp' ? step : -step);
-          if (['depth', 'count', 'count2', 'angle'].includes(k)) v = Math.max(k === 'depth' ? 0.1 : 1, v);
-          inp.value = fmt(v, 3); d[k] = inp.value; show(); this.update();
+          if (['depth', 'count', 'count2', 'angle'].includes(k)) v = Math.max(k === 'depth' ? (inch ? 1 / 64 : 0.1) : 1, v);
+          inp.value = fmt(v, inch ? 4 : 3); d[k] = isLen ? stampLen(inp.value) : inp.value; show(); this.update();
         }
       };
     });
@@ -247,11 +251,12 @@ export class FeatureDialog {
     const el = $('#dlg'), d = this.d;
     if (!el) return;
     el.querySelectorAll('[data-x]').forEach(inp => {
-      const k = inp.dataset.x;
-      if (String(d[k] ?? '') === inp.value) return;
-      inp.value = d[k] ?? '';
+      const k = inp.dataset.x, isLen = LEN_KEYS.has(k);
+      const disp = isLen ? showLen(d[k]) : String(d[k] ?? '');
+      if (disp === inp.value) return;
+      inp.value = disp;
       const o = el.querySelector(`[data-xo="${k}"]`);
-      try { o.textContent = '= ' + fmt(evaluate(inp.value, this.app.res.values), 3); o.classList.remove('bad'); } catch (er) { o.textContent = er.message; o.classList.add('bad'); }
+      try { const v = evaluate(isLen ? stampLen(inp.value) : inp.value, this.app.res.values); o.textContent = '= ' + (isLen ? fmtLen(v, true, 3) : fmt(v, 3)); o.classList.remove('bad'); } catch (er) { o.textContent = er.message; o.classList.add('bad'); }
     });
     el.querySelectorAll('[data-flip]').forEach(b => b.classList.toggle('on', !!d[b.dataset.flip]));
   }

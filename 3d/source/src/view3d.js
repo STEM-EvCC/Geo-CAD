@@ -318,16 +318,17 @@ export class View3D {
       ctx.fillText(p.label, x + 4, y + 14);
     }
   }
-  setGrid(size, show) {
+  setGrid(size, show, inch) {
     this.gGrid.clear();
     if (!show) { this.request(); return; }
-    const step = size > 400 ? 50 : size > 150 ? 10 : 5;
+    const step = inch ? (size > 400 ? 50.8 : size > 150 ? 12.7 : 6.35) : (size > 400 ? 50 : size > 150 ? 10 : 5);
+    const every = inch ? (size > 400 ? 5 : size > 150 ? 2 : 4) : 5;
     const n = Math.ceil(size / step / 2) * 2;
     const half = n * step / 2;
     const pts = [], major = [];
     for (let i = 0; i <= n; i++) {
       const t = -half + i * step;
-      const arr = Math.round(t / step) % 5 === 0 ? major : pts;
+      const arr = Math.round(t / step) % every === 0 ? major : pts;
       arr.push(new THREE.Vector3(t, -half, 0), new THREE.Vector3(t, half, 0), new THREE.Vector3(-half, t, 0), new THREE.Vector3(half, t, 0));
     }
     const mk = (a, op) => { const l = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(a), new THREE.LineBasicMaterial({ color: 0x8a9bb0, transparent: true, opacity: op, depthWrite: false })); l.renderOrder = 1; this.gGrid.add(l); };
