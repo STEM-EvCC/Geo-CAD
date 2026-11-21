@@ -1326,7 +1326,7 @@ export class App {
     setTimeout(() => { inp.focus(); inp.select(); }, 0);
   }
   showWelcome() {
-    const b = this.modal(`<div class="welcome"><img src="${window.BUNNY && window.BUNNY.peek || ''}" alt="" class="bun">
+    const b = this.modal(`<div class="welcome"><img src="${window.BUNNY && window.BUNNY.face || ''}" alt="" class="bun">
       <div><h3>Welcome to Geo-CAD 3D</h3>
       <p>This is a Part Studio, like Onshape. Every part starts as a <b>2D sketch</b> that you make exact with sizes and rules, then <b>Extrude</b> or <b>Revolve</b> turns it 3D.</p>
       <ol class="steps"><li>Click <b>Sketch</b>, then click the <b>Top</b> plane.</li><li>Draw a rectangle. It turns <b style="color:#1f6fd1">blue</b>: it can still move.</li><li>Click <b>Dimension</b>, click a side, and type <code>40</code> or <code>#width</code>.</li><li>When it's all <b>black</b>, it's fully defined. Click the green check.</li><li>Click <b>Extrude</b>, type a depth, click the green check. That's a part!</li></ol>
