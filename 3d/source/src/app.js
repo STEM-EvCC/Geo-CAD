@@ -9,6 +9,8 @@ import { FeatureDialog } from './dialogs.js';
 import { TOOLS, icon, tipHTML, GUIDE } from './help.js';
 import { download, stlBinary, toDXF, toSVG, sketchShapes, loopShapes, safeName } from './io.js';
 import { EXAMPLES } from './examples.js';
+import { Tutor } from './tutorial.js';
+import { setUnits, units, fmtLen, lenLabel, niceSteps, usuf } from './units.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -23,10 +25,10 @@ export const MATERIALS = [
   { id: 'ST', name: 'Steel', rho: 7.85 },
   { id: 'H2O', name: 'Water (to compare)', rho: 1.00 },
 ];
-const PART_TOOLS = [['sketch'], ['extrude', 'revolve'], ['plane'], ['lpattern', 'cpattern', 'mirror'], ['measure', 'mass']];
+const PART_TOOLS = [['sketch'], ['extrude', 'revolve'], ['plane'], ['lpattern', 'cpattern', 'mirror'], ['measure', 'mass'], ['stl']];
 const SK_TOOLS = [['select'], ['line', 'rect', 'rectc', 'circle', 'arc3', 'arcc', 'arct', 'polygon', 'slot', 'point'], ['fillet', 'trim', 'smirror', 'construction', 'use'], ['dimension'], ['coin', 'h', 'v', 'par', 'perp', 'tan', 'eq', 'mid', 'conc', 'sym', 'fix']];
 const RULES = new Set(['coin', 'h', 'v', 'par', 'perp', 'tan', 'eq', 'mid', 'conc', 'sym', 'fix']);
-const SHORT = { lpattern: 'Lin. pattern', cpattern: 'Circ. pattern', rect: 'Rect', rectc: 'Ctr rect', arc3: 'Arc', arcc: 'Ctr arc', arct: 'Tan arc', smirror: 'Mirror', construction: 'Constr.', dimension: 'Dimension', use: 'Use', mass: 'Mass' };
+const SHORT = { lpattern: 'Lin. pattern', cpattern: 'Circ. pattern', rect: 'Rect', rectc: 'Ctr rect', stl: 'Export STL', arc3: 'Arc', arcc: 'Ctr arc', arct: 'Tan arc', smirror: 'Mirror', construction: 'Constr.', dimension: 'Dimension', use: 'Use', mass: 'Mass' };
 
 export class App {
   constructor(M) {
@@ -45,6 +47,7 @@ export class App {
     this.buildToolbar();
     this.bindUI();
     this.bindView();
+    this.tutor = new Tutor(this);
     let loaded = false;
     try {
       const s = localStorage.getItem('geocad3d-autosave');
@@ -52,6 +55,7 @@ export class App {
     } catch (e) { /* no storage */ }
     if (!loaded) this.doc = EXAMPLES[0].build();
     $('#docName').value = this.doc.name || 'My part';
+    this.applyDocUnits();
     this.pushUndo(true);
     this.regenNow();
     this.view.viewTo([1, -1, 0.75], [0, 0, 1], { instant: true });
@@ -89,6 +93,7 @@ export class App {
   }
   restore(s) {
     this.doc = JSON.parse(s);
+    this.applyDocUnits();
     if (this.mode === 'sketch') {
       if (!this.doc.features.find(f => f.id === this.sk.id)) { this.exitSketch(true); }
       else { this.sk.cancelOp(); this.sk.sel.clear(); this.reevalVars(); this.sk.refresh(); }
@@ -102,6 +107,25 @@ export class App {
     const u = $('[data-act=undo]'), r = $('[data-act=redo]');
     if (u) u.disabled = this.undoStack.length < 2;
     if (r) r.disabled = !this.redoStack.length;
+  }
+
+  // ---------- units ----------
+  applyDocUnits() {
+    setUnits(this.doc.units || 'mm');
+    document.querySelectorAll('#unitsSeg [data-u]').forEach(b => { b.classList.toggle('on', b.dataset.u === units()); b.setAttribute('aria-pressed', b.dataset.u === units()); });
+  }
+  setUnitSystem(u) {
+    if ((this.doc.units || 'mm') === u) return;
+    this.doc.units = u;
+    this.applyDocUnits();
+    this.pushUndo();
+    if (this.mode === 'sketch') { this.sk.hideInput(); this.sk.refresh(); this.renderOptBar(); }
+    if (this.dialog) this.dialog.render();
+    this.showResult();
+    if (this.card === 'mass') this.renderMass();
+    if (this.measure) this.renderMeasure();
+    this.view.request();
+    this.toast(u === 'in' ? 'Now showing inches. Your part stays the same size. Type 2 to mean 2 inches. In a formula, write the unit, like #width + 0.5 in.' : 'Now showing millimeters. Your part stays the same size.');
   }
 
   // ---------- regeneration ----------
@@ -142,7 +166,7 @@ export class App {
       this.renderVars();
       this.renderParts();
       if (this.card === 'mass') this.renderMass();
-      this.view.setGrid(this.gridSize(), this.mode === 'part');
+      this.view.setGrid(this.gridSize(), this.mode === 'part', units() === 'in');
     }
     this.view.request();
   }
@@ -175,13 +199,13 @@ export class App {
   handleLabel(h, live) {
     const v = live ?? (h.k === 'lin' ? h.v : h.th);
     if (h.k === 'ang') { const ang = h.mode === 'sym' ? 2 * v : h.mode === 'flip' ? -v : v; return fmt(ang, 1) + '°'; }
-    if (h.mode === 'sym') return fmt(2 * Math.abs(v), 2) + ' mm';
-    if (h.mode === 'spacing') return fmt(v, 2) + ' mm apart';
-    return fmt(Math.abs(v), 2) + ' mm';
+    if (h.mode === 'sym') return fmtLen(2 * Math.abs(v), true);
+    if (h.mode === 'spacing') return fmtLen(v, true) + ' apart';
+    return fmtLen(Math.abs(v), true);
   }
   linStep() {
-    const px = this.view.pxSize();
-    return [0.1, 0.25, 0.5, 1, 2, 5, 10, 25, 50, 100].find(c => c / px >= 10) || 100;
+    const px = this.view.pxSize(), c = niceSteps();
+    return c.find(v => v / px >= 10) || c[c.length - 1];
   }
   rayOf(x, y) { const r = this.view.ray(x, y); return { o: [r.origin.x, r.origin.y, r.origin.z], d: [r.direction.x, r.direction.y, r.direction.z] }; }
   linParam(h, x, y) {
@@ -224,10 +248,11 @@ export class App {
       const step = this.linStep();
       if (!e.shiftKey) val = Math.round(val / step) * step;
       const min = Math.min(step, 0.1);
-      if (h.mode === 'blind') { if (Math.abs(val) < min) val = (val < 0 ? -1 : 1) * min; d.flip = val < 0; d.depth = fmt(Math.abs(val), 3); }
-      else if (h.mode === 'sym') { val = Math.max(min / 2, Math.abs(val)); d.depth = fmt(2 * val, 3); }
-      else if (h.mode === 'plane') { d.flip = val < 0; d.off = fmt(Math.abs(val), 3); }
-      else { if (Math.abs(val) < min) val = (val < 0 ? -1 : 1) * min; d[h.key] = fmt(val, 3); }
+      const L = (mm) => units() === 'in' ? fmt(mm / 25.4, 4) + ' in' : fmt(mm, 3);
+      if (h.mode === 'blind') { if (Math.abs(val) < min) val = (val < 0 ? -1 : 1) * min; d.flip = val < 0; d.depth = L(Math.abs(val)); }
+      else if (h.mode === 'sym') { val = Math.max(min / 2, Math.abs(val)); d.depth = L(2 * val); }
+      else if (h.mode === 'plane') { d.flip = val < 0; d.off = L(Math.abs(val)); }
+      else { if (Math.abs(val) < min) val = (val < 0 ? -1 : 1) * min; d[h.key] = L(val); }
     } else {
       if (g.screen) { val = g.v0 + (x - g.x) * 0.5; }
       else {
@@ -328,7 +353,7 @@ export class App {
     const t = this.sk.tool;
     let h = '';
     if (t === 'polygon') h += `<label>Sides <input id="optSides" type="number" min="3" max="24" value="${this.sk.polySides}"></label>`;
-    if (t === 'fillet') h += `<label>Fillet radius <input id="optFillet" type="text" value="${esc(this.sk.filletR)}" spellcheck="false"></label>`;
+    if (t === 'fillet') h += `<label>Fillet radius (${usuf()}) <input id="optFillet" type="text" value="${esc(this.sk.filletR)}" spellcheck="false"></label>`;
     h += `<label class="chk"><input id="optCons" type="checkbox" ${this.sk.consMode ? 'checked' : ''}> New lines are construction (dashed)</label>`;
     h += `<label class="chk"><input id="optGlyph" type="checkbox" ${this.showGlyphs ? 'checked' : ''}> Show rule symbols</label>`;
     h += `<span class="obr"><button class="obtn" data-view="normal" title="Look straight at the sketch">${icon('normal')} Normal to</button><button class="obtn no" data-tool="cancel">${icon('cancel')} Cancel</button><button class="obtn ok" data-tool="finish">${icon('finish')} Finish sketch</button></span>`;
@@ -374,12 +399,13 @@ export class App {
     document.addEventListener('pointerdown', () => { clearTimeout(tipT); tip.hidden = true; });
     document.querySelectorAll('#top [data-act]').forEach(b => {
       const act = b.dataset.act;
-      if (['undo', 'redo', 'new', 'open', 'save', 'export', 'examples', 'guide'].includes(act)) b.insertAdjacentHTML('afterbegin', icon(act === 'guide' ? 'help' : act === 'new' ? 'newdoc' : act));
+      if (['undo', 'redo', 'new', 'open', 'save', 'export', 'examples', 'guide', 'tutorials'].includes(act)) b.insertAdjacentHTML('afterbegin', icon(act === 'guide' ? 'help' : act === 'new' ? 'newdoc' : act === 'tutorials' ? 'tutorial' : act));
       b.addEventListener('click', (e) => this.topAct(act, b));
     });
     $('#docName').addEventListener('change', (e) => { this.doc.name = e.target.value.trim() || 'My part'; this.pushUndo(); });
     $('#addVar').addEventListener('click', () => this.addVariable());
     $('#snapChk').addEventListener('change', (e) => { this.snapGrid = e.target.checked; });
+    document.querySelectorAll('#unitsSeg [data-u]').forEach(b => b.addEventListener('click', () => this.setUnitSystem(b.dataset.u)));
     $('#fileIn').addEventListener('change', (e) => this.openFile(e.target.files[0]));
     window.addEventListener('keydown', (e) => this.key(e));
     // drag and drop project files
@@ -402,6 +428,7 @@ export class App {
     }
     if (id === 'sketch') return this.startSketchPick();
     if (id === 'measure') return this.toggleMeasure();
+    if (id === 'stl') return this.exportSTL();
     if (id === 'mass') return this.toggleMass();
     if (['extrude', 'revolve', 'plane', 'lpattern', 'cpattern', 'mirror'].includes(id)) this.openDialog(id);
   }
@@ -409,6 +436,7 @@ export class App {
     if (act === 'undo') return this.undo();
     if (act === 'redo') return this.redo();
     if (act === 'guide') return this.showGuide();
+    if (act === 'tutorials') return this.tutor.openPicker();
     if (act === 'new') return this.confirm('Start a new part?', 'Your current part is kept in the undo history until you close the page. Save it first if you want to keep it.', 'Start new', () => { this.loadDoc(newDoc()); });
     if (act === 'open') return $('#fileIn').click();
     if (act === 'save') return this.saveProject();
@@ -420,6 +448,7 @@ export class App {
     if (this.dialog) this.closeDialog(false);
     this.doc = d; this.selFeature = null; this.hidden.clear();
     $('#docName').value = d.name || 'My part';
+    this.applyDocUnits();
     this.pushUndo();
     this.regenNow();
     this.view.viewTo([1, -1, 0.75], [0, 0, 1], { instant: true });
@@ -967,15 +996,17 @@ export class App {
   renderVars() {
     const el = $('#vars');
     const vals = this.res ? this.res.values : {}, errs = this.res ? this.res.varErrors : {};
-    if (!this.doc.vars.length) { el.innerHTML = `<div class="vempty">Variables are named numbers, like <code>#width</code>. Click + to add one.</div>`; return; }
+    const inchHint = units() === 'in' ? `<div class="vempty">Showing inches: a plain number here is millimeters. For inches, type the unit, like <code>2 in</code>.</div>` : '';
+    if (!this.doc.vars.length) { el.innerHTML = `<div class="vempty">Variables are named numbers, like <code>#width</code>. Click + to add one.</div>` + inchHint; return; }
     if (el.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') {
       // only refresh values while typing
-      el.querySelectorAll('.vrow').forEach((r, i) => { const v = this.doc.vars[i]; if (!v) return; const o = r.querySelector('.vval'); o.textContent = errs[v.name] ? '!' : fmt(vals[v.name], 3); o.title = errs[v.name] || ''; r.classList.toggle('bad', !!errs[v.name]); });
+      el.querySelectorAll('.vrow').forEach((r) => { const v = this.doc.vars[+r.dataset.i]; if (!v) return; const o = r.querySelector('.vval'); o.textContent = errs[v.name] ? '!' : fmt(vals[v.name], 3); o.title = errs[v.name] || ''; r.classList.toggle('bad', !!errs[v.name]); });
       return;
     }
-    el.innerHTML = this.doc.vars.map((v, i) => `<div class="vrow${errs[v.name] ? ' bad' : ''}" data-i="${i}">
+    const vshow = (v) => errs[v.name] ? '!' : (units() === 'in' && /(\d|\))\s*(in|inch|inches|mm|cm|m|ft|")\b/.test(v.expr) ? fmtLen(vals[v.name], true, 4) : fmt(vals[v.name], 3));
+    el.innerHTML = inchHint + this.doc.vars.map((v, i) => `<div class="vrow${errs[v.name] ? ' bad' : ''}" data-i="${i}">
       <span class="vh">#</span><input class="vname" value="${esc(v.name)}" aria-label="Variable name" spellcheck="false">
-      <output class="vval" title="${esc(errs[v.name] || '')}">${errs[v.name] ? '!' : fmt(vals[v.name], 3)}</output>
+      <output class="vval" title="${esc(errs[v.name] || '')}">${vshow(v)}</output>
       <input class="vexpr" value="${esc(v.expr)}" title="${esc(v.expr)}" aria-label="Value or formula for ${esc(v.name)}" spellcheck="false">
       <button class="vdel" aria-label="Delete variable">${icon('trash')}</button></div>`).join('');
     el.querySelectorAll('.vrow').forEach(r => {
@@ -1067,8 +1098,9 @@ export class App {
       <label class="fl">Material <select id="matSel">${MATERIALS.map(m => `<option value="${m.id}"${m.id === mat.id ? ' selected' : ''}>${m.name} · ${m.rho} g/cm³</option>`).join('')}</select></label>
       ${bodies.length ? `<div class="big"><span>${fmt(g, 1)} g</span><small>if solid ${mat.name.split(' (')[0]}</small></div>
       <table class="mt"><tr><td>Volume</td><td>${fmt(cm3, 2)} cm³</td></tr><tr><td>Surface area</td><td>${fmt(A / 100, 2)} cm²</td></tr>
-      <tr><td>Size (X × Y × Z)</td><td>${fmt(size[0], 1)} × ${fmt(size[1], 1)} × ${fmt(size[2], 1)} mm</td></tr>
-      <tr><td></td><td>${fmt(size[0] / 25.4, 2)} × ${fmt(size[1] / 25.4, 2)} × ${fmt(size[2] / 25.4, 2)} in</td></tr></table>
+      ${units() === 'in' ? `<tr><td>Size (X × Y × Z)</td><td>${fmt(size[0] / 25.4, 3)} × ${fmt(size[1] / 25.4, 3)} × ${fmt(size[2] / 25.4, 3)} in</td></tr>
+      <tr><td></td><td>${fmt(size[0], 1)} × ${fmt(size[1], 1)} × ${fmt(size[2], 1)} mm</td></tr><tr><td></td><td>${fmt(V / 16387.064, 3)} in³</td></tr>` : `<tr><td>Size (X × Y × Z)</td><td>${fmt(size[0], 1)} × ${fmt(size[1], 1)} × ${fmt(size[2], 1)} mm</td></tr>
+      <tr><td></td><td>${fmt(size[0] / 25.4, 2)} × ${fmt(size[1] / 25.4, 2)} × ${fmt(size[2] / 25.4, 2)} in</td></tr>`}</table>
       ${mat.print ? `<label class="fl">Infill for a 3D print: <b id="infV">${infill}%</b><input id="infill" type="range" min="0" max="100" step="5" value="${infill}"></label>
       <div class="note">Rough print estimate: <b>${fmt(printG, 1)} g</b> (2 walls of 0.45 mm, ${infill}% infill). The slicer's number is better, and the scale is best.</div>` : ''}
       ${rows.length > 1 ? `<table class="mt sm">${rows.map(r => `<tr><td>${esc(r.b.name)}</td><td>${fmt(r.v / 1000, 2)} cm³ · ${fmt(r.v / 1000 * mat.rho, 1)} g</td></tr>`).join('')}</table>` : ''}
@@ -1130,10 +1162,11 @@ export class App {
     let body = '<p class="dp">Click a corner or a flat face.</p>';
     if (P.length === 1) {
       const a = P[0];
-      if (a.k === 'pt') body = `<table class="mt"><tr><td>Point</td><td>${a.p.map(v => fmt(v, 2)).join(', ')}</td></tr></table><p class="dp">Click a second corner or face.</p>`;
+      if (a.k === 'pt') body = `<table class="mt"><tr><td>Point</td><td>${a.p.map(v => fmtLen(v)).join(', ')} ${usuf()}</td></tr></table><p class="dp">Click a second corner or face.</p>`;
       else {
         let per = 0; for (const L of a.loops) for (let i = 0; i < L.length; i++) per += len(L[i].map((v, k) => v - L[(i + 1) % L.length][k]));
-        body = `<table class="mt"><tr><td>Face area</td><td>${fmt(a.area, 2)} mm² (${fmt(a.area / 100, 2)} cm²)</td></tr><tr><td>Perimeter</td><td>${fmt(per, 2)} mm</td></tr></table><p class="dp">Click a second corner or face.</p>`;
+        body = units() === 'in' ? `<table class="mt"><tr><td>Face area</td><td>${fmt(a.area / 645.16, 3)} in² (${fmt(a.area / 100, 2)} cm²)</td></tr><tr><td>Perimeter</td><td>${fmtLen(per, true)}</td></tr></table><p class="dp">Click a second corner or face.</p>`
+          : `<table class="mt"><tr><td>Face area</td><td>${fmt(a.area, 2)} mm² (${fmt(a.area / 100, 2)} cm²)</td></tr><tr><td>Perimeter</td><td>${fmt(per, 2)} mm</td></tr></table><p class="dp">Click a second corner or face.</p>`;
       }
     }
     if (P.length === 2) {
@@ -1141,15 +1174,16 @@ export class App {
       let rows = '';
       if (a.k === 'pt' && b.k === 'pt') {
         const d = b.p.map((v, i) => v - a.p[i]);
-        rows = `<tr><td>Distance</td><td><b>${fmt(len(d), 2)} mm</b></td></tr><tr><td>ΔX, ΔY, ΔZ</td><td>${d.map(v => fmt(Math.abs(v), 2)).join(', ')}</td></tr><tr><td></td><td>${fmt(len(d) / 25.4, 3)} in</td></tr>`;
+        const other = units() === 'in' ? fmt(len(d), 2) + ' mm' : fmt(len(d) / 25.4, 3) + ' in';
+        rows = `<tr><td>Distance</td><td><b>${fmtLen(len(d), true)}</b></td></tr><tr><td>ΔX, ΔY, ΔZ</td><td>${d.map(v => fmtLen(Math.abs(v))).join(', ')} ${usuf()}</td></tr><tr><td></td><td>${other}</td></tr>`;
       } else if (a.k === 'face' && b.k === 'face') {
         const c = Math.abs(a.n[0] * b.n[0] + a.n[1] * b.n[1] + a.n[2] * b.n[2]);
-        if (c > 0.9999) { const d = Math.abs((b.p[0] - a.p[0]) * a.n[0] + (b.p[1] - a.p[1]) * a.n[1] + (b.p[2] - a.p[2]) * a.n[2]); rows = `<tr><td>Distance between faces</td><td><b>${fmt(d, 2)} mm</b></td></tr><tr><td></td><td>${fmt(d / 25.4, 3)} in</td></tr>`; }
+        if (c > 0.9999) { const d = Math.abs((b.p[0] - a.p[0]) * a.n[0] + (b.p[1] - a.p[1]) * a.n[1] + (b.p[2] - a.p[2]) * a.n[2]); rows = `<tr><td>Distance between faces</td><td><b>${fmtLen(d, true)}</b></td></tr><tr><td></td><td>${units() === 'in' ? fmt(d, 2) + ' mm' : fmt(d / 25.4, 3) + ' in'}</td></tr>`; }
         else { const ang = Math.acos(Math.max(-1, Math.min(1, a.n[0] * b.n[0] + a.n[1] * b.n[1] + a.n[2] * b.n[2]))) * 180 / Math.PI; rows = `<tr><td>Angle between faces</td><td><b>${fmt(180 - ang, 2)}°</b></td></tr><tr><td>Angle between normals</td><td>${fmt(ang, 2)}°</td></tr>`; }
       } else {
         const f = a.k === 'face' ? a : b, p = a.k === 'pt' ? a : b;
         const d = Math.abs((p.p[0] - f.p[0]) * f.n[0] + (p.p[1] - f.p[1]) * f.n[1] + (p.p[2] - f.p[2]) * f.n[2]);
-        rows = `<tr><td>Point to face</td><td><b>${fmt(d, 2)} mm</b></td></tr>`;
+        rows = `<tr><td>Point to face</td><td><b>${fmtLen(d, true)}</b></td></tr>`;
       }
       body = `<table class="mt">${rows}</table><p class="dp">Click again to start a new measurement.</p>`;
     }
@@ -1191,6 +1225,7 @@ export class App {
     const bodies = (this.res ? this.res.bodies : []).filter(b => ids ? ids.includes(b.id) : !this.hidden.has(b.id));
     if (!bodies.length) { this.toast('There is no solid part to export yet.'); return; }
     const data = stlBinary(bodies.map(b => b.mesh));
+    this.lastExport = 'stl';
     const name = safeName(this.doc.name) + (ids && ids.length === 1 ? '-' + safeName(bodies[0].name) : '') + '.stl';
     download(name, data, (m, k) => this.toast(m, k));
   }
@@ -1199,6 +1234,7 @@ export class App {
     const shapes = sketchShapes(f);
     if (!shapes.length) { this.toast('That sketch has no solid lines to export (construction lines are skipped).'); return; }
     const name = safeName(this.doc.name) + '-' + safeName(f.name) + '.' + fmtName;
+    this.lastExport = fmtName;
     download(name, fmtName === 'dxf' ? toDXF(shapes) : toSVG(shapes, f.name), (m, k) => this.toast(m, k));
   }
   exportFace(hit, fmtName) {
@@ -1290,22 +1326,24 @@ export class App {
     setTimeout(() => { inp.focus(); inp.select(); }, 0);
   }
   showWelcome() {
-    const b = this.modal(`<div class="welcome"><img src="${window.BUNNY && window.BUNNY.peek || ''}" alt="" class="bun">
+    const b = this.modal(`<div class="welcome"><img src="${window.BUNNY && window.BUNNY.face || ''}" alt="" class="bun">
       <div><h3>Welcome to Geo-CAD 3D</h3>
       <p>This is a Part Studio, like Onshape. Every part starts as a <b>2D sketch</b> that you make exact with sizes and rules, then <b>Extrude</b> or <b>Revolve</b> turns it 3D.</p>
       <ol class="steps"><li>Click <b>Sketch</b>, then click the <b>Top</b> plane.</li><li>Draw a rectangle. It turns <b style="color:#1f6fd1">blue</b>: it can still move.</li><li>Click <b>Dimension</b>, click a side, and type <code>40</code> or <code>#width</code>.</li><li>When it's all <b>black</b>, it's fully defined. Click the green check.</li><li>Click <b>Extrude</b>, type a depth, click the green check. That's a part!</li></ol>
-      <p class="dp">The plate on screen is an example. Try changing <code>#width</code> in the Variables box and watch it update.</p></div></div>
-      <div class="mfoot"><button class="btn" data-a="guide">Open the guide</button><button class="btn primary" data-a="ok">Let's go</button></div>`, true);
+      <p class="dp">The plate on screen is an example. Try changing <code>#width</code> in the Variables box and watch it update. Or let a tutorial walk you through it, one click at a time.</p></div></div>
+      <div class="mfoot"><button class="btn" data-a="guide">Open the guide</button><button class="btn" data-a="ok">Explore on my own</button><button class="btn primary" data-a="tut">${icon('tutorial')} Start the first tutorial</button></div>`, true);
     b.querySelector('[data-a=ok]').onclick = () => this.closeModal();
+    b.querySelector('[data-a=tut]').onclick = () => { this.closeModal(); this.tutor.start(0); };
     b.querySelector('[data-a=guide]').onclick = () => { this.closeModal(); this.showGuide(); };
   }
   showGuide() {
     const groups = [['Part tools', ['sketch', 'extrude', 'revolve', 'plane', 'lpattern', 'cpattern', 'mirror', 'measure', 'mass', 'vars']], ['Sketch drawing tools', ['select', 'line', 'rect', 'rectc', 'circle', 'arc3', 'arcc', 'arct', 'polygon', 'slot', 'point', 'fillet', 'trim', 'smirror', 'construction', 'use']], ['Sizes and rules', ['dimension', 'coin', 'h', 'v', 'par', 'perp', 'tan', 'eq', 'mid', 'conc', 'sym', 'fix']]];
-    const b = this.modal(`<div class="guide"><div class="ghead"><img src="${window.BUNNY && window.BUNNY.loaf || ''}" alt="" class="bun sm"><div><h3>Geo-CAD 3D guide</h3><p class="dp">How it works, then every button.</p></div><button class="x" aria-label="Close">${icon('cancel')}</button></div>
+    const b = this.modal(`<div class="guide"><div class="ghead"><img src="${window.BUNNY && window.BUNNY.loaf || ''}" alt="" class="bun sm"><div><h3>Geo-CAD 3D guide</h3><p class="dp">How it works, then every button. <button class="btn sm" data-a="tuts">${icon('tutorial')} Tutorials</button></p></div><button class="x" aria-label="Close">${icon('cancel')}</button></div>
       ${GUIDE.map(s => `<section><h4>${s.h}</h4>${s.p.map(p => `<p>${p}</p>`).join('')}</section>`).join('')}
       ${groups.map(([h, ids]) => `<section><h4>${h}</h4><div class="tgrid">${ids.map(id => `<div class="tcard">${tipHTML(id)}</div>`).join('')}</div></section>`).join('')}
       </div>`, true);
     b.querySelector('.x').onclick = () => this.closeModal();
+    b.querySelector('[data-a=tuts]').onclick = () => { this.closeModal(); this.tutor.openPicker(); };
   }
 }
 
